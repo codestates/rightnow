@@ -3,8 +3,8 @@
 
 logo
 
-👉🏻 [moyeora 사이트 바로가기](https://form-bakery-qg8343iof-jangsebari.vercel.app/)  
-👉🏻 [moyeora 프로젝트 위키 바로가기](https://github.com/codestates/FormBakery/wiki)
+👉🏻 [moyeora 사이트 바로가기]()  
+👉🏻 [moyeora 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)
 
 <br>
 
