@@ -47,4 +47,3 @@ TEAM CodeBaker는 코드스테이츠 34기 2주, 4주 프로젝트를 통해 결
 
 # REFERNECES
 👉🏻 Back-End API Infomation: [moyeora API Docs]()  
-👉🏻 FormBakery Reference: []()
