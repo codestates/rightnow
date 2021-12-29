@@ -19,6 +19,8 @@ logo
 
 - **Deployment:** `RDS` `Route53` `S3` `EC2` `Load balancer` `cloudfront`
 
+![](https://cdn.discordapp.com/attachments/919801014239002675/925586538774016110/2021-12-29_12.10.01.png)
+
 <br>
 
 # TEAM CodeBaker
