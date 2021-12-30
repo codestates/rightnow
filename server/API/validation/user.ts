@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express";
-import { CustomRequest } from "../../type/type";
+import { Request, Response, NextFunction } from 'express';
+import { CustomRequest } from '../../type/type';
 
-const dotenv: any = require("dotenv");
+const dotenv: any = require('dotenv');
 dotenv.config();
 
-const db: any = require("../../models/index");
-const jwt: any = require("jsonwebtoken");
-const axios: any = require("axios");
-const bcrypt: any = require("bcrypt");
+const db: any = require('../../models/index');
+const jwt: any = require('jsonwebtoken');
+const axios: any = require('axios');
+const bcrypt: any = require('bcrypt');
 
 interface UserValidation {
   login(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
@@ -26,48 +26,48 @@ const userValidation: UserValidation = {
     next: NextFunction
   ): Promise<any> {
     const { email, password } = req.body;
-    const userInfo = await db["User"].findOne({
+    const userInfo = await db['User'].findOne({
       where: { email },
     });
 
     if (!userInfo) {
-      req.sendData = { message: "no exists email" };
+      req.sendData = { message: 'no exists email' };
       next();
     }
+    // 임시 주석처리 commit 시 반드시 해제 !! . 충돌 발생 위험
+    // bcrypt.compare(password, userInfo.password, function (err, resp) {
+    //   if (resp === false) {
+    //     req.sendData = { message: "incorrect password" };
+    //     next();
+    //   } else if (resp === true) {
+    //     delete userInfo.dataValues.password;
 
-    bcrypt.compare(password, userInfo.password, function (err, resp) {
-      if (resp === false) {
-        req.sendData = { message: "incorrect password" };
-        next();
-      } else if (resp === true) {
-        delete userInfo.dataValues.password;
+    //     const accessToken = jwt.sign(
+    //       userInfo.dataValues,
+    //       process.env.ACCESS_SECRET,
+    //       {
+    //         expiresIn: "15m",
+    //       }
+    //     );
 
-        const accessToken = jwt.sign(
-          userInfo.dataValues,
-          process.env.ACCESS_SECRET,
-          {
-            expiresIn: "15m",
-          }
-        );
+    //     const refreshToken = jwt.sign(
+    //       userInfo.dataValues,
+    //       process.env.REFRESH_SECRET,
+    //       {
+    //         expiresIn: "30d",
+    //       }
+    //     );
 
-        const refreshToken = jwt.sign(
-          userInfo.dataValues,
-          process.env.REFRESH_SECRET,
-          {
-            expiresIn: "30d",
-          }
-        );
-
-        req.sendData = {
-          data: { refreshToken: refreshToken, accessToken: accessToken },
-          message: "ok",
-        };
-        next();
-      } else {
-        req.sendData = { message: "err" };
-        next();
-      }
-    });
+    //     req.sendData = {
+    //       data: { refreshToken: refreshToken, accessToken: accessToken },
+    //       message: "ok",
+    //     };
+    //     next();
+    //   } else {
+    //     req.sendData = { message: "err" };
+    //     next();
+    //   }
+    // });
   },
 
   /*
@@ -78,7 +78,7 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction
   ): Promise<any> {
-    req.sendData = { message: "ok" };
+    req.sendData = { message: 'ok' };
     next();
   },
 
@@ -93,44 +93,44 @@ const userValidation: UserValidation = {
     const { email, password, nickname } = req.body;
     if (!email || !password || !nickname) {
       // res.status(422).send({ message: "insufficient parameters supplied" });
-      req.sendData = { message: "" };
+      req.sendData = { message: '' };
       next();
     } else {
-      const userInfo = await db["User"].findOne({
+      const userInfo = await db['User'].findOne({
         where: { email },
       });
       if (userInfo) {
-        res.status(409).send({ message: "email exists" });
+        res.status(409).send({ message: 'email exists' });
       } else {
         const encryptedPassword = bcrypt.hashSync(
           password,
           Number(process.env.PASSWORD_SALT)
         );
-        db["User"].create({
+        db['User'].create({
           email,
           password: encryptedPassword,
           nickname,
         });
         const newUser = {
           email,
-          name,
+          //  name, 임시 주석처리 commit 시 반드시 해제!!
           nickname,
         };
         const accessToken = jwt.sign(newUser, process.env.ACCESS_SECRET, {
-          expiresIn: "15m",
+          expiresIn: '15m',
         });
         const refreshToken = jwt.sign(newUser, process.env.REFRESH_SECRET, {
-          expiresIn: "30d",
+          expiresIn: '30d',
         });
         res
           .status(201)
-          .cookie("refreshToken", refreshToken, {
+          .cookie('refreshToken', refreshToken, {
             httpOnly: true,
             // samSite: "none",
           })
           .json({
             data: { accessToken: accessToken },
-            message: "signup successful",
+            message: 'signup successful',
           });
       }
     }
