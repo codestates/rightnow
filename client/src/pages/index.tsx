@@ -1,8 +1,12 @@
 import React from "react";
+import Header from "../components/layout/Header";
 
 const RendingPage = () => {
-
-    return <div>하이</div>;
+    return (
+        <>
+            <Header />
+        </>
+    );
 };
 
 export default RendingPage;
