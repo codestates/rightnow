@@ -35,39 +35,43 @@ const userValidation: UserValidation = {
       next();
     }
 
-    bcrypt.compare(password, userInfo.password, function (err, resp) {
-      if (resp === false) {
-        req.sendData = { message: 'incorrect password' };
-        next();
-      } else if (resp === true) {
-        delete userInfo.dataValues.password;
+    bcrypt.compare(
+      password,
+      userInfo.password,
+      function (err: any, resp: any): void {
+        if (resp === false) {
+          req.sendData = { message: 'incorrect password' };
+          next();
+        } else if (resp === true) {
+          delete userInfo.dataValues.password;
 
-        const accessToken = jwt.sign(
-          userInfo.dataValues,
-          process.env.ACCESS_SECRET,
-          {
-            expiresIn: '15m',
-          }
-        );
+          const accessToken: any = jwt.sign(
+            userInfo.dataValues,
+            process.env.ACCESS_SECRET,
+            {
+              expiresIn: '15m',
+            }
+          );
 
-        const refreshToken = jwt.sign(
-          userInfo.dataValues,
-          process.env.REFRESH_SECRET,
-          {
-            expiresIn: '30d',
-          }
-        );
+          const refreshToken: any = jwt.sign(
+            userInfo.dataValues,
+            process.env.REFRESH_SECRET,
+            {
+              expiresIn: '30d',
+            }
+          );
 
-        req.sendData = {
-          data: { refreshToken: refreshToken, accessToken: accessToken },
-          message: 'ok',
-        };
-        next();
-      } else {
-        req.sendData = { message: 'err' };
-        next();
+          req.sendData = {
+            data: { refreshToken: refreshToken, accessToken: accessToken },
+            message: 'ok',
+          };
+          next();
+        } else {
+          req.sendData = { message: 'err' };
+          next();
+        }
       }
-    });
+    );
   },
 
   /*
@@ -96,13 +100,13 @@ const userValidation: UserValidation = {
       req.sendData = { message: '' };
       next();
     } else {
-      const userInfo = await db['User'].findOne({
+      const userInfo: any = await db['User'].findOne({
         where: { email },
       });
       if (userInfo) {
         res.status(409).send({ message: 'email exists' });
       } else {
-        const encryptedPassword = bcrypt.hashSync(
+        const encryptedPassword: any = bcrypt.hashSync(
           password,
           Number(process.env.PASSWORD_SALT)
         );
@@ -113,15 +117,18 @@ const userValidation: UserValidation = {
         });
         const newUser = {
           email,
-          name,
           nickname,
         };
-        const accessToken = jwt.sign(newUser, process.env.ACCESS_SECRET, {
+        const accessToken: any = jwt.sign(newUser, process.env.ACCESS_SECRET, {
           expiresIn: '15m',
         });
-        const refreshToken = jwt.sign(newUser, process.env.REFRESH_SECRET, {
-          expiresIn: '30d',
-        });
+        const refreshToken: any = jwt.sign(
+          newUser,
+          process.env.REFRESH_SECRET,
+          {
+            expiresIn: '30d',
+          }
+        );
         res
           .status(201)
           .cookie('refreshToken', refreshToken, {
