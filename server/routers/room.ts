@@ -10,4 +10,6 @@ roomRouter.post(
   roomController.createRoom
 );
 
+roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
+
 export default roomRouter;

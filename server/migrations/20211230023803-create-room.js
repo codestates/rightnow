@@ -31,6 +31,7 @@ module.exports = {
         references: { model: 'Categories', key: 'id' },
       },
       notify: {
+        defaultValue: '',
         type: Sequelize.STRING,
       },
       lon: {

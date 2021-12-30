@@ -23,7 +23,7 @@ const userValidation: UserValidation = {
   async login(
     req: CustomRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<any> {
     const { email, password } = req.body;
     const userInfo = await db['User'].findOne({
@@ -50,7 +50,7 @@ const userValidation: UserValidation = {
             process.env.ACCESS_SECRET,
             {
               expiresIn: '15m',
-            },
+            }
           );
 
           const refreshToken: any = jwt.sign(
@@ -58,7 +58,7 @@ const userValidation: UserValidation = {
             process.env.REFRESH_SECRET,
             {
               expiresIn: '30d',
-            },
+            }
           );
 
           req.sendData = {
@@ -70,7 +70,7 @@ const userValidation: UserValidation = {
           req.sendData = { message: 'err' };
           next();
         }
-      },
+      }
     );
   },
 
@@ -80,7 +80,7 @@ const userValidation: UserValidation = {
   async logout(
     req: CustomRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<any> {
     req.sendData = { message: 'ok' };
     next();
@@ -92,7 +92,7 @@ const userValidation: UserValidation = {
   async signup(
     req: CustomRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<any> {
     const { email, password, nickname } = req.body;
     if (!email || !password || !nickname) {
@@ -108,7 +108,7 @@ const userValidation: UserValidation = {
       } else {
         const encryptedPassword: any = bcrypt.hashSync(
           password,
-          Number(process.env.PASSWORD_SALT),
+          Number(process.env.PASSWORD_SALT)
         );
         db['User'].create({
           email,
@@ -127,7 +127,7 @@ const userValidation: UserValidation = {
           process.env.REFRESH_SECRET,
           {
             expiresIn: '30d',
-          },
+          }
         );
         res
           .status(201)
@@ -149,7 +149,7 @@ const userValidation: UserValidation = {
   async signout(
     req: CustomRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<any> {},
 };
 
