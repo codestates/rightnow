@@ -1,5 +1,5 @@
 'use strict';
-const { Model } = require('sequelize');
+const { Model, Sequelize, DataTypes } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Room extends Model {
     /**
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       });
-      models.Room.hasMany(models.Report_Room, {
+      models.Room.hasMany(models.Report_room, {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
@@ -29,12 +29,18 @@ module.exports = (sequelize, DataTypes) => {
   }
   Room.init(
     {
-      user_email: DataTypes.STRING,
+      user_email: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
       title: DataTypes.STRING,
       explain: DataTypes.STRING,
       room_img: DataTypes.STRING,
       allow_num: DataTypes.INTEGER,
-      category_id: DataTypes.INTEGER,
+      category_id: {
+        type: DataTypes.INTEGER,
+        // references: { model: Category, key: 'id' },
+      },
       notify: DataTypes.STRING,
       lon: DataTypes.FLOAT,
       lat: DataTypes.FLOAT,

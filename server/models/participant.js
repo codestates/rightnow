@@ -15,8 +15,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Participant.init(
     {
-      user_email: DataTypes.STRING,
-      room_id: DataTypes.STRING,
+      user_email: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
+      room_id: {
+        type: DataTypes.STRING,
+        // references: { model: Room, key: 'id' },
+      },
       role: DataTypes.STRING,
       enter_date: DataTypes.DATE,
     },
