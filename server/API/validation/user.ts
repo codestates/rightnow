@@ -34,40 +34,40 @@ const userValidation: UserValidation = {
       req.sendData = { message: 'no exists email' };
       next();
     }
-    // 임시 주석처리 commit 시 반드시 해제 !! . 충돌 발생 위험
-    // bcrypt.compare(password, userInfo.password, function (err, resp) {
-    //   if (resp === false) {
-    //     req.sendData = { message: "incorrect password" };
-    //     next();
-    //   } else if (resp === true) {
-    //     delete userInfo.dataValues.password;
 
-    //     const accessToken = jwt.sign(
-    //       userInfo.dataValues,
-    //       process.env.ACCESS_SECRET,
-    //       {
-    //         expiresIn: "15m",
-    //       }
-    //     );
+    bcrypt.compare(password, userInfo.password, function (err, resp) {
+      if (resp === false) {
+        req.sendData = { message: 'incorrect password' };
+        next();
+      } else if (resp === true) {
+        delete userInfo.dataValues.password;
 
-    //     const refreshToken = jwt.sign(
-    //       userInfo.dataValues,
-    //       process.env.REFRESH_SECRET,
-    //       {
-    //         expiresIn: "30d",
-    //       }
-    //     );
+        const accessToken = jwt.sign(
+          userInfo.dataValues,
+          process.env.ACCESS_SECRET,
+          {
+            expiresIn: '15m',
+          }
+        );
 
-    //     req.sendData = {
-    //       data: { refreshToken: refreshToken, accessToken: accessToken },
-    //       message: "ok",
-    //     };
-    //     next();
-    //   } else {
-    //     req.sendData = { message: "err" };
-    //     next();
-    //   }
-    // });
+        const refreshToken = jwt.sign(
+          userInfo.dataValues,
+          process.env.REFRESH_SECRET,
+          {
+            expiresIn: '30d',
+          }
+        );
+
+        req.sendData = {
+          data: { refreshToken: refreshToken, accessToken: accessToken },
+          message: 'ok',
+        };
+        next();
+      } else {
+        req.sendData = { message: 'err' };
+        next();
+      }
+    });
   },
 
   /*
@@ -113,7 +113,7 @@ const userValidation: UserValidation = {
         });
         const newUser = {
           email,
-          //  name, 임시 주석처리 commit 시 반드시 해제!!
+          name,
           nickname,
         };
         const accessToken = jwt.sign(newUser, process.env.ACCESS_SECRET, {
