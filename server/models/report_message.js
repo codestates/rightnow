@@ -10,13 +10,19 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       models.Report_message.belongsTo(models.Message);
-      models.Report_message.belongsTo(models.Users);
+      models.Report_message.belongsTo(models.User);
     }
   }
   Report_message.init(
     {
-      reporter: DataTypes.STRING,
-      message_id: DataTypes.INTEGER,
+      reporter: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
+      message_id: {
+        type: DataTypes.INTEGER,
+        // references: { model: Message, key: 'id' },
+      },
       report_date: DataTypes.DATE,
     },
     {

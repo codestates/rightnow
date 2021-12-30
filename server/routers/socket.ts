@@ -2,6 +2,11 @@ import express, { Request, Response, Router, NextFunction } from 'express';
 
 const socketRouter: Router = express.Router();
 const http: any = require('http').createServer(socketRouter);
+const socketPort = 4000;
+
+http.listen(socketPort, () => {
+  console.log('listening on *:' + socketPort);
+});
 
 const io: any = require('socket.io')(http, {
   cors: {
@@ -14,6 +19,7 @@ const io: any = require('socket.io')(http, {
 //roomList db작업 필요
 let roomList: Array<string> = [];
 
+// server socket 통신 임시 구현
 io.on('connection', (socket: any) => {
   console.log(socket.id);
   socket.on('join_room', async (data: any): Promise<void> => {

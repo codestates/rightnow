@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       models.Message.belongsTo(models.Room);
       models.Message.belongsTo(models.User);
       models.Message.hasMany(models.Report_message, {
-        foreignKey: 'room_id',
+        foreignKey: 'message_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       });
@@ -19,8 +19,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Message.init(
     {
-      user_email: DataTypes.STRING,
-      room_id: DataTypes.STRING,
+      user_email: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
+      room_id: {
+        type: DataTypes.STRING,
+        // references: { model: Room, key: 'id' },
+      },
       content: DataTypes.STRING,
       message_type: DataTypes.STRING,
       is_update: DataTypes.STRING,
