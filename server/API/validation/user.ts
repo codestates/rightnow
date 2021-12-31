@@ -9,11 +9,23 @@ const jwt: any = require('jsonwebtoken');
 const axios: any = require('axios');
 const bcrypt: any = require('bcrypt');
 
+const accessTokenRequest: any = require('./accessTokenRequest');
+
 interface UserValidation {
   login(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
   logout(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
   signup(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
   signout(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
+  emailAuth(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
+  getUserInfo(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
 }
 
 const userValidation: UserValidation = {
@@ -96,15 +108,15 @@ const userValidation: UserValidation = {
   ): Promise<any> {
     const { email, password, nickname } = req.body;
     if (!email || !password || !nickname) {
-      // res.status(422).send({ message: "insufficient parameters supplied" });
-      req.sendData = { message: '' };
+      req.sendData = { message: 'insufficient parameters supplied' };
       next();
     } else {
       const userInfo: any = await db['User'].findOne({
         where: { email },
       });
       if (userInfo) {
-        res.status(409).send({ message: 'email exists' });
+        req.sendData = { message: 'email exists' };
+        next();
       } else {
         const encryptedPassword: any = bcrypt.hashSync(
           password,
@@ -115,7 +127,7 @@ const userValidation: UserValidation = {
           password: encryptedPassword,
           nickname,
         });
-        const newUser = {
+        const newUser: any = {
           email,
           nickname,
         };
@@ -129,16 +141,15 @@ const userValidation: UserValidation = {
             expiresIn: '30d',
           }
         );
-        res
-          .status(201)
-          .cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            // samSite: "none",
-          })
-          .json({
-            data: { accessToken: accessToken },
-            message: 'signup successful',
-          });
+
+        req.sendData = {
+          data: {
+            refreshToken: refreshToken,
+            acccessToken: accessToken,
+          },
+          message: 'ok',
+        };
+        next();
       }
     }
   },
@@ -149,8 +160,117 @@ const userValidation: UserValidation = {
   async signout(
     req: CustomRequest,
     res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    const { email, password } = req.body;
+    const userInfo: any = await db['User'].findOne({
+      where: { email },
+    });
+
+    bcrypt.compare(
+      password,
+      userInfo.password,
+      function (err: any, resp: any): void {
+        if (resp === false) {
+          req.sendData = { message: 'incorrect password' };
+          next();
+        } else if (resp === true) {
+          db['User'].destroy({
+            where: { email: userInfo.email },
+          });
+          req.sendData = { message: 'ok' };
+          next();
+        } else {
+          req.sendData = { message: 'err' };
+          next();
+        }
+      },
+    );
+  },
+
+  /*
+  이메일 인증
+  */
+  async emailAuth(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    const { email, type } = req.body;
+
+    let number: any = Math.floor(Math.random() * 1000000) + 100000;
+    if (number > 1000000) {
+      number = number - 100000;
+    }
+    let title: string;
+
+    if (type === 'signup') {
+      title = 'Form Bakery 회원가입 인증번호 입니다.';
+    } else if (type === 'forgetPassword') {
+      title = 'Form Bakery 비밀번호 재설정 인증번호 입니다.';
+    }
+
+    let html: any = `
+            <h1>아래의 인증번호를 Form Bakery 홈페이지 인증번호창에 입력해 주세요.</h1>
+            <h2>[${number}]</h2>
+            <br/>
+            <h3>문의: ${process.env.MAIL_EMAIL}</h3>
+      `;
+
+    req.sendData = {
+      data: {
+        subject: title,
+        content: html,
+        number: number,
+      },
+      message: 'ok',
+    };
+    next();
+  },
+
+  /*
+  유저정보 가져오기
+  */
+  async getUserInfo(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    if (!req.headers.authorization) {
+      await accessTokenRequest.accessTokenRequest(req, res);
+      return;
+    } else {
+      jwt.verify(
+        req.headers.authorization,
+        process.env.ACCESS_SECRET,
+        async (err, decoded) => {
+          if (err) {
+            await accessTokenRequest.accessTokenRequest(req, res);
+          } else {
+            const userInfo = await db['User'].findOne({
+              where: { email: decoded.email },
+            });
+            if (!userInfo) {
+              res.status(404).json({
+                message: 'token has been tempered',
+              });
+            } else {
+              delete userInfo.dataValues.password;
+              res.status(200).json({
+                data: {
+                  userInfo: userInfo.dataValues,
+                },
+                message: 'ok',
+              });
+            }
+          }
+        },
+      );
+    }
+  },
     next: NextFunction
   ): Promise<any> {},
+
 };
 
 export default userValidation;
