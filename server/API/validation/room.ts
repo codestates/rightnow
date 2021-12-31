@@ -9,6 +9,11 @@ interface RoomValidation {
     res: Response,
     next: NextFunction
   ): Promise<void>;
+  closeRoom(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>;
 }
 
 const roomValidation: RoomValidation = {
@@ -32,6 +37,25 @@ const roomValidation: RoomValidation = {
     if (body.is_private === 'Y')
       body.password = await bcrypt.hashSync(body.password, 10);
     await db.Room.create(body);
+    next();
+  },
+  async closeRoom(req: CustomRequest, res: Response, next: NextFunction) {
+    let id: string = req.body.room_id;
+    let find: any = await db.Room.findOne({
+      attributes: {
+        exclude: [
+          /*'UserId', 'CategoryId'*/
+        ],
+      },
+      where: { id },
+    });
+    if (!find) {
+      res.status(409).send({
+        message: 'roomId not exist',
+      });
+      return;
+    }
+    await db.Room.update({ is_close: 'Y' }, { where: { id } });
     next();
   },
 };
