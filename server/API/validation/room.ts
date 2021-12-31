@@ -42,7 +42,11 @@ const roomValidation: RoomValidation = {
   async closeRoom(req: CustomRequest, res: Response, next: NextFunction) {
     let id: string = req.body.room_id;
     let find: any = await db.Room.findOne({
-      attributes: { exclude: ['UserId', 'CategoryId'] },
+      attributes: {
+        exclude: [
+          /*'UserId', 'CategoryId'*/
+        ],
+      },
       where: { id },
     });
     if (!find) {
