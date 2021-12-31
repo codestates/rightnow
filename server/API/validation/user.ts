@@ -202,7 +202,7 @@ const userValidation: UserValidation = {
     if (number > 1000000) {
       number = number - 100000;
     }
-    let title: string;
+    let title: string = '';
 
     if (type === 'signup') {
       title = 'Form Bakery 회원가입 인증번호 입니다.';
@@ -243,7 +243,7 @@ const userValidation: UserValidation = {
       jwt.verify(
         req.headers.authorization,
         process.env.ACCESS_SECRET,
-        async (err, decoded) => {
+        async (err: any, decoded: any) => {
           if (err) {
             await accessTokenRequest.accessTokenRequest(req, res);
           } else {
