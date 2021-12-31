@@ -9,8 +9,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Report_room.belongsTo(models.Room);
-      models.Report_room.belongsTo(models.User);
+      models.Report_room.belongsTo(models.Room, {
+        foreignKey: 'room_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Report_room.belongsTo(models.User, {
+        foreignKey: 'reporter',
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+      });
     }
   }
   Report_room.init(
@@ -28,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Report_room',
+      timestamps: false,
     }
   );
   return Report_room;

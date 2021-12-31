@@ -9,8 +9,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Participant.belongsTo(models.Room);
-      models.Participant.belongsTo(models.User);
+      models.Participant.belongsTo(models.Room, {
+        foreignKey: 'room_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Participant.belongsTo(models.User, {
+        foreignKey: 'user_email',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
     }
   }
   Participant.init(
@@ -29,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Participant',
+      timestamps: false,
     }
   );
   return Participant;
