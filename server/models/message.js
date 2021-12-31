@@ -8,8 +8,16 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      models.Message.belongsTo(models.Room);
-      models.Message.belongsTo(models.User);
+      models.Message.belongsTo(models.Room, {
+        foreignKey: 'room_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Message.belongsTo(models.User, {
+        foreignKey: 'user_email',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
       models.Message.hasMany(models.Report_message, {
         foreignKey: 'message_id',
         onDelete: 'CASCADE',
@@ -35,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Message',
+      timestamps: false,
     }
   );
   return Message;

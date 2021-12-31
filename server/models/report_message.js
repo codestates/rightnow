@@ -9,8 +9,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Report_message.belongsTo(models.Message);
-      models.Report_message.belongsTo(models.User);
+      models.Report_message.belongsTo(models.Message, {
+        foreignKey: 'message_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Report_message.belongsTo(models.User, {
+        foreignKey: 'reporter',
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+      });
     }
   }
   Report_message.init(
@@ -28,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Report_message',
+      timestamps: false,
     }
   );
   return Report_message;

@@ -8,8 +8,16 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      models.Room.belongsTo(models.User);
-      models.Room.belongsTo(models.Category);
+      models.Room.belongsTo(models.User, {
+        foreignKey: 'user_email',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Room.belongsTo(models.Category, {
+        foreignKey: 'category_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
       models.Room.hasMany(models.Message, {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
