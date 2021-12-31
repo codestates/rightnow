@@ -16,8 +16,14 @@ module.exports = {
         type: Sequelize.STRING,
         references: { model: 'Rooms', key: 'id' },
       },
-      role: {
-        type: Sequelize.STRING,
+      // role: {
+      //   type: Sequelize.STRING,
+      // },
+      lon: {
+        type: Sequelize.FLOAT,
+      },
+      lat: {
+        type: Sequelize.FLOAT,
       },
       enter_date: {
         defaultValue: Sequelize.NOW,
