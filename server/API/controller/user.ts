@@ -54,6 +54,8 @@ const userController: UserController = {
   회원가입
   */
   async signup(req: CustomRequest, res: Response): Promise<void> {
+    console.log(req.sendData);
+
     if (req.sendData.message === 'insufficient parameters supplied') {
       res.status(422).send({ message: 'insufficient parameters supplied' });
     } else if (req.sendData.message === 'email exists') {
@@ -65,7 +67,7 @@ const userController: UserController = {
           httpOnly: true,
           sameSite: 'none',
         })
-        .json({
+        .send({
           data: { accessToken: req.sendData.data.accessToken },
           message: 'ok',
         });
@@ -89,17 +91,19 @@ const userController: UserController = {
   이메일 인증
   */
   async emailAuth(req: CustomRequest, res: Response): Promise<void> {
-    const { email } = req.body;
-    mailMethod.sendEmail(
-      req,
-      res,
-      process.env.MAIL_EMAIL,
-      email,
-      req.sendData.data.subject,
-      req.sendData.data.content,
-      true,
-      req.sendData.data.number,
-    );
+    if (req.sendData.message === 'ok') {
+      const { email } = req.body;
+      mailMethod.sendEmail(
+        req,
+        res,
+        process.env.MAIL_EMAIL,
+        email,
+        req.sendData.data.subject,
+        req.sendData.data.content,
+        true,
+        req.sendData.data.number,
+      );
+    }
   },
 
   /* 

@@ -106,8 +106,8 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, password, nickname } = req.body;
-    if (!email || !password || !nickname) {
+    const { email, password, nick_name } = req.body;
+    if (!email || !password || !nick_name) {
       req.sendData = { message: 'insufficient parameters supplied' };
       next();
     } else {
@@ -125,15 +125,16 @@ const userValidation: UserValidation = {
         db['User'].create({
           email,
           password: encryptedPassword,
-          nickname,
+          nick_name,
         });
         const newUser: any = {
           email,
-          nickname,
+          nick_name,
         };
         const accessToken: any = jwt.sign(newUser, process.env.ACCESS_SECRET, {
           expiresIn: '15m',
         });
+
         const refreshToken: any = jwt.sign(
           newUser,
           process.env.REFRESH_SECRET,
@@ -145,7 +146,7 @@ const userValidation: UserValidation = {
         req.sendData = {
           data: {
             refreshToken: refreshToken,
-            acccessToken: accessToken,
+            accessToken: accessToken,
           },
           message: 'ok',
         };
