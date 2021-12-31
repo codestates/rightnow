@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         // references: { model: Message, key: 'id' },
       },
-      report_date: DataTypes.DATE,
+      report_date: { type: DataTypes.DATE, defaultValue: new Date() },
     },
     {
       sequelize,

@@ -9,7 +9,11 @@ roomRouter.post(
   roomValidation.createRoom,
   roomController.createRoom
 );
-
 roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
+roomRouter.patch(
+  '/update/notify',
+  roomValidation.notifyUpdate,
+  roomController.notifyUpdate
+);
 
 export default roomRouter;

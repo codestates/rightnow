@@ -36,9 +36,9 @@ module.exports = (sequelize, DataTypes) => {
         // references: { model: Room, key: 'id' },
       },
       content: DataTypes.STRING,
-      message_type: DataTypes.STRING,
-      is_update: DataTypes.STRING,
-      write_date: DataTypes.DATE,
+      message_type: { type: DataTypes.STRING, defaultValue: 'TEXT' },
+      is_update: { type: DataTypes.STRING, defaultValue: 'N' },
+      write_date: { type: DataTypes.DATE, defaultValue: new Date() },
     },
     {
       sequelize,
