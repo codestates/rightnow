@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
   Category.init(
     {
       name: DataTypes.STRING,
+      user_num: {
+        type: DataTypes.INTEGER,
+        defaultValue: 10,
+      },
     },
     {
       sequelize,

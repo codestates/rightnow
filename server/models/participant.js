@@ -31,7 +31,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         // references: { model: Room, key: 'id' },
       },
-      role: { type: DataTypes.STRING, defaultValue: 'USER' },
+      //role: { type: DataTypes.STRING, defaultValue: 'USER' },
+      lon: {
+        type: DataTypes.FLOAT,
+      },
+      lat: {
+        type: DataTypes.FLOAT,
+      },
       enter_date: { type: DataTypes.DATE, defaultValue: new Date() },
     },
     {
