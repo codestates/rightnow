@@ -44,7 +44,6 @@ const userController: UserController = {
   */
   async logout(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
-      // 클라이언트에서 aceessToken 지워주세요
       res.clearCookie('refreshToken');
       res.status(200).send({ message: 'ok' });
     }
@@ -109,6 +108,36 @@ const userController: UserController = {
   /* 
   유저정보 가져오기
   */
-  async getUserInfo(req: CustomRequest, res: Response): Promise<void> {},
+  async getUserInfo(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo.dataValues,
+        },
+        message: 'ok',
+      });
+    } else if (req.sendData.message === 'token has been tempered') {
+      res.status(404).json({
+        message: 'token has been tempered',
+      });
+    } else if (
+      req.sendData.message === 'refreshToken not provided' ||
+      req.sendData.message === 'invalid refresh token'
+    ) {
+      res
+        .status(400)
+        .json({ message: 'invalid refreshToken, please log in again' });
+    } else if (
+      req.sendData.message === 'ok, give new accessToken and refreshToken'
+    ) {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo.dataValues,
+          accessToken: req.sendData.data.accessToken,
+        },
+        message: 'ok',
+      });
+    }
+  },
 };
 export default userController;

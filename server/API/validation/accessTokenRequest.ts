@@ -12,23 +12,31 @@ interface AccessTokenRequestController {
     req: CustomRequest,
     res: Response,
     type: string,
+    next: NextFunction,
   ): Promise<any>;
 }
 
 const accessTokenRequestController: AccessTokenRequestController = {
-  async accessTokenRequest(req: CustomRequest, res: Response, type: string) {
+  async accessTokenRequest(
+    req: CustomRequest,
+    res: Response,
+    type: string,
+    next: NextFunction,
+  ) {
     const refreshToken: any = req.cookies.refreshToken;
     if (!refreshToken) {
-      res.status(403).json({ message: 'refresh token not provided' });
+      req.sendData = { message: 'refreshToken not provided' };
+      next();
     } else {
       jwt.verify(
         refreshToken,
         process.env.REFRESH_SECRET,
         async (err: any, decoded: any) => {
           if (err) {
-            res.status(400).json({
-              message: 'invalid refresh token, please log in again',
-            });
+            req.sendData = {
+              message: 'invalid refresh token',
+            };
+            next();
           } else {
             const userInfo = await db['User'].findOne({
               where: { email: decoded.email },
@@ -36,9 +44,10 @@ const accessTokenRequestController: AccessTokenRequestController = {
             delete userInfo.dataValues.password;
 
             if (!userInfo) {
-              res.status(404).json({
+              req.sendData = {
                 message: 'token has been tempered',
-              });
+              };
+              next();
             } else {
               const accessToken = jwt.sign(
                 userInfo.dataValues,
@@ -52,14 +61,14 @@ const accessTokenRequestController: AccessTokenRequestController = {
                 await db['User'].update({ nickname }, { where: { email } });
                 userInfo.dataValues.nickname = nickname;
               }
-
-              res.status(200).json({
+              req.sendData = {
                 data: {
                   userInfo: userInfo.dataValues,
                   accessToken: accessToken,
                 },
-                message: 'ok',
-              });
+                message: 'ok, give new accessToken and refreshToken',
+              };
+              next();
             }
           }
         },

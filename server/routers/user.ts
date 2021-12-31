@@ -13,6 +13,6 @@ userRouter.post(
   userValidation.emailAuth,
   userController.emailAuth,
 );
-userRouter.post('/info', userValidation.getUserInfo);
+userRouter.get('/info', userValidation.getUserInfo, userController.getUserInfo);
 
 export default userRouter;

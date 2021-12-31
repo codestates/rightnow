@@ -237,8 +237,9 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
+    const type: string = 'get';
     if (!req.headers.authorization) {
-      await accessTokenRequest.accessTokenRequest(req, res);
+      await accessTokenRequest.accessTokenRequest(req, res, type, next);
       return;
     } else {
       jwt.verify(
@@ -246,23 +247,21 @@ const userValidation: UserValidation = {
         process.env.ACCESS_SECRET,
         async (err: any, decoded: any) => {
           if (err) {
-            await accessTokenRequest.accessTokenRequest(req, res);
+            await accessTokenRequest.accessTokenRequest(req, res, type, next);
           } else {
-            const userInfo = await db['User'].findOne({
+            const userInfo: any = await db['User'].findOne({
               where: { email: decoded.email },
             });
             if (!userInfo) {
-              res.status(404).json({
-                message: 'token has been tempered',
-              });
+              req.sendData = { message: 'token has been tempered' };
+              next();
             } else {
               delete userInfo.dataValues.password;
-              res.status(200).json({
-                data: {
-                  userInfo: userInfo.dataValues,
-                },
+              req.sendData = {
+                data: { userInfo: userInfo.dataValues },
                 message: 'ok',
-              });
+              };
+              next();
             }
           }
         },
