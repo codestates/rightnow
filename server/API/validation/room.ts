@@ -1,15 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { nextTick } from 'process';
 import { CustomRequest } from '../../type/type';
 const db: any = require('../../models/index');
 const bcrypt: any = require('bcrypt');
 
 interface RoomValidation {
-  createRoom(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void>;
+  createRoom(data: any): Promise<any>;
   closeRoom(
     req: CustomRequest,
     res: Response,
@@ -25,17 +20,23 @@ interface RoomValidation {
     res: Response,
     next: NextFunction
   ): Promise<void>;
+  searchRoom(data: any): Promise<string>;
 }
 
 const roomValidation: RoomValidation = {
   /*
     모임 룸 생성 - req body 데이터 받아서 생성
+    location,
+    category_id,
+    
   */
-  async createRoom(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async createRoom(data: any): Promise<any> {
+    let category = await db.Category.findOne({
+      where: { id: data.category_id },
+    });
+    data.allow_num = category.dataValues.user_num;
+    let room = await db.Room.create(data);
+    return room.dataValues;
     // const transaction: any = await db.sequelize.transaction();
     // let body: any = req.body;
     // if (
@@ -149,6 +150,49 @@ const roomValidation: RoomValidation = {
     // await db.Room.update(body, { where: { id } });
     // req.sendData = { message: 'ok', status: 200 };
     // next();
+  },
+
+  /*
+    데이터 형식
+    data = {
+      category_id :number,
+      location :string,
+      email: string,
+      type: string, // 'ALONE' or 'GROUP'
+      email_list: Array<string> // only group
+    }
+  */
+  async searchRoom(data: any): Promise<string> {
+    let rooms = await db.Room.findAll({
+      where: [
+        {
+          category_id: data.category_id,
+        },
+        {
+          location: data.location,
+        },
+      ],
+    });
+
+    //받아온 rooms 를 반복적으로 돌며 서칭
+    for (let room of rooms) {
+      let roomNum = room.dataValues.allow_num;
+      let findNum = await db.Participant.findOne({
+        attributes: [[db.sequelize.fn('COUNT', 'id'), 'num_count']],
+        group: ['room_id'],
+        where: {
+          room_id: room.dataValues.id,
+        },
+      });
+      if (
+        data.type === 'ALONE'
+          ? roomNum - findNum.dataValues.num_count >= 1
+          : roomNum - findNum.dataValues.num_count >= data.email_list.length + 1
+      )
+        return room.dataValues.id;
+    }
+
+    return 'fail';
   },
 };
 

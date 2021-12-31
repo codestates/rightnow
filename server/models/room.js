@@ -44,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       //title: DataTypes.STRING,
       //explain: DataTypes.STRING,
       //room_img: DataTypes.STRING,
+      id: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+      },
       allow_num: DataTypes.INTEGER,
       category_id: {
         type: DataTypes.INTEGER,
