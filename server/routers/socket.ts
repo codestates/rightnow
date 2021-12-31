@@ -31,7 +31,7 @@ let roomList: Array<string> = [];
 let findUsers: Array<string> = [];
 
 //유저들의 로직
-let searchings: Map<string, NodeJS.Timer> = new Map();
+let searchings: Map<string, NodeJS.Timer | any> = new Map();
 
 //생성 대기중인 임시 룸
 /*
@@ -100,7 +100,7 @@ searchNamespace.on('connection', (socket: any) => {
     }
 
     //위 조건이 모두 일치하면 searching 으로 넘어감 - 10초마다 searching
-    let interval: NodeJS.Timer = setInterval(
+    let interval: NodeJS.Timer | any = setInterval(
       searchNamespace.to(data.email).emit('search_room', data),
       10000
     );
@@ -173,7 +173,7 @@ searchNamespace.on('connection', (socket: any) => {
           : [
               ...findRoom.participants,
               me,
-              ...data.email_list.map((user_email) => {
+              ...data.email_list.map((user_email: string) => {
                 return { user_email, lon: me.lon, lat: me.lat };
               }),
             ];
@@ -196,7 +196,7 @@ searchNamespace.on('connection', (socket: any) => {
     }
 
     // waiting 으로 emit interval 시킴
-    let waitingInterval: NodeJS.Timer = setInterval(
+    let waitingInterval: NodeJS.Timer | any = setInterval(
       searchNamespace.to(data.email).emit('waiting', data)
     );
     searchings.set(data.email, waitingInterval);

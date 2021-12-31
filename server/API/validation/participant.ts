@@ -54,12 +54,12 @@ const participantValidation: ParticipantValidation = {
     type: string,
     lon: number,
     lat: number,
-    user_list?: Array<string>
+    user_list?: Array<string> | any
   ): Promise<any> {
     if (type === 'ALONE') {
       await db.Participant.create({ user_email: email, room_id, lon, lat });
     } else {
-      let inserts: Array<Participant> = user_list.map((item) => {
+      let inserts: Array<Participant> = user_list.map((item: string) => {
         return {
           user_email: item,
           room_id,
