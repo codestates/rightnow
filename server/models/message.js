@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         // references: { model: User, key: 'email' },
       },
       room_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         // references: { model: Room, key: 'id' },
       },
       content: DataTypes.STRING,
