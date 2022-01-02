@@ -1,10 +1,11 @@
 import express, { Request, Response, Router, NextFunction } from 'express';
 import participantValidation from '../API/validation/participant';
 import roomValidation from '../API/validation/room';
+const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
 const http: any = require('http').createServer(socketRouter);
 const socketPort = 4000;
-
+const UUID_FUNC: Function = require('../method/uuid');
 http.listen(socketPort, () => {
   console.log('listening on *:' + socketPort);
 });
@@ -99,16 +100,21 @@ searchNamespace.on('connection', (socket: any) => {
       }
     }
 
+    // todo - 찾는 도중 웹을 닫고 or 강제종료 후 나갔을 경우 생성
+
     //위 조건이 모두 일치하면 searching 으로 넘어감 - 10초마다 searching
-    let interval: NodeJS.Timer | any = setInterval(
-      searchNamespace.to(data.email).emit('search_room', data),
-      10000
-    );
+    data.count = 0;
+    // let interval: NodeJS.Timer | any = setInterval(
+    //   searchNamespace.to(data.email).emit('search_room', data),
+    //   10000
+    // );
+    // searchings.set(data.email, interval);
+
     findUsers =
       data.type === 'GROUP'
         ? [...findUsers, ...data.email_list, data.email]
         : [...findUsers, data.email];
-    searchings.set(data.email, interval);
+    searchNamespace.to(data.email).emit('search_room', data);
   });
 
   // 방 찾는 로직
@@ -126,11 +132,12 @@ searchNamespace.on('connection', (socket: any) => {
       }
     */
   socket.on('search_room', async (data: any): Promise<void> => {
+    // todo cancel 시 로직 생성해야 함
     let id: string = await roomValidation.searchRoom(data);
 
     // database 에서 방찾기가 성공했을 경우
     if (id !== 'fail') {
-      clearInterval(searchings.get(data.email));
+      //clearInterval(searchings.get(data.email));
       findUsers.splice(findUsers.indexOf(data.email), 1);
 
       if (data.type === 'GROUP') {
@@ -146,7 +153,7 @@ searchNamespace.on('connection', (socket: any) => {
         data.lat,
         data.type === 'GROUP' ? data.emil_list : []
       );
-      //io.to(data.email).emit('join_room', roomData);
+      searchNamespace.to(data.email).emit('enter', data);
       socket.leave(data.email);
       return;
     }
@@ -177,35 +184,111 @@ searchNamespace.on('connection', (socket: any) => {
                 return { user_email, lon: me.lon, lat: me.lat };
               }),
             ];
-      let index = tempRooms.indexOf(findRoom);
       clearInterval(searchings.get(data.email));
-      data.roomIndex = index;
-
+      data.uuid = findRoom.uuid;
+      data.room = findRoom;
       // 만약 참가한 임시 룸의 방이 다 차면 임시룸 제거 후 db insert
       if (findRoom.allow_num === findRoom.participants) {
+        let participants = [...findRoom.participants];
+        //본인의 이메일 리스트에서 제거
+        participants.splice(
+          participants.indexOf(
+            participants.find((item: any) => item === data.email)
+          ),
+          1
+        );
+        //룸 추가
         let room = await roomValidation.createRoom({
           location: data.location,
           category_id: data.category_id,
         });
+        //temproom 에 있는 모든 인원 룸에 입장
+        await participantValidation.enterRoom(
+          data.email,
+          room.id,
+          'GROUP',
+          data.lon,
+          data.lat,
+          participants
+        );
+        let index = tempRooms.indexOf(findRoom);
         tempRooms.splice(index, 1);
+        data.room_id = room.id;
+
+        //전체 유저 제거로 변경
+        for (let email of findRoom.participants)
+          findUsers.splice(findUsers.indexOf(email), 1);
+
+        searchNamespace.to(data.email).emit('enter', data);
+        socket.leave(data.email);
+        return;
       }
     }
-    // 원하는 룸을 찾을 수 없을 경우 해당 카테고리의 임시 룸 생성
+    // 원하는 룸을 찾을 수 없을 경우 count 가 10 이상일 경우 해당 카테고리의 임시 룸 생성 아닐경우 방찾기 지속
     else {
-      // ... todo
+      // 찾기 count가 10회 미만일 경우 - 계속 찾기
+      if (data.count < 10) {
+        searchNamespace.to(data.email).emit('search_room', data);
+        return;
+      } else {
+        // 찾기 count가 10회 이상일 경우 - 룸 생성
+        /*
+        엘리면트 형식
+        {
+            uuid:uuid
+            category_id:number,
+            allow_num
+            location:string,
+            participants:Array<Participant>
+        }
+        */
+        let category: any = db.Category.findOne({
+          where: { id: data.category_id },
+        });
+
+        let participants: Array<string> | any =
+          data.type === 'ALONE'
+            ? [data.user_email]
+            : [data.user_email, ...data.email_list];
+        //room 생성 후 rooms 에 추가
+        let uuid: string = UUID_FUNC();
+        let tempRoom = {
+          uuid,
+          category_id: data.category_id,
+          allow_num: category.dataValues.user_num,
+          location: data.location,
+          participants,
+        };
+        tempRooms = [...tempRooms, tempRooms];
+        data.uuid = uuid;
+        data.room = tempRooms;
+      }
     }
 
     // waiting 으로 emit interval 시킴
-    let waitingInterval: NodeJS.Timer | any = setInterval(
-      searchNamespace.to(data.email).emit('waiting', data)
-    );
-    searchings.set(data.email, waitingInterval);
+    // let waitingInterval: NodeJS.Timer | any = setInterval(
+    //   searchNamespace.to(data.email).emit('waiting', data)
+    // );
+    // searchings.set(data.email, waitingInterval);
+
+    searchNamespace.to(data.email).emit('waiting', data);
     return;
   });
 
   // 임시 룸에 들어와서 기다리고 있음
   socket.on('waiting', async (data: any): Promise<void> => {
     // ... todo
+    let me = findUsers.find((item) => item === data.email);
+    if (!me) {
+      // findUsers 에서 제거 - 이미 제거됨
+      searchNamespace.to(data.email).emit('enter', data);
+      socket.leave(data.email);
+      return;
+    }
+    // todo cancel 시 로직 생성해야 함
+    let tempRoom = tempRooms.find((item) => (item.uuid = data.uuid));
+    data.room = tempRoom;
+    searchNamespace.to(data.email).emit('waiting', data);
   });
 });
 
