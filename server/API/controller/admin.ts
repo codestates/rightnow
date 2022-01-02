@@ -7,6 +7,7 @@ interface AdminController {
 const adminController: AdminController = {
   async getReportedUser(req: CustomRequest, res: Response): Promise<void> {
     // 작성
+    //res.send(req.sendData);
   },
 };
 

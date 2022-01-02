@@ -8,10 +8,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      models.Message.belongsTo(models.Room);
-      models.Message.belongsTo(models.User);
-      models.Message.hasMany(models.Report_message, {
+      models.Message.belongsTo(models.Room, {
         foreignKey: 'room_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Message.belongsTo(models.User, {
+        foreignKey: 'user_email',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Message.hasMany(models.Report_message, {
+        foreignKey: 'message_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       });
@@ -19,16 +27,23 @@ module.exports = (sequelize, DataTypes) => {
   }
   Message.init(
     {
-      user_email: DataTypes.STRING,
-      room_id: DataTypes.STRING,
+      user_email: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
+      room_id: {
+        type: DataTypes.UUID,
+        // references: { model: Room, key: 'id' },
+      },
       content: DataTypes.STRING,
-      message_type: DataTypes.STRING,
-      is_update: DataTypes.STRING,
-      write_date: DataTypes.DATE,
+      message_type: { type: DataTypes.STRING, defaultValue: 'TEXT' },
+      is_update: { type: DataTypes.STRING, defaultValue: 'N' },
+      write_date: { type: DataTypes.DATE, defaultValue: new Date() },
     },
     {
       sequelize,
       modelName: 'Message',
+      timestamps: false,
     }
   );
   return Message;

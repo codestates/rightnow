@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      models.User.hasMany(models.Room, {
-        foreignKey: 'user_email',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      });
+      // models.User.hasMany(models.Room, {
+      //   foreignKey: 'user_email',
+      //   onDelete: 'CASCADE',
+      //   onUpdate: 'CASCADE',
+      // });
       models.User.hasMany(models.Participant, {
         foreignKey: 'user_email',
         onDelete: 'CASCADE',
@@ -28,20 +28,30 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       });
-      models.User.hasMany(models.Report_room, {
-        foreignKey: 'reporter',
-        onDelete: 'SET NULL',
+      // models.User.hasMany(models.Report_room, {
+      //   foreignKey: 'reporter',
+      //   onDelete: 'SET NULL',
+      //   onUpdate: 'CASCADE',
+      // });
+      models.User.hasMany(models.Friend, {
+        foreignKey: 'req_user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.User.hasMany(models.Friend, {
+        foreignKey: 'res_user',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       });
     }
   }
   User.init(
     {
-      email: DataTypes.STRING,
+      email: { type: DataTypes.STRING, primaryKey: true },
       password: DataTypes.STRING,
       nick_name: DataTypes.STRING,
       profile_image: DataTypes.STRING,
-      role: DataTypes.STRING,
+      role: { type: DataTypes.STRING, defaultValue: 'USER' },
       is_block: DataTypes.STRING,
       block_date: DataTypes.STRING,
     },

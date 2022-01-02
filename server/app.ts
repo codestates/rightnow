@@ -7,6 +7,7 @@ import {
   participantRouter,
   roomRouter,
   userRouter,
+  socketRouter,
 } from './routers/index';
 
 const cookieParser: any = require('cookie-parser');
@@ -28,7 +29,7 @@ app.use('/message', messageRouter);
 app.use('/participant', participantRouter);
 app.use('/room', roomRouter);
 app.use('/user', userRouter);
-
+app.use(socketRouter);
 app.get('/', (req: Request, res: Response): void => {
   res.send('Hellow TypeScript!! !!! x');
 });

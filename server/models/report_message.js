@@ -9,19 +9,34 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Report_message.belongsTo(models.Message);
-      models.Report_message.belongsTo(models.Users);
+      models.Report_message.belongsTo(models.Message, {
+        foreignKey: 'message_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      models.Report_message.belongsTo(models.User, {
+        foreignKey: 'reporter',
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+      });
     }
   }
   Report_message.init(
     {
-      reporter: DataTypes.STRING,
-      message_id: DataTypes.INTEGER,
-      report_date: DataTypes.DATE,
+      reporter: {
+        type: DataTypes.STRING,
+        // references: { model: User, key: 'email' },
+      },
+      message_id: {
+        type: DataTypes.INTEGER,
+        // references: { model: Message, key: 'id' },
+      },
+      report_date: { type: DataTypes.DATE, defaultValue: new Date() },
     },
     {
       sequelize,
       modelName: 'Report_message',
+      timestamps: false,
     }
   );
   return Report_message;

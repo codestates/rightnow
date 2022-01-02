@@ -13,11 +13,17 @@ module.exports = {
         references: { model: 'Users', key: 'email' },
       },
       room_id: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
         references: { model: 'Rooms', key: 'id' },
       },
-      role: {
-        type: Sequelize.STRING,
+      // role: {
+      //   type: Sequelize.STRING,
+      // },
+      lon: {
+        type: Sequelize.FLOAT,
+      },
+      lat: {
+        type: Sequelize.FLOAT,
       },
       enter_date: {
         defaultValue: Sequelize.NOW,
