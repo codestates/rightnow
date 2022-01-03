@@ -46,7 +46,7 @@ userRouter.patch(
   userController.changePassword,
 );
 userRouter.put(
-  '/upload/image',
+  '/upload/image/:email',
   upload.single('file'),
   userValidation.uploadProfileImage,
   userController.uploadProfileImage,
