@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { nextTick } from 'process';
 import { CustomRequest } from '../../type/type';
 
 const mailMethod: any = require('../../method/mail.ts');
@@ -12,6 +13,9 @@ interface UserController {
   signout(req: CustomRequest, res: Response): Promise<void>;
   emailAuth(req: CustomRequest, res: Response): Promise<void>;
   getUserInfo(req: CustomRequest, res: Response): Promise<void>;
+  updateUserInfo(req: CustomRequest, res: Response): Promise<void>;
+  changePassword(req: CustomRequest, res: Response): Promise<void>;
+  uploadProfileImage(req: CustomRequest, res: Response): Promise<void>;
 }
 
 const userController: UserController = {
@@ -28,7 +32,6 @@ const userController: UserController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
         sameSite: 'none',
-        secure: true,
       });
       res.status(200).send({
         data: { accessToken: req.sendData.data.accessToken },
@@ -44,7 +47,6 @@ const userController: UserController = {
   */
   async logout(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
-      // 클라이언트에서 aceessToken 지워주세요
       res.clearCookie('refreshToken');
       res.status(200).send({ message: 'ok' });
     }
@@ -54,8 +56,6 @@ const userController: UserController = {
   회원가입
   */
   async signup(req: CustomRequest, res: Response): Promise<void> {
-    console.log(req.sendData);
-
     if (req.sendData.message === 'insufficient parameters supplied') {
       res.status(422).send({ message: 'insufficient parameters supplied' });
     } else if (req.sendData.message === 'email exists') {
@@ -103,12 +103,107 @@ const userController: UserController = {
         true,
         req.sendData.data.number,
       );
+    } else if (req.sendData.message === 'exists email') {
+      res.status(404).send({ message: 'exists email' });
     }
   },
 
   /* 
   유저정보 가져오기
   */
-  async getUserInfo(req: CustomRequest, res: Response): Promise<void> {},
+  async getUserInfo(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo,
+        },
+        message: 'ok',
+      });
+    } else if (req.sendData.message === 'token has been tempered') {
+      res.status(404).json({
+        message: 'token has been tempered',
+      });
+    } else if (
+      req.sendData.message === 'refreshToken not provided' ||
+      req.sendData.message === 'invalid refresh token'
+    ) {
+      res
+        .status(400)
+        .json({ message: 'invalid refreshToken, please log in again' });
+    } else if (
+      req.sendData.message === 'ok, give new accessToken and refreshToken'
+    ) {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo,
+          accessToken: req.sendData.data.accessToken,
+        },
+        message: 'ok',
+      });
+    }
+  },
+
+  /*
+  회원 정보 수정
+  */
+  async updateUserInfo(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'token has been tempered') {
+      res.status(404).json({
+        message: 'token has been tempered',
+      });
+    } else if (req.sendData.message === 'ok') {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo,
+        },
+        message: 'ok',
+      });
+    } else if (
+      req.sendData.message === 'refreshToken not provided' ||
+      req.sendData.message === 'invalid refresh token'
+    ) {
+      res
+        .status(400)
+        .json({ message: 'invalid refreshToken, please log in again' });
+    } else if (
+      req.sendData.message === 'ok, give new accessToken and refreshToken'
+    ) {
+      res.status(200).json({
+        data: {
+          userInfo: req.sendData.data.userInfo,
+          accessToken: req.sendData.data.accessToken,
+        },
+        message: 'ok',
+      });
+    }
+  },
+
+  /*
+  비밀번호 수정(잊어버린 비밀번호 수정/ 알고있는 비밀번호 수정)
+  */
+  async changePassword(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'no exists email') {
+      res.status(400).send({ message: 'no exists email' });
+    } else if (req.sendData.message === 'ok') {
+      res.status(200).send({ message: 'ok' });
+    } else if (req.sendData.message === 'incorrect password') {
+      res.status(401).send({ message: 'incorrect password' });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
+    }
+  },
+
+  /*
+  프로필 이미지 업로드
+  */
+  async uploadProfileImage(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(201).send({ message: 'ok' });
+    } else if (req.sendData.message === 'no exists file') {
+      res.status(404).send({ message: 'no exists file' });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
+    }
+  },
 };
 export default userController;
