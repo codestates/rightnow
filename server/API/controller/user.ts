@@ -104,7 +104,9 @@ const userController: UserController = {
         req.sendData.data.number,
       );
     } else if (req.sendData.message === 'exists email') {
-      res.status(404).send({ message: 'exists email' });
+      res.status(409).send({ message: 'exists email' });
+    } else if (req.sendData.message === 'no exists email') {
+      res.status(404).send({ message: 'no exists email' });
     }
   },
 

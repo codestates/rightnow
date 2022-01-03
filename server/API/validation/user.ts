@@ -222,6 +222,12 @@ const userValidation: UserValidation = {
         next();
         return;
       }
+    } else if (type === 'forgetPassword') {
+      if (!userInfo) {
+        req.sendData = { message: 'no exists email' };
+        next();
+        return;
+      }
     }
 
     let number: any = Math.floor(Math.random() * 1000000) + 100000;
