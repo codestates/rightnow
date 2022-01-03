@@ -421,7 +421,33 @@ const userValidation: UserValidation = {
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<any> {},
+  ): Promise<any> {
+    if (req.file === undefined) {
+      req.sendData = { message: 'no exists file' };
+      next();
+      return;
+    }
+    const { email } = req.params;
+    const { filename } = req.file;
+    db['User']
+      .update(
+        {
+          profile_image: filename,
+        },
+        {
+          where: { email },
+        },
+      )
+      .then((result: any) => {
+        if (result) {
+          req.sendData = { message: 'ok' };
+          next();
+        } else {
+          req.sendData = { message: 'err' };
+          next();
+        }
+      });
+  },
 };
 
 export default userValidation;
