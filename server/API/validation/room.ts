@@ -28,7 +28,7 @@ const roomValidation: RoomValidation = {
     모임 룸 생성 - req body 데이터 받아서 생성
     location,
     category_id,
-    
+
   */
   async createRoom(data: any): Promise<any> {
     let category = await db.Category.findOne({

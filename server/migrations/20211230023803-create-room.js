@@ -58,12 +58,12 @@ module.exports = {
       // allow_range: {
       //   type: Sequelize.INTEGER,
       // },
-      createdAt: {
-        allowNull: false,
+      create_date: {
+        defaultValue: Sequelize.NOW,
         type: Sequelize.DATE,
       },
-      updatedAt: {
-        allowNull: false,
+      close_date: {
+        //defaultValue: myDate.tommorow(),
         type: Sequelize.DATE,
       },
     });

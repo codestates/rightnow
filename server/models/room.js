@@ -34,7 +34,14 @@ module.exports = (sequelize, DataTypes) => {
       //   onUpdate: 'CASCADE',
       // });
     }
+    static tommorow() {
+      let tommorow = new Date();
+      tommorow.setDate(tommorow.getDate() + 1);
+      console.log(tommorow);
+      return tommorow;
+    }
   }
+
   Room.init(
     {
       // user_email: {
@@ -54,6 +61,8 @@ module.exports = (sequelize, DataTypes) => {
         // references: { model: Category, key: 'id' },
       },
       location: DataTypes.STRING,
+      create_date: { type: DataTypes.DATE, defaultValue: new Date() },
+      close_date: { type: DataTypes.DATE, defaultValue: Room.tommorow() },
       // notify: DataTypes.STRING,
       // lon: DataTypes.FLOAT,
       // lat: DataTypes.FLOAT,
@@ -65,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Room',
+      timestamps: false,
     }
   );
   return Room;
