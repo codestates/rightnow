@@ -9,7 +9,7 @@ const jwt: any = require('jsonwebtoken');
 const axios: any = require('axios');
 const bcrypt: any = require('bcrypt');
 
-const accessTokenRequest: any = require('./accessTokenRequest');
+import accessTokenRequestValidation from './accessTokenRequest';
 
 interface UserValidation {
   login(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
@@ -22,6 +22,21 @@ interface UserValidation {
     next: NextFunction,
   ): Promise<any>;
   getUserInfo(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
+  updateUserInfo(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
+  changePassword(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
+  uploadProfileImage(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -237,8 +252,14 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
+    const type: string = 'get';
     if (!req.headers.authorization) {
-      await accessTokenRequest.accessTokenRequest(req, res);
+      await accessTokenRequestValidation.accessTokenRequest(
+        req,
+        res,
+        type,
+        next,
+      );
       return;
     } else {
       jwt.verify(
@@ -246,29 +267,161 @@ const userValidation: UserValidation = {
         process.env.ACCESS_SECRET,
         async (err: any, decoded: any) => {
           if (err) {
-            await accessTokenRequest.accessTokenRequest(req, res);
+            await accessTokenRequestValidation.accessTokenRequest(
+              req,
+              res,
+              type,
+              next,
+            );
+            return;
           } else {
-            const userInfo = await db['User'].findOne({
+            const userInfo: any = await db['User'].findOne({
               where: { email: decoded.email },
             });
             if (!userInfo) {
-              res.status(404).json({
-                message: 'token has been tempered',
-              });
+              req.sendData = { message: 'token has been tempered' };
+              next();
             } else {
               delete userInfo.dataValues.password;
-              res.status(200).json({
-                data: {
-                  userInfo: userInfo.dataValues,
-                },
+              req.sendData = {
+                data: { userInfo: userInfo.dataValues },
                 message: 'ok',
-              });
+              };
+              next();
             }
           }
         },
       );
     }
   },
+
+  /*
+  회원정보 수정
+  */
+  async updateUserInfo(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    const { email, nick_name } = req.body;
+    const type: string = 'update';
+
+    if (!email || !nick_name) {
+      res.send('err');
+    } else if (!req.headers.authorization) {
+      await accessTokenRequestValidation.accessTokenRequest(
+        req,
+        res,
+        type,
+        next,
+      );
+      return;
+    } else {
+      jwt.verify(
+        req.headers.authorization,
+        process.env.ACCESS_SECRET,
+        async (err: any, decoded: any) => {
+          if (err) {
+            await accessTokenRequestValidation.accessTokenRequest(
+              req,
+              res,
+              type,
+              next,
+            );
+            return;
+          } else {
+            const userInfo: any = await db['User'].findOne({
+              where: { email: decoded.email },
+            });
+            if (!userInfo) {
+              req.sendData = { message: 'token has been tempered' };
+              next();
+            } else {
+              delete userInfo.dataValues.password;
+              await db['User'].update(
+                { nick_name },
+                { where: { email: decoded.email } },
+              );
+              userInfo.dataValues.nick_name = nick_name;
+              req.sendData = {
+                data: { userInfo: userInfo.dataValues },
+                message: 'ok',
+              };
+              next();
+            }
+          }
+        },
+      );
+    }
+  },
+
+  /*
+  비밀번호 수정(잊어버린 비밀번호 수정/ 알고있는 비밀번호 수정)
+  */
+  async changePassword(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    const { email, new_password, type } = req.body;
+    const userInfo: any = await db['User'].findOne({
+      where: { email },
+    });
+
+    if (type === 'forget') {
+      if (!userInfo) {
+        req.sendData = { message: 'no exists email' };
+        next();
+      } else {
+        const encryptedPassword: any = bcrypt.hashSync(
+          new_password,
+          Number(process.env.PASSWORD_SALT),
+        );
+
+        db['User'].update(
+          { password: encryptedPassword },
+          { where: { email } },
+        );
+        req.sendData = { message: 'ok' };
+        next();
+      }
+    } else if (type === 'know') {
+      const { password } = req.body;
+      bcrypt.compare(
+        password,
+        userInfo.password,
+        function (err: any, resp: any): void {
+          if (resp === false) {
+            req.sendData = { message: 'incorrect password' };
+            next();
+          } else if (resp === true) {
+            const encryptedPassword: any = bcrypt.hashSync(
+              new_password,
+              Number(process.env.PASSWORD_SALT),
+            );
+            db['User'].update(
+              { password: encryptedPassword },
+              { where: { email } },
+            );
+            req.sendData = { message: 'ok' };
+            next();
+          } else {
+            req.sendData = { message: 'err' };
+            next();
+          }
+        },
+      );
+    }
+  },
+
+  /*
+  프로필 이미지 업로드
+  */
+  async uploadProfileImage(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {},
 };
 
 export default userValidation;
