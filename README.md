@@ -6,7 +6,7 @@ logo
 👉🏻 [rightnow 사이트 바로가기]()  
 👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)
 
-👉🏻 [rightnow server 배포주소](http://moyeora.o-r.kr/)
+👉🏻 [rightnow server 배포주소](http://rightnow.p-e.kr/)
 
 <br>
 
