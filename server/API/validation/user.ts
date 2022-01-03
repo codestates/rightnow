@@ -213,6 +213,16 @@ const userValidation: UserValidation = {
     next: NextFunction,
   ): Promise<any> {
     const { email, type } = req.body;
+    const userInfo: any = await db['User'].findOne({
+      where: { email },
+    });
+    if (type === 'signup') {
+      if (userInfo) {
+        req.sendData = { message: 'exists email' };
+        next();
+        return;
+      }
+    }
 
     let number: any = Math.floor(Math.random() * 1000000) + 100000;
     if (number > 1000000) {
