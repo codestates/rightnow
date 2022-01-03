@@ -4,10 +4,10 @@ import adminValidation from '../API/validation/admin';
 
 const adminRouter: Router = express.Router();
 
-adminRouter.post(
-  '/get/user',
+adminRouter.get(
+  '/report/user',
   adminValidation.test,
-  adminController.getReportedUser
+  adminController.getReportedUser,
 );
 
 export default adminRouter;
