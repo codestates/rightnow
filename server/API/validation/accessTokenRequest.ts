@@ -7,7 +7,7 @@ dotenv.config();
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
 
-interface AccessTokenRequestController {
+interface AccessTokenRequestValidation {
   accessTokenRequest(
     req: CustomRequest,
     res: Response,
@@ -16,7 +16,7 @@ interface AccessTokenRequestController {
   ): Promise<any>;
 }
 
-const accessTokenRequestController: AccessTokenRequestController = {
+const accessTokenRequestValidation: AccessTokenRequestValidation = {
   async accessTokenRequest(
     req: CustomRequest,
     res: Response,
@@ -38,18 +38,17 @@ const accessTokenRequestController: AccessTokenRequestController = {
             };
             next();
           } else {
-            const userInfo = await db['User'].findOne({
+            const userInfo: any = await db['User'].findOne({
               where: { email: decoded.email },
             });
             delete userInfo.dataValues.password;
-
             if (!userInfo) {
               req.sendData = {
                 message: 'token has been tempered',
               };
               next();
             } else {
-              const accessToken = jwt.sign(
+              const accessToken: any = jwt.sign(
                 userInfo.dataValues,
                 process.env.ACCESS_SECRET,
                 {
@@ -57,9 +56,9 @@ const accessTokenRequestController: AccessTokenRequestController = {
                 },
               );
               if (type === 'update') {
-                const { email, nickname } = req.body;
-                await db['User'].update({ nickname }, { where: { email } });
-                userInfo.dataValues.nickname = nickname;
+                const { email, nick_name } = req.body;
+                await db['User'].update({ nick_name }, { where: { email } });
+                userInfo.dataValues.nick_name = nick_name;
               }
               req.sendData = {
                 data: {
@@ -77,4 +76,4 @@ const accessTokenRequestController: AccessTokenRequestController = {
   },
 };
 
-export default accessTokenRequestController;
+export default accessTokenRequestValidation;
