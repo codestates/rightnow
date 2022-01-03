@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 const db: any = require('../../models/index');
 
 interface Participant {
@@ -12,7 +13,7 @@ interface ParticipantValidation {
   checkParticipant(
     email: string,
     type: string,
-    email_list: Array<string>
+    email_list: Array<string>,
   ): Promise<boolean>;
   enterRoom(
     email: string,
@@ -20,7 +21,7 @@ interface ParticipantValidation {
     type: string,
     lon: number,
     lat: number,
-    email_list?: Array<string>
+    email_list?: Array<string>,
   ): Promise<any>;
 }
 
@@ -34,10 +35,23 @@ const participantValidation: ParticipantValidation = {
   async checkParticipant(
     email: string,
     type: string,
-    email_list: Array<string>
+    email_list: Array<string>,
   ): Promise<boolean> {
     if (type === 'ALONE') {
-      let find = await db.Participant.findOne({ where: { user_email: email } });
+      let find = await db.Participant.findOne({
+        include: {
+          model: db.Room,
+          attributes: { include: ['id', 'close_date'] },
+        },
+        where: [
+          { user_email: email },
+          {
+            [`$Room.close_date$`]: {
+              [Op.gt]: new Date(),
+            },
+          },
+        ],
+      });
       return find ? false : true;
     }
     let find = await db.Participant.findAll({
@@ -54,11 +68,11 @@ const participantValidation: ParticipantValidation = {
     type: string,
     lon: number,
     lat: number,
-    user_list?: Array<string> | any
+    user_list?: Array<string> | any,
   ): Promise<any> {
     if (type === 'ALONE') {
       await db.Participant.create({ user_email: email, room_id, lon, lat });
-    } else {
+    } else if (type === 'GROUP') {
       let inserts: Array<Participant> = user_list.map((item: string) => {
         return {
           user_email: item,
@@ -68,7 +82,18 @@ const participantValidation: ParticipantValidation = {
         };
       });
       inserts.push({ user_email: email, room_id, lon, lat });
-      await db.Participaint.bulkCreate(inserts);
+      await db.Participant.bulkCreate(inserts);
+    } else if (type === 'TEMP') {
+      let inserts = user_list.map((item: any): any => {
+        return {
+          user_email: item.email,
+          room_id,
+          lon: item.lon,
+          lat: item.lat,
+        };
+      });
+      inserts.push({ user_email: email, room_id, lon, lat });
+      await db.Participant.bulkCreate(inserts);
     }
     let room = db.Room.findOne({ where: { id: room_id } });
     return room.dataValues;

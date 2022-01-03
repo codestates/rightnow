@@ -15,12 +15,12 @@ module.exports = (sequelize, DataTypes) => {
       // });
       models.User.hasMany(models.Participant, {
         foreignKey: 'user_email',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       });
       models.User.hasMany(models.Message, {
         foreignKey: 'user_email',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       });
       models.User.hasMany(models.Report_message, {
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
-    }
+    },
   );
   return User;
 };
