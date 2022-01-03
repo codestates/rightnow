@@ -4,4 +4,4 @@ localhost*
 .prettierrc
 *package-lock.json
 *.pem
-dist
+image
