@@ -54,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         primaryKey: true,
         type: DataTypes.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       allow_num: DataTypes.INTEGER,
       category_id: {
@@ -75,7 +76,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'Room',
       timestamps: false,
-    }
+    },
   );
   return Room;
 };
