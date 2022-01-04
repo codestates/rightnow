@@ -67,7 +67,7 @@ const roomValidation: RoomValidation = {
     // next();
   },
   /*
-    모임 공지 생성
+    모임룸 정보
   */
   async getRoomInfo(
     req: CustomRequest,
@@ -85,12 +85,13 @@ const roomValidation: RoomValidation = {
               attributes: {
                 exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
               },
-              include: {
-                model: db.Message,
-              },
             },
           },
+          {
+            model: db.Message,
+          },
         ],
+        order: [[db.Message, 'write_date', 'ASC']],
         where: { id },
       });
       if (room === null)
@@ -98,6 +99,7 @@ const roomValidation: RoomValidation = {
       else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
       next();
     } catch (e) {
+      console.log(e);
       req.sendData = {
         message: 'get Room Info: invalid access',
         status: 200,
