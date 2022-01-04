@@ -1,10 +1,11 @@
-import React from "react";
-import Header from "../components/layout/Header";
+import React from 'react';
+import Alert from '../components/Alert';
 
 const RendingPage = () => {
     return (
         <>
-            <Header />
+            <div className="pt-16 h-screen">firstPage</div>
+            <Alert />
         </>
     );
 };
