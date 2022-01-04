@@ -25,11 +25,11 @@ const MatchContainer = styled.div`
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
 `;
 
-const RoomDetail = styled.div`
+const TitleContainer = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const GroupTitle = styled.div`
+const Title = styled.div`
   font-size: 1.5rem;
   background: #e83635;
   color: black;
@@ -109,9 +109,9 @@ const Matching = () => {
   return (
     <Container>
       <MatchContainer>
-        <RoomDetail>
-          <GroupTitle># 모임 찾기</GroupTitle>
-        </RoomDetail>
+        <TitleContainer>
+          <Title># 모임 찾기</Title>
+        </TitleContainer>
         <LoadingContainer>
           <RoomTitle>#카테고리 #서울시 #은평구</RoomTitle>
           <Loading>
