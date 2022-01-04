@@ -6,8 +6,17 @@ const adminRouter: Router = express.Router();
 
 adminRouter.get(
   '/report/user',
-  adminValidation.test,
+  adminValidation.getReportedUser,
   adminController.getReportedUser,
 );
-
+adminRouter.put(
+  '/give/authority',
+  adminValidation.giveAuthority,
+  adminController.giveAuthority,
+);
+adminRouter.put(
+  '/take/authority',
+  adminValidation.takeAuthority,
+  adminController.takeAuthority,
+);
 export default adminRouter;

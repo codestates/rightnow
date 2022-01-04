@@ -53,7 +53,7 @@ const userValidation: UserValidation = {
     next: NextFunction,
   ): Promise<any> {
     const { email, password } = req.body;
-    const userInfo = await db['User'].findOne({
+    const userInfo: any = await db['User'].findOne({
       where: { email },
     });
 
@@ -141,10 +141,12 @@ const userValidation: UserValidation = {
           email,
           password: encryptedPassword,
           nick_name,
+          role: 'USER',
         });
         const newUser: any = {
           email,
           nick_name,
+          role: 'USER',
         };
         const accessToken: any = jwt.sign(newUser, process.env.ACCESS_SECRET, {
           expiresIn: '15m',
