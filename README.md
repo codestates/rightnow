@@ -26,11 +26,6 @@ logo
 <br>
 
 # TECH STACK
-- **Front-End:** `JavaScript` `TypeScript` `React` `React-Router` `React-Hooks` `React-Memo` `Redux` `Redux-toolkit` `HTML` `CSS` `axios` `Styled-Component` `TailwindCSS`
-
-- **Back-End:** `JavaScript` `TypeScript` `Node.js` `MySQL` `Sequelize` `Auth0` `JWT` `Express.js` `Bcrypt` `nodemailer` `Multer` `axios` `socket.io`
-
-- **Deployment:** `RDS` `Route53` `S3` `EC2` `Load balancer` `cloudfront`
 
 ![](https://cdn.discordapp.com/attachments/919801014239002675/925586538774016110/2021-12-29_12.10.01.png)
 
