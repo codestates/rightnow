@@ -70,6 +70,10 @@ const participantValidation: ParticipantValidation = {
     lat: number,
     user_list?: Array<string> | any,
   ): Promise<any> {
+    let participant = await db.Participant.findOne({
+      where: [{ room_id }, { user_email: email }],
+    });
+    if (participant) return 'user aleady attend this room';
     if (type === 'ALONE') {
       await db.Participant.create({ user_email: email, room_id, lon, lat });
     } else if (type === 'GROUP') {

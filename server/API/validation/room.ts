@@ -10,7 +10,7 @@ interface RoomValidation {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
-  notifyUpdate(
+  getRoomInfo(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -69,11 +69,43 @@ const roomValidation: RoomValidation = {
   /*
     모임 공지 생성
   */
-  async notifyUpdate(
+  async getRoomInfo(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {},
+  ): Promise<void> {
+    let id = req.body.room_id;
+    try {
+      let room = await db.Room.findOne({
+        include: [
+          {
+            model: db.Participant,
+            include: {
+              model: db.User,
+              attributes: {
+                exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
+              },
+              include: {
+                model: db.Message,
+              },
+            },
+          },
+        ],
+        where: { id },
+      });
+      if (room === null)
+        req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
+      else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
+      next();
+    } catch (e) {
+      req.sendData = {
+        message: 'get Room Info: invalid access',
+        status: 200,
+        data: e,
+      };
+      next();
+    }
+  },
   /*
     모임 업데이트
   */
