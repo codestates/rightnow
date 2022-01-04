@@ -51,5 +51,11 @@ userRouter.put(
   userValidation.uploadProfileImage,
   userController.uploadProfileImage,
 );
+userRouter.post(
+  '/report',
+  upload.single('file'),
+  userValidation.reportUser,
+  userController.reportUser,
+);
 
 export default userRouter;

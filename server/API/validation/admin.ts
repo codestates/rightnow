@@ -60,33 +60,35 @@ const adminValidation: AdminValidation = {
             );
             return;
           } else {
-            const userInfo: any = await db['User'].findOne({
+            const adminInfo: any = await db['User'].findOne({
               where: { email: decoded.email },
             });
-            if (!userInfo) {
+            if (!adminInfo) {
               req.sendData = { message: 'token has been tempered' };
               next();
             } else {
-              delete userInfo.dataValues.password;
-              req.sendData = {
-                data: { userInfo: userInfo.dataValues },
-                message: 'ok',
-              };
-              next();
+              delete adminInfo.dataValues.password;
+              if (adminInfo.role === 'ADMIN') {
+                const reportedUserInfo: any = await db[
+                  'Report_Messages'
+                ].findall();
+                console.log(reportedUserInfo);
+                req.sendData = {
+                  // data: { userInfo: userInfo.dataValues },
+                  message: 'ok',
+                };
+                next();
+              } else {
+                req.sendData = {
+                  message: 'not admin account',
+                };
+                next();
+              }
             }
           }
         },
       );
     }
-
-    const { email } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-    if (userInfo.role === 'ADMIN') {
-    } else {
-    }
-    next();
   },
 
   /*
