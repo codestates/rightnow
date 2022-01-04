@@ -11,6 +11,7 @@ roomRouter.post(
 );
 roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
 roomRouter.post('/get', roomValidation.getRoomInfo, roomController.getRoomInfo);
+roomRouter.get('/kakao', roomValidation.getLocationForKakao);
 // roomRouter.patch(
 //   '/update/notify',
 //   roomValidation.notifyUpdate,
