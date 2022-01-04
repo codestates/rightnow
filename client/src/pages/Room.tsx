@@ -22,8 +22,8 @@ const ChatContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
   height: 48rem;
-  border-radius: 4px;
   padding: 2rem;
+  box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
 `;
 
 const RoomDetail = styled.div`
