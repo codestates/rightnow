@@ -7,9 +7,10 @@ const roomRouter: Router = express.Router();
 roomRouter.post(
   '/create',
   roomValidation.createRoom,
-  roomController.createRoom
+  roomController.createRoom,
 );
 roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
+roomRouter.post('/get', roomValidation.getRoomInfo, roomController.getRoomInfo);
 // roomRouter.patch(
 //   '/update/notify',
 //   roomValidation.notifyUpdate,

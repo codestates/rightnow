@@ -41,6 +41,11 @@ interface UserValidation {
     res: Response,
     next: NextFunction,
   ): Promise<any>;
+  reportUser(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
 }
 
 const userValidation: UserValidation = {
@@ -60,6 +65,7 @@ const userValidation: UserValidation = {
     if (!userInfo) {
       req.sendData = { message: 'no exists email' };
       next();
+      return;
     }
 
     bcrypt.compare(
@@ -239,13 +245,13 @@ const userValidation: UserValidation = {
     let title: string = '';
 
     if (type === 'signup') {
-      title = 'Form Bakery 회원가입 인증번호 입니다.';
+      title = 'RightNow 회원가입 인증번호 입니다.';
     } else if (type === 'forgetPassword') {
       title = 'Form Bakery 비밀번호 재설정 인증번호 입니다.';
     }
 
     let html: any = `
-            <h1>아래의 인증번호를 Form Bakery 홈페이지 인증번호창에 입력해 주세요.</h1>
+            <h1>아래의 인증번호를 RightNow 홈페이지 인증번호창에 입력해 주세요.</h1>
             <h2>[${number}]</h2>
             <br/>
             <h3>문의: ${process.env.MAIL_EMAIL}</h3>
@@ -465,6 +471,40 @@ const userValidation: UserValidation = {
           next();
         }
       });
+  },
+
+  /*
+  유저 신고하기
+  */
+  async reportUser(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    const { message_id, reporter_email } = req.body;
+    if (message_id && reporter_email) {
+      const userInfo: any = await db['User'].findOne({
+        where: { email: reporter_email },
+      });
+      const message: any = await db['Message'].findOne({
+        where: { id: message_id },
+      });
+
+      if (userInfo && message) {
+        db['Report_message'].create({
+          message_id: Number(message_id),
+          reporter: reporter_email,
+        });
+        req.sendData = { message: 'ok' };
+        next();
+      } else {
+        req.sendData = { message: 'incorrect parameters supplied' };
+        next();
+      }
+    } else {
+      req.sendData = { message: 'insufficient parameters supplied' };
+      next();
+    }
   },
 };
 
