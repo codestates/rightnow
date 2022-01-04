@@ -14,7 +14,7 @@ interface ParticipantValidation {
     email: string,
     type: string,
     email_list: Array<string>,
-  ): Promise<boolean>;
+  ): Promise<any>;
   enterRoom(
     email: string,
     room_id: string,
@@ -36,28 +36,35 @@ const participantValidation: ParticipantValidation = {
     email: string,
     type: string,
     email_list: Array<string>,
-  ): Promise<boolean> {
-    if (type === 'ALONE') {
-      let find = await db.Participant.findOne({
-        include: {
-          model: db.Room,
-          attributes: { include: ['id', 'close_date'] },
-        },
-        where: [
-          { user_email: email },
-          {
-            [`$Room.close_date$`]: {
-              [Op.gt]: new Date(),
-            },
+  ): Promise<any> {
+    let find = await db.Participant.findOne({
+      include: {
+        model: db.Room,
+        attributes: { include: ['id', 'close_date'] },
+      },
+      where: [
+        { user_email: email },
+        {
+          [`$Room.close_date$`]: {
+            [Op.gt]: new Date(),
           },
-        ],
-      });
-      return find ? false : true;
-    }
-    let find = await db.Participant.findAll({
-      where: { user_email: { in: [...email_list, email] } },
+        },
+      ],
     });
-    return 0 >= find.length ? true : false;
+    if (type === 'ALONE') {
+      return find
+        ? { room_id: find.dataValues.room_id, message: 'exist' }
+        : { message: 'no exist' };
+    } else {
+      let finds = await db.Participant.findAll({
+        where: { user_email: { [Op.in]: [...email_list, email] } },
+      });
+      return 0 >= finds.length
+        ? { message: 'no exist' }
+        : find
+        ? { message: 'exist', room_id: find.dataValues.room_id }
+        : { message: 'someone exist' };
+    }
   },
   /*
     룸 서칭이 완료되었을 시 룸 리스트
