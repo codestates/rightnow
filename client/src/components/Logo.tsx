@@ -1,15 +1,10 @@
 import React from "react";
-// import Image from "next/image";
+import logo from "../images/rightnow_logo.png"
 
 const Logo = () => {
     return (
         <>
-            {/* <Image
-                src="/logo.jpg"
-                alt="formBakery Logo"
-                width={35}
-                height={45}
-            /> */}
+            <img src={logo} alt="rightnow logo" width={90} />
         </>
     );
 };
