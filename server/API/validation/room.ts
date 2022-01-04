@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../../type/type';
+import axios from 'axios';
 const db: any = require('../../models/index');
 const bcrypt: any = require('bcrypt');
 import { Op } from 'sequelize';
@@ -21,8 +22,13 @@ interface RoomValidation {
     next: NextFunction,
   ): Promise<void>;
   searchRoom(data: any): Promise<string>;
+  getLocationForKakao(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  getLocation(lat: number, lon: number): Promise<string>;
 }
-
 const roomValidation: RoomValidation = {
   /*
     모임 룸 생성 - req body 데이터 받아서 생성
@@ -170,6 +176,47 @@ const roomValidation: RoomValidation = {
     }
 
     return 'fail';
+  },
+  async getLocationForKakao(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    let lon = req.body.lon;
+    let lat = req.body.lat;
+    let url =
+      'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=127.1586221&y=37.5012181';
+    let auth = 'KakaoAK 3dc5e1d2bf19e92f8f99c8ecc9f76ccd';
+    await axios
+      .get(url, {
+        headers: { Authorization: auth },
+      })
+      .then((result: any) => {
+        return result.data;
+      })
+      .then((data) => {
+        console.log(data);
+        res.send(data);
+      });
+  },
+  // lat:y lon:x
+  async getLocation(lat: number, lon: number): Promise<string> {
+    let location: string = '';
+    let url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lon}&y=${lat}`;
+    let auth = 'KakaoAK 3dc5e1d2bf19e92f8f99c8ecc9f76ccd';
+    await axios
+      .get(url, {
+        headers: { Authorization: auth },
+      })
+      .then((result: any) => {
+        let data = result.data;
+        location = data.documents[0].address_name;
+      })
+      .catch((err) => {
+        location = 'out of range';
+      });
+
+    return location;
   },
 };
 
