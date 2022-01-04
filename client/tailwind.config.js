@@ -13,6 +13,7 @@ module.exports = {
             "8xl": "96rem",
             "9xl": "128rem",
             0.75: "3px",
+            8.5: "34px",
             14.5: "58px",
             15: "60px",
             18: "72px",
@@ -20,6 +21,7 @@ module.exports = {
             222: "888px",
             17.5: "70px",
             21.5: "86px",
+            30: "120px",
             50: "200px",
             60: "240px",
             120: "480px",
@@ -34,7 +36,7 @@ module.exports = {
             "4xl": "2rem",
         },
         colors: {
-            main: "tomato",
+            main: "#FC1681",
             subMain: "#ffffef",
         },
         minHeight: {
