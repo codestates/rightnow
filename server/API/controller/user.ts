@@ -40,6 +40,13 @@ const userController: UserController = {
       });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
+    } else if (req.sendData.message === 'block user') {
+      res
+        .status(404)
+        .send({
+          data: { block_date: req.sendData.data.block_date },
+          message: 'block user',
+        });
     }
   },
 

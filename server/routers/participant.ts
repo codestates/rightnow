@@ -4,4 +4,10 @@ import participantValidation from '../API/validation/participant';
 
 const participantRouter: Router = express.Router();
 
+participantRouter.get(
+  '/location',
+  participantValidation.getLocationForKakao,
+  participantController.getLocationForKakao,
+);
+
 export default participantRouter;
