@@ -1,13 +1,20 @@
 import { AnyRecord } from 'dns';
 import { Request, Response, NextFunction } from 'express';
+const moment: any = require('moment');
+
 import { CustomRequest } from '../../type/type';
 const dotenv: any = require('dotenv');
 dotenv.config();
 
+const cron: any = require('node-cron');
+
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
-const bcrypt: any = require('bcrypt');
 import accessTokenRequestValidation from './accessTokenRequest';
+
+const now: any = function (): void {
+  return moment().format();
+};
 
 interface AdminValidation {
   getReportedUser(
@@ -15,7 +22,7 @@ interface AdminValidation {
     res: Response,
     next: NextFunction,
   ): Promise<any>;
-  restraintUser(
+  blockUser(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -101,12 +108,33 @@ const adminValidation: AdminValidation = {
   /*
   신고된 유저 정지시키기
   */
-  async restraintUser(
+  async blockUser(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
   ): Promise<any> {
+    const { block_emails, block_date } = req.body;
+
+    for (let i = 0; i < block_emails.length; i++) {
+      await db['User'].update(
+        { block_date: block_date, is_block: 'Y' },
+        { where: { email: block_emails[i] } },
+      );
+    }
+    req.sendData = {
+      message: 'ok',
+    };
     next();
+    cron.schedule(`0 0 0 * * *`, async () => {
+      for (let i = 0; i < block_emails.length; i++) {
+        if (block_date === now()) {
+          await db['User'].update(
+            { block_date: null, is_block: 'N' },
+            { where: { email: block_emails[i] } },
+          );
+        }
+      }
+    });
   },
 };
 

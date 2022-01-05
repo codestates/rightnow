@@ -9,10 +9,10 @@ adminRouter.get(
   adminValidation.getReportedUser,
   adminController.getReportedUser,
 );
-adminRouter.patch(
-  '/restraint/user',
-  adminValidation.restraintUser,
-  adminController.restraintUser,
+adminRouter.post(
+  '/block/user',
+  adminValidation.blockUser,
+  adminController.blockUser,
 );
 
 export default adminRouter;

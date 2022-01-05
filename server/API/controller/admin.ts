@@ -6,7 +6,7 @@ dotenv.config();
 
 interface AdminController {
   getReportedUser(req: CustomRequest, res: Response): Promise<void>;
-  restraintUser(req: CustomRequest, res: Response): Promise<void>;
+  blockUser(req: CustomRequest, res: Response): Promise<void>;
 }
 
 const adminController: AdminController = {
@@ -45,8 +45,10 @@ const adminController: AdminController = {
   /*
   신고된 유저 정지시키기
   */
-  async restraintUser(req: CustomRequest, res: Response): Promise<void> {
-    res.status(200).send({ message: 'ok' });
+  async blockUser(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).send({ message: 'ok' });
+    }
   },
 };
 
