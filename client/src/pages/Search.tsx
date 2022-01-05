@@ -1,17 +1,21 @@
-import axios from 'axios';
-import React, {
-  ChangeEvent,
-  MouseEvent,
-  MouseEventHandler,
-  ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { categoryAPI } from '../api/categoryApi';
 import Dropdown from '../components/Dropdown';
-import { isGetAccessorDeclaration } from 'typescript';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { userEmail } from '../reducers/userSlice';
+import ModalTemp from '../components/ModalTemp';
+import MatchingModal from '../components/MatchingModal';
+import {
+  roomLat,
+  roomLocation,
+  roomLon,
+  setLon,
+  setLat,
+  setLocation,
+  setRoomCategory,
+} from '../reducers/roomSlice';
 
 const Container = styled.div`
   display: flex;
@@ -86,9 +90,9 @@ const CategoryList = styled.div`
 const Select = styled.select`
   width: 14rem;
   margin-left: 2rem;
-  padding: 0.5rem 1.4rem 0.5rem 1.9rem;
+  padding: 0.6rem 1.3rem 0.5rem 1.2rem;
 
-  border: 1px solid #aaa;
+  border: 1px solid #c0c0c0;
   border-radius: 0.4rem;
   box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
 
@@ -113,10 +117,6 @@ const Select = styled.select`
     border: 1px solid rgba(182, 80, 80);
     box-shadow: 0 0 0 3px -moz-mac-focusring;
     color: #222;
-  }
-
-  &:disabled {
-    opacity: 0.5;
   }
 `;
 
@@ -191,6 +191,8 @@ const Message = styled.div`
   margin-top: -2rem;
 `;
 
+const Modal = styled(ModalTemp)``;
+
 interface CategoryType {
   id: number;
   name: string;
@@ -206,7 +208,7 @@ interface FriendType {
 }
 
 const initCategory = {
-  id: 0,
+  id: -1,
   name: '',
   user_num: 0,
   createdAt: '',
@@ -214,12 +216,23 @@ const initCategory = {
 };
 
 const Search = () => {
+  const dispatch = useAppDispatch();
+
+  const email = useAppSelector(userEmail); // 사용자 이메일
+
+  const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
+  const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭중 모달 상태
+
   const [category, setCategory] = useState<CategoryType[]>([]); // DB에서 가져온 카테고리 리스트
   const [friendList, setFriendList] = useState<FriendType[]>([]); // DB에서 가져온 친구 리스트
   const [selectedFriend, setSelectedFriend] = useState<string[]>([]); // 선택한 친구 리스트
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
   const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
+
+  const location = useAppSelector(roomLocation);
+  const lat = useAppSelector(roomLat);
+  const lon = useAppSelector(roomLon);
 
   /**
    * 친구 목록 가져오기
@@ -330,20 +343,26 @@ const Search = () => {
       coords: { latitude: number; longitude: number };
     }) => {
       const { latitude, longitude } = position.coords;
+      dispatch(setLon(longitude));
+      dispatch(setLat(latitude));
       // 가져온 위도 경도로 주소를 조회(서버 api 사용)
-      const res = await roomAPI.location(longitude, latitude);
-      console.log(res);
+      const {
+        data: { data },
+      } = await roomAPI.location(longitude, latitude);
+      dispatch(setLocation(data));
     };
     const error = () => {
       // 사용자가 위치 정보를 공유하지 않음
       // 브라우저가 위치를 가져올 수 없음
       // 타임아웃이 발생됨
+      setModalMessage(`위치 정보를 가져올 수 없습니다.🥲\n권한을 확인해주세요.`);
       console.log('Unable to retrieve your location');
     };
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(success, error);
     } else {
       // geolocation을 지원하지 않는 경우
+      error();
     }
   }, []);
 
@@ -399,6 +418,7 @@ const Search = () => {
       setSelectedCategory(initCategory);
     } else {
       setSelectedCategory(selected);
+      dispatch(setRoomCategory(selected.name));
     }
     setSelectedFriend([]);
     setMessage('');
@@ -408,11 +428,44 @@ const Search = () => {
    *  모임참가 버튼 클릭
    */
   const handleJoinRoom = () => {
-    // selectedFriend, selectedCategory;
+    // category_id => selectedCategory.id
+    // email_list => 같이할 친구들 => selectedFriend
+
+    // location, lon, lat, email(사용자 이메일)은 state
+    const category_id: number = selectedCategory.id;
+    const email_list: string[] = [...selectedFriend];
+    const type: string = email_list.length > 0 ? 'GROUP' : 'ALONE';
+
+    const searchData = {
+      category_id,
+      email,
+      email_list,
+      type,
+      location,
+      lon,
+      lat,
+    }; // 모임을 참가할 때 필요한 데이터들
+
+    // 모임 찾기
+
+    if (category_id !== -1) {
+      // 필요한 조건을 전부 선택하고,
+      // 방이 만들어지면
+      setIsMatching(true); // 매칭으로 넘어감
+    }
+  };
+
+  /**
+   * searching을 끝냄
+   */
+  const handleMatching = () => {
+    setIsMatching(false); // 모달 창을 닫음
   };
 
   return (
     <Container>
+      {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
+      {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
       <SearchContainer>
         <TitleContainer>
           <Title># 모임 찾기</Title>
@@ -423,7 +476,7 @@ const Search = () => {
           <CategoryList>
             <Label htmlFor="category">카테고리</Label>
             <Select className="" id="category" onChange={handleCategory}>
-              <Option>-- 선택하세요 --</Option>
+              <Option>카테고리를 선택해주세요</Option>
               {category.length > 0 &&
                 category.map((item, idx) => (
                   <Option key={idx} value={item.id}>
@@ -435,7 +488,7 @@ const Search = () => {
           <Location>
             <Label htmlFor="location">현재 위치</Label>
             <Select id="location" disabled>
-              <Option></Option>
+              <Option>{location}</Option>
             </Select>
           </Location>
           <FrindContainer>
@@ -472,12 +525,6 @@ const Search = () => {
                   );
                 }
               })}
-              {/* <Friend title="test@gmail.com">
-                <FriendImg>
-                  <Image src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </FriendImg>
-                <FriendNick>김코딩</FriendNick>
-              </Friend> */}
             </FriendList>
           </FrindContainer>
           <ButtonContainer>

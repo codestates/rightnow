@@ -10,7 +10,6 @@ import userApi from './api/userApi';
 import { useAppSelector, useAppDispatch } from './config/hooks';
 import { userAccessToken, getUserInfo, IUserInfo } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
-import Matching from './pages/Matching';
 import Search from './pages/Search';
 
 function Routes() {
@@ -37,7 +36,6 @@ function Routes() {
         <Route path="/auth/resetPassword" element={<ResetPassword />} />
         <Route path="/mypage/*" element={<MypageLayout />} />
         <Route path="/room" element={<Room />} />
-        <Route path="/match" element={<Matching />} />
         <Route path="/search" element={<Search />} />
       </Switch>
     </>
