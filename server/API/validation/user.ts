@@ -6,7 +6,6 @@ dotenv.config();
 
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
-const axios: any = require('axios');
 const bcrypt: any = require('bcrypt');
 
 import accessTokenRequestValidation from './accessTokenRequest';

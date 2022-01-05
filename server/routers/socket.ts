@@ -112,7 +112,7 @@ searchNamespace.on('connection', (socket: any) => {
       );
     } catch (e) {
       console.log(e);
-      searchNamespace.to(data.email).emit('reject_match', {
+      searchNamespace.to(socket.id).emit('reject_match', {
         message: 'find: invalid access',
       });
     }
@@ -212,7 +212,7 @@ searchNamespace.on('connection', (socket: any) => {
         email_list: Array<string> // only group
         lon: float,
         lat: float,
-        is_temp_room: bool
+        count: number
       }
     */
 
@@ -226,6 +226,7 @@ searchNamespace.on('connection', (socket: any) => {
       if (findUser.uuid) {
         let tempRoom = tempRooms.find((item) => item.uuid === findUser.uuid);
         socket.join(findUser.uuid);
+        // todo user_enter -> waiting 으로 변경
         searchNamespace.to(findUser.uuid).emit('user_enter', tempRoom);
         return;
       }
@@ -349,6 +350,7 @@ searchNamespace.on('connection', (socket: any) => {
         //룸 추가
         let room = null;
         try {
+          // todo 한로직에 처리할지 현재처럼 나눠서 insert할지 ...
           room = await roomValidation.createRoom({
             location: data.location,
             category_id: data.category_id,
@@ -363,7 +365,7 @@ searchNamespace.on('connection', (socket: any) => {
             participants,
           );
         } catch (e) {
-          searchNamespace.to(data.email).emit('reject_match', {
+          searchNamespace.to(socket.id).emit('reject_match', {
             message: 'room create: invalid access',
             code: e,
           });
@@ -483,7 +485,7 @@ searchNamespace.on('connection', (socket: any) => {
     } catch (e) {
       if (data) {
         searchNamespace
-          .to(data.email)
+          .to(socket.id)
           .emit('reject_match', { message: 'wait: invalid access' });
         return;
       } else console.log('wait:invalid access');
@@ -513,6 +515,7 @@ searchNamespace.on('connection', (socket: any) => {
 
         //해당 유저를 룸에서 제거
         myRoom.participants.splice(idx, 1);
+        //그룹인 경우 그룹원들도 룸에서 삭제
         if (data.type === 'GROUP') {
           for (let email of data.email_list) {
             let subIdx = myRoom.participants.indexOf(
@@ -550,7 +553,6 @@ chatNamespace.on('connection', (socket: any) => {
   console.log(socket.adapter.rooms);
   socket.on('disconnect', (data: any): any => {
     console.log(socket.id + 'disconnect');
-    socket.leave(socket.id);
   });
 
   /*
@@ -655,18 +657,50 @@ chatNamespace.on('connection', (socket: any) => {
     }
   */
   socket.on('leave_room', async (data: any) => {
-    let user = await db.User.findOne({ where: { email: data.email } });
-    user = user.dataValues;
+    try {
+      let user = await db.User.findOne({ where: { email: data.email } });
+      user = user.dataValues;
 
-    let myRoom = roomList.get(data.room_id);
-    myRoom.splice(myRoom.indexOf(data.email), 1);
-    roomList.set(data.room_id, myRoom);
+      let myRoom = roomList.get(data.room_id);
+      myRoom.splice(myRoom.indexOf(data.email), 1);
+      roomList.set(data.room_id, myRoom);
 
-    socket.leave(data.room_id);
-    chatNamespace.to(data.room_id).emit('leave', {
-      message: `${user.nick_name}(${user.email}) 님이 떠났습니다.`,
-      users: myRoom.users,
-    });
+      socket.leave(data.room_id);
+      chatNamespace.to(data.room_id).emit('leave', {
+        message: `${user.nick_name}(${user.email}) 님이 채팅방을 나갔습니다..`,
+        users: myRoom.users,
+      });
+    } catch (e) {
+      chatNamespace
+        .to(socket.id)
+        .emit('reject', { message: 'leave_room: invalid access', code: e });
+    }
+  });
+
+  /*
+    data = {
+      email,
+      room_id
+    }
+  */
+  socket.on('leave_meeting', async (data: any) => {
+    //현재 룸 캐시에서 삭제
+    // let myRoom = roomList.get(data.room_id);
+    // myRoom.splice(myRoom.indexOf(data.email), 1);
+    // roomList.set(data.room_id, myRoom);
+
+    //db에서 삭제
+    let deleteMe: any = participantValidation.leaveRoom(
+      data.email,
+      data.room_id,
+    );
+
+    //socket.leave(data.room_id);
+
+    //본인이 나갔다는 사실을 방의 인원들에게 알림
+    chatNamespace.to(data.room_id).emit('leave_meeting', { email: data.email });
+    //leave room 으로 이동
+    chatNamespace.to(socket.id).emit('leave_room', data);
   });
 });
 

@@ -4,6 +4,8 @@ import axios from 'axios';
 const db: any = require('../../models/index');
 const bcrypt: any = require('bcrypt');
 import { Op } from 'sequelize';
+const dotenv: any = require('dotenv');
+dotenv.config();
 interface RoomValidation {
   createRoom(data: any): Promise<any>;
   closeRoom(
@@ -22,11 +24,6 @@ interface RoomValidation {
     next: NextFunction,
   ): Promise<void>;
   searchRoom(data: any): Promise<string>;
-  getLocationForKakao(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void>;
   getLocation(lat: number, lon: number): Promise<string>;
 }
 const roomValidation: RoomValidation = {
@@ -53,25 +50,7 @@ const roomValidation: RoomValidation = {
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
-    // let id: string = req.body.room_id;
-    // let find: any = await db.Room.findOne({
-    //   attributes: {
-    //     exclude: [
-    //       /*'UserId', 'CategoryId'*/
-    //     ],
-    //   },
-    //   where: { id },
-    // });
-    // if (!find) {
-    //   res.status(409).send({
-    //     message: 'roomId not exist',
-    //   });
-    //   return;
-    // }
-    // await db.Room.update({ is_close: 'Y' }, { where: { id } });
-    // next();
-  },
+  ): Promise<void> {},
   /*
     모임룸 정보
   */
@@ -177,33 +156,11 @@ const roomValidation: RoomValidation = {
 
     return 'fail';
   },
-  async getLocationForKakao(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    let lon = req.body.lon;
-    let lat = req.body.lat;
-    let url =
-      'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=127.1586221&y=37.5012181';
-    let auth = 'KakaoAK 3dc5e1d2bf19e92f8f99c8ecc9f76ccd';
-    await axios
-      .get(url, {
-        headers: { Authorization: auth },
-      })
-      .then((result: any) => {
-        return result.data;
-      })
-      .then((data) => {
-        console.log(data);
-        res.send(data);
-      });
-  },
   // lat:y lon:x
   async getLocation(lat: number, lon: number): Promise<string> {
     let location: string = '';
     let url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lon}&y=${lat}`;
-    let auth = 'KakaoAK 3dc5e1d2bf19e92f8f99c8ecc9f76ccd';
+    let auth = `KakaoAK ${process.env.KAKAO_AUTH || ''}`;
     await axios
       .get(url, {
         headers: { Authorization: auth },

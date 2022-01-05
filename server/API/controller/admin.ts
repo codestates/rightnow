@@ -6,47 +6,35 @@ dotenv.config();
 
 interface AdminController {
   getReportedUser(req: CustomRequest, res: Response): Promise<void>;
-  giveAuthority(req: CustomRequest, res: Response): Promise<void>;
-  takeAuthority(req: CustomRequest, res: Response): Promise<void>;
+  blockUser(req: CustomRequest, res: Response): Promise<void>;
 }
 
 const adminController: AdminController = {
   /*
   신고된 유저와 메시지 보기
   */
-  async getReportedUser(req: CustomRequest, res: Response): Promise<void> {},
-
-  /*
-  관리자 권한 부여
-  */
-  async giveAuthority(req: CustomRequest, res: Response): Promise<void> {
-    if (req.sendData.message === 'not root account') {
-      res.status(404).send({ message: 'not root account' });
-    } else if (req.sendData.message === 'ok') {
+  async getReportedUser(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
       res.status(200).send({
-        data: { userInfo: req.sendData.data.userInfo },
+        data: { reportedUserInfo: req.sendData.data.reportedUserInfo },
         message: 'ok',
       });
-    } else if (req.sendData.message === 'no exists user account') {
-      res.status(409).send({ message: 'no exists user account' });
+    } else if (req.sendData.message === 'not admin account') {
+      res.status(404).send({ message: 'not admin account' });
     } else if (
+      req.sendData.message === 'token has been tempered' ||
       req.sendData.message === 'refreshToken not provided' ||
-      req.sendData.message === 'invalid refresh token' ||
-      req.sendData.message === 'token has been tempered'
+      req.sendData.message === 'invalid refresh token'
     ) {
       res
         .status(400)
         .json({ message: 'invalid refreshToken, please log in again' });
-    } else if (req.sendData.message === 'token has been tempered') {
-      res.status(403).json({
-        message: 'token has been tempered',
-      });
     } else if (
       req.sendData.message === 'ok, give new accessToken and refreshToken'
     ) {
-      res.status(200).json({
+      res.status(201).json({
         data: {
-          userInfo: req.sendData.data.userInfo,
+          reportedUserInfo: req.sendData.data.reportedUserInfo,
           accessToken: req.sendData.data.accessToken,
         },
         message: 'ok',
@@ -54,10 +42,14 @@ const adminController: AdminController = {
     }
   },
 
-  /* 
-  관리자 권한 뺏기
+  /*
+  신고된 유저 정지시키기
   */
-  async takeAuthority(req: CustomRequest, res: Response): Promise<void> {},
+  async blockUser(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).send({ message: 'ok' });
+    }
+  },
 };
 
 export default adminController;

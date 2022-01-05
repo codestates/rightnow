@@ -23,6 +23,7 @@ interface ParticipantValidation {
     lat: number,
     email_list?: Array<string>,
   ): Promise<any>;
+  leaveRoom(email: string, room_id: string): Promise<any>;
 }
 
 const participantValidation: ParticipantValidation = {
@@ -108,6 +109,24 @@ const participantValidation: ParticipantValidation = {
     }
     let room = db.Room.findOne({ where: { id: room_id } });
     return room.dataValues;
+  },
+  async leaveRoom(email: string, room_id: string): Promise<any> {
+    let transaction = await db.sequelize.transaction();
+    await db.Participant.delete({
+      where: [{ room_id }, { user_email: email }],
+    });
+
+    let participants = await db.Participant.findAll({ where: { room_id } });
+    if (participants.length === 0) {
+      let room = await db.Participant.delete({ where: { id: room_id } });
+      return {
+        message: 'room delete',
+        room_id,
+      };
+    }
+    return {
+      message: 'ok',
+    };
   },
 };
 
