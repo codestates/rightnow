@@ -41,12 +41,10 @@ const userController: UserController = {
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     } else if (req.sendData.message === 'block user') {
-      res
-        .status(404)
-        .send({
-          data: { block_date: req.sendData.data.block_date },
-          message: 'block user',
-        });
+      res.status(404).send({
+        data: { block_date: req.sendData.data.block_date },
+        message: 'block user',
+      });
     }
   },
 
@@ -79,6 +77,8 @@ const userController: UserController = {
           data: { accessToken: req.sendData.data.accessToken },
           message: 'ok',
         });
+    } else if (req.sendData.message === 'exists nickname') {
+      res.status(400).send({ message: 'exists nickname' });
     }
   },
 
