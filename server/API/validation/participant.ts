@@ -1,5 +1,8 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { CustomRequest } from '../../type/type';
 import { Op } from 'sequelize';
+import axios from 'axios';
+import { nextTick } from 'process';
 const db: any = require('../../models/index');
 
 interface Participant {
@@ -24,6 +27,11 @@ interface ParticipantValidation {
     email_list?: Array<string>,
   ): Promise<any>;
   leaveRoom(email: string, room_id: string): Promise<any>;
+  getLocationForKakao(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
 }
 
 const participantValidation: ParticipantValidation = {
@@ -127,6 +135,42 @@ const participantValidation: ParticipantValidation = {
     return {
       message: 'ok',
     };
+  },
+  async getLocationForKakao(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    let location: string = '';
+    let query = req.query;
+    let url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${query.lon}&y=${query.lat}`;
+    let auth = `KakaoAK ${process.env.KAKAO_AUTH || ''}`;
+    await axios
+      .get(url, {
+        headers: { Authorization: auth },
+      })
+      .then((result: any) => {
+        let data = result.data;
+        location = data.documents[0].address_name;
+      })
+      .catch((err) => {
+        location = 'out of range';
+      });
+    let send: any = null;
+
+    if (location === 'out of range') {
+      send = {
+        status: 400,
+        code: location,
+      };
+    } else {
+      send = {
+        status: 200,
+        data: location,
+      };
+    }
+    req.sendData = send;
+    next();
   },
 };
 
