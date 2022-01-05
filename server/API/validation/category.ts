@@ -1,14 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import categoryRouter from '../../routers/category';
 import { CustomRequest } from '../../type/type';
 const dotenv: any = require('dotenv');
 dotenv.config();
 
 const db: any = require('../../models/index');
-const jwt: any = require('jsonwebtoken');
-const axios: any = require('axios');
-const bcrypt: any = require('bcrypt');
-import accessTokenRequestValidation from './accessTokenRequest';
 
 interface CategoryValidation {
   createCategory(
