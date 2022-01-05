@@ -1,7 +1,7 @@
 # INTRODUCTION
 > 내주변 이웃들과 지금 당장 함께하고 싶은 모임(운동, 맛집, 카페, 게임)을 만들고 싶을 때, right now !
 
-logo
+![](https://cdn.discordapp.com/attachments/916188054576844830/928214485485895710/2022-01-05_6.12.38.png)
 
 👉🏻 [rightnow 사이트 바로가기]()  
 👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)
