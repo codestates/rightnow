@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import Chatting from '../components/Chatting';
 
@@ -75,7 +76,7 @@ const MemberContainer = styled.div`
   padding: 1rem 1.3rem;
   border-radius: 0.5rem;
   width: 30%;
-  height: 33rem;
+  height: 35rem;
 `;
 
 const MemberList = styled.div`
@@ -118,12 +119,69 @@ interface User {
   role: string;
 }
 
+interface MessageType {
+  id: number;
+  user: { email: string; nick_name: string; profile_img: string };
+  content: string;
+  isUpdate: string;
+  writeDate: string;
+}
+
 const Room = () => {
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
-  const [talkContents, setTalkContents] = useState<Object[]>([]);
-  const [memberList, setMemberList] = useState<Object[]>([]);
+  const [talkContents, setTalkContents] = useState<MessageType[]>([]);
+  const [memberList, setMemberList] = useState<User[]>([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {}, [talkContents]);
+  useEffect(() => {
+    setTalkContents([
+      {
+        id: 1,
+        user: {
+          email: 'test@gmail.com',
+          nick_name: '테스트',
+          profile_img: 'https://via.placeholder.com/800x600',
+        },
+        content: '안녕하세요',
+        isUpdate: 'N',
+        writeDate: '2021-12-12',
+      },
+      {
+        id: 2,
+        user: {
+          email: 'test@gmail.com',
+          nick_name: '테스트',
+          profile_img: 'https://via.placeholder.com/800x600',
+        },
+        content: '안녕하세요',
+        isUpdate: 'N',
+        writeDate: '2021-12-12',
+      },
+      {
+        id: 3,
+        user: {
+          email: 'test@gmail.com',
+          nick_name: '테스트',
+          profile_img: 'https://via.placeholder.com/800x600',
+        },
+        content: '안녕하세요',
+        isUpdate: 'N',
+        writeDate: '2021-12-12',
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    setMemberList([
+      {
+        email: 'test@gmail.com',
+        nick_name: '테스트',
+        profile_img: 'https://via.placeholder.com/800x600',
+        enterDate: '2021-12-12',
+        role: 'HOST',
+      },
+    ]);
+  }, []);
 
   /**
    * 채팅 입력창 메시지 상태 관리
@@ -136,7 +194,9 @@ const Room = () => {
   /**
    * 모임 나가기
    */
-  const handleQuit = () => {};
+  const handleQuit = () => {
+    navigate('/search'); // 모임 검색 페이지로 이동
+  };
 
   return (
     <Container>
@@ -148,71 +208,29 @@ const Room = () => {
         <ContentContainer>
           <ChatBox>
             <ChatContent
-              talkContents={talkContents!}
+              talkContents={talkContents}
               text={text}
               handleText={handleText}
               handleQuit={handleQuit}
             />
           </ChatBox>
-          <MemberContainer>
+          <MemberContainer className="drop-shadow">
             <SubTitle>대화 상대</SubTitle>
             <MemberList>
               {memberList && memberList.length > 0 ? (
-                memberList.map((member: any) => {
+                memberList.map((member: User) => {
                   return (
                     <Member key={member.email}>
                       <ImageContainer>
                         <ProfileImg url={member.profile_img} />
                       </ImageContainer>
-                      <ProfileName>member.nick_name</ProfileName>
+                      <ProfileName>{member.nick_name}</ProfileName>
                     </Member>
                   );
                 })
               ) : (
                 <div>대화 상대가 없습니다.</div>
               )}
-              {/* <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member>
-              <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member>{' '}
-              <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member>{' '}
-              <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member>{' '}
-              <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member>{' '}
-              <Member>
-                <ImageContainer>
-                  <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
-                </ImageContainer>
-                <ProfileName>이름</ProfileName>
-                <ProfileMenu />
-              </Member> */}
             </MemberList>
           </MemberContainer>
         </ContentContainer>
