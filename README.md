@@ -27,7 +27,7 @@ logo
 
 # TECH STACK
 
-![](https://cdn.discordapp.com/attachments/919801014239002675/925586538774016110/2021-12-29_12.10.01.png)
+![](https://cdn.discordapp.com/attachments/916188054576844830/928145963015626832/2022-01-05_1.40.27.png)
 
 <br>
 
