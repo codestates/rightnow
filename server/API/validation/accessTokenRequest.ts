@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { access } from 'fs';
 import { CustomRequest } from '../../type/type';
 
 const dotenv: any = require('dotenv');
@@ -38,49 +39,54 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
             };
             next();
           } else {
-            const { email } = req.body;
-            const userInfo: any = await db['User'].findOne({
-              where: { email: decoded.email },
-            });
-            delete userInfo.dataValues.password;
-
-            if (type === 'admin') {
+            if (type === 'adminReported') {
               const adminInfo: any = await db['User'].findOne({
                 where: { email: decoded.email },
               });
               delete adminInfo.dataValues.password;
-              if (!adminInfo) {
+              if (adminInfo.role === 'ADMIN') {
+                const accessToken: any = jwt.sign(
+                  adminInfo.toJSON(),
+                  process.env.ACCESS_SECRET,
+                  {
+                    expiresIn: '15m',
+                  },
+                );
+                let reportedUserInfo: any = await db['Message'].findAll({
+                  include: [
+                    {
+                      model: db['Report_message'],
+                    },
+                    {
+                      model: db['User'],
+                    },
+                  ],
+                });
+                reportedUserInfo = reportedUserInfo.map((el: any) => {
+                  return el.dataValues;
+                });
+                for (let i = 0; i < reportedUserInfo.length; i++) {
+                  delete reportedUserInfo[i].User.dataValues.password;
+                }
                 req.sendData = {
-                  message: 'token has been tempered',
+                  data: {
+                    reportedUserInfo: reportedUserInfo,
+                    accessToken: accessToken,
+                  },
+                  message: 'ok, give new accessToken and refreshToken',
                 };
                 next();
               } else {
-                if (adminInfo.role === 'ROOT') {
-                  const accessToken: any = jwt.sign(
-                    adminInfo.dataValues,
-                    process.env.ACCESS_SECRET,
-                    {
-                      expiresIn: '15m',
-                    },
-                  );
-                  await db['User'].update(
-                    { role: 'ADMIN' },
-                    { where: { email } },
-                  );
-                  userInfo.dataValues.role = 'ADMIN';
-                  req.sendData = {
-                    data: {
-                      userInfo: userInfo.dataValues,
-                      accessToken: accessToken,
-                    },
-                    message: 'ok, give new accessToken and refreshToken',
-                  };
-                  next();
-                } else {
-                  req.sendData = { message: 'not root account' };
-                }
+                req.sendData = {
+                  message: 'not admin account',
+                };
+                next();
               }
             } else {
+              const userInfo: any = await db['User'].findOne({
+                where: { email: decoded.email },
+              });
+              delete userInfo.dataValues.password;
               if (!userInfo) {
                 req.sendData = {
                   message: 'token has been tempered',
