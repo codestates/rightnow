@@ -64,46 +64,53 @@ const userValidation: UserValidation = {
     if (!userInfo) {
       req.sendData = { message: 'no exists email' };
       next();
-      return;
+    } else {
+      if (userInfo.is_block === 'Y') {
+        req.sendData = {
+          data: { block_date: userInfo.block_date },
+          message: 'block user',
+        };
+        next();
+        return;
+      }
+      bcrypt.compare(
+        password,
+        userInfo.password,
+        function (err: any, resp: any): void {
+          if (resp === false) {
+            req.sendData = { message: 'incorrect password' };
+            next();
+          } else if (resp === true) {
+            delete userInfo.dataValues.password;
+
+            const accessToken: any = jwt.sign(
+              userInfo.dataValues,
+              process.env.ACCESS_SECRET,
+              {
+                expiresIn: '15m',
+              },
+            );
+
+            const refreshToken: any = jwt.sign(
+              userInfo.dataValues,
+              process.env.REFRESH_SECRET,
+              {
+                expiresIn: '30d',
+              },
+            );
+
+            req.sendData = {
+              data: { refreshToken: refreshToken, accessToken: accessToken },
+              message: 'ok',
+            };
+            next();
+          } else {
+            req.sendData = { message: 'err' };
+            next();
+          }
+        },
+      );
     }
-
-    bcrypt.compare(
-      password,
-      userInfo.password,
-      function (err: any, resp: any): void {
-        if (resp === false) {
-          req.sendData = { message: 'incorrect password' };
-          next();
-        } else if (resp === true) {
-          delete userInfo.dataValues.password;
-
-          const accessToken: any = jwt.sign(
-            userInfo.dataValues,
-            process.env.ACCESS_SECRET,
-            {
-              expiresIn: '15m',
-            },
-          );
-
-          const refreshToken: any = jwt.sign(
-            userInfo.dataValues,
-            process.env.REFRESH_SECRET,
-            {
-              expiresIn: '30d',
-            },
-          );
-
-          req.sendData = {
-            data: { refreshToken: refreshToken, accessToken: accessToken },
-            message: 'ok',
-          };
-          next();
-        } else {
-          req.sendData = { message: 'err' };
-          next();
-        }
-      },
-    );
   },
 
   /*
