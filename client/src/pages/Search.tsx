@@ -1,8 +1,17 @@
 import axios from 'axios';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, {
+  ChangeEvent,
+  MouseEvent,
+  MouseEventHandler,
+  ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 import styled from 'styled-components';
-import api from '../api/categoryApi';
+import { roomAPI } from '../api/roomApi';
+import { categoryAPI } from '../api/categoryApi';
 import Dropdown from '../components/Dropdown';
+import { isGetAccessorDeclaration } from 'typescript';
 
 const Container = styled.div`
   display: flex;
@@ -42,14 +51,18 @@ const TitleContainer = styled.div``;
 
 const OptionContainer = styled.div`
   width: 100%;
-  height: 24rem;
+  height: 40rem;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 `;
 
-const FrindContainer = styled.div``;
+const FrindContainer = styled.div`
+  display: flex;
+  width: 29rem;
+  margin-bottom: 1rem;
+`;
 
 const ButtonContainer = styled.div``;
 
@@ -59,6 +72,10 @@ const Button = styled.button`
   border-radius: 3px;
   background: ${(props) => props.theme.color.main};
   color: black;
+
+  &:active {
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const CategoryList = styled.div`
@@ -84,10 +101,11 @@ const Select = styled.select`
   &::-ms-expand {
     display: none;
   }
-
-  &:hover {
-    border-color: #888;
-    border: 2px solid;
+  &:enabled {
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.1);
+      /* border: 2px solid; */
+    }
   }
 
   &:focus {
@@ -112,21 +130,68 @@ const Location = styled.div`
 `;
 
 const Label = styled.label`
-  width: 4rem;
+  width: 5rem;
   height: 2.5rem;
   line-height: 2.5rem;
   text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
 
   display: inline-block;
 `;
 
 const FriendLabel = styled(Label)`
   width: 10rem;
+  margin-right: 1rem;
 `;
 
-const FriendList = styled.div``;
+const FriendList = styled.div`
+  height: 12rem;
+  width: 15rem;
+  overflow-y: scroll;
+  background: rgba(0, 0, 0, 0.03);
+  margin-left: -0.1rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+`;
 
-interface ItemType {
+const Friend = styled.div<{ checked: boolean }>`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+  background: ${(props) => (props.checked ? 'rgba(0, 0, 0, 0.1)' : '')};
+  font-weight: ${(props) => (props.checked ? '600' : '')};
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  &:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+`;
+
+const FriendImg = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Image = styled.img`
+  width: 2rem;
+  height: 2rem;
+  background-color: red;
+  background-size: auto 100%;
+  background-position: center;
+  border-radius: 1.5rem;
+  margin-right: 1rem;
+`;
+
+const FriendNick = styled.div``;
+
+const Message = styled.div`
+  height: 2rem;
+  margin-top: -2rem;
+`;
+
+interface CategoryType {
   id: number;
   name: string;
   user_num: number;
@@ -135,33 +200,139 @@ interface ItemType {
 }
 
 interface FriendType {
-  id: number;
+  profile_img: string;
+  nick_name: string;
   email: string;
 }
 
+const initCategory = {
+  id: 0,
+  name: '',
+  user_num: 0,
+  createdAt: '',
+  updatedAt: '',
+};
+
 const Search = () => {
-  const [category, setCategory] = useState<ItemType[]>([]);
-  const [friendList, setFriendList] = useState<FriendType[]>([]);
+  const [category, setCategory] = useState<CategoryType[]>([]); // DB에서 가져온 카테고리 리스트
+  const [friendList, setFriendList] = useState<FriendType[]>([]); // DB에서 가져온 친구 리스트
+  const [selectedFriend, setSelectedFriend] = useState<string[]>([]); // 선택한 친구 리스트
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
+  const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
+
+  /**
+   * 친구 목록 가져오기
+   */
+  useEffect(() => {
+    setFriendList([
+      {
+        nick_name: '김코딩',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com',
+      },
+      {
+        nick_name: '김코딩2',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com2',
+      },
+      {
+        nick_name: '김코딩3',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com3',
+      },
+      {
+        nick_name: '김코딩4',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com4',
+      },
+      {
+        nick_name: '김코딩5',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com5',
+      },
+      {
+        nick_name: '김코딩6',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com6',
+      },
+      {
+        nick_name: '김코딩7',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com7',
+      },
+      {
+        nick_name: '김코딩8',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com8',
+      },
+      {
+        nick_name: '김코딩9',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com9',
+      },
+      {
+        nick_name: '김코딩10',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com10',
+      },
+      {
+        nick_name: '김코딩11',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com11',
+      },
+      {
+        nick_name: '김코딩12',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com12',
+      },
+      {
+        nick_name: '김코딩13',
+        profile_img:
+          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
+        email: 'test@gmail.com13',
+      },
+    ]);
+  }, []);
 
   /**
    * 카테고리 가져오기
    */
   useEffect(() => {
-    api('categoryList', undefined, (status: string, data: ItemType[]) => {
+    const categoryData = async () => {
+      const {
+        data: {
+          data: { categoryList: data },
+        },
+      } = await categoryAPI.list();
       setCategory(data);
-    });
+    };
+    categoryData();
   }, []);
 
   /**
    * 사용자의 현재 위치 가져오기
    */
   useEffect(() => {
-    const success = (position: {
+    const success = async (position: {
       coords: { latitude: number; longitude: number };
     }) => {
       const { latitude, longitude } = position.coords;
-      console.log(latitude, longitude);
       // 가져온 위도 경도로 주소를 조회(서버 api 사용)
+      const res = await roomAPI.location(longitude, latitude);
+      console.log(res);
     };
     const error = () => {
       // 사용자가 위치 정보를 공유하지 않음
@@ -176,6 +347,70 @@ const Search = () => {
     }
   }, []);
 
+  /**
+   * 선택한 친구들이 정해진 인원보다 많은지 검사
+   * 상황에 따라 메지시를 모여줌
+   */
+  const checkJoinNum = () => {
+    if (selectedFriend.length >= selectedCategory.user_num - 1) {
+      setMessage(
+        `${selectedCategory.name}은 본인 포함 ${selectedCategory.user_num}명까지만 함께할 수 있어요!`,
+      );
+      return false;
+    } else {
+      setMessage('');
+      return true;
+    }
+  };
+
+  /**
+   * 같이할 친구
+   * selectedFriend 관리
+   * @param e
+   */
+  const handleJoin = (e: MouseEvent<HTMLDivElement>) => {
+    const friendEmail: string = e.currentTarget.title;
+    if (selectedCategory.name === '') {
+      setMessage('키테고리를 먼저 선택해주세요');
+      return;
+    }
+    if (selectedFriend.includes(friendEmail)) {
+      // 같이할 친구에서 빼기
+      const idx: number = selectedFriend.indexOf(friendEmail);
+      const newList: string[] = [...selectedFriend];
+      setSelectedFriend([...newList.slice(0, idx), ...newList.slice(idx + 1)]);
+    } else {
+      // 같이할 친구에 추가
+      // 선택한 친구 수 확인
+      if (checkJoinNum()) {
+        setSelectedFriend([...selectedFriend, e.currentTarget.title]);
+      }
+    }
+  };
+
+  /**
+   * 선택된 카테고리 관리
+   * @param e
+   */
+  const handleCategory = (e: ChangeEvent) => {
+    const { value } = e.target as HTMLSelectElement;
+    const selected = category[Number(value) - 1];
+    if (!selected) {
+      setSelectedCategory(initCategory);
+    } else {
+      setSelectedCategory(selected);
+    }
+    setSelectedFriend([]);
+    setMessage('');
+  };
+
+  /**
+   *  모임참가 버튼 클릭
+   */
+  const handleJoinRoom = () => {
+    // selectedFriend, selectedCategory;
+  };
+
   return (
     <Container>
       <SearchContainer>
@@ -183,14 +418,17 @@ const Search = () => {
           <Title># 모임 찾기</Title>
         </TitleContainer>
         <OptionContainer>
+          <Message>{message}</Message>
           {/* <Dropdown optionList={category} /> */}
           <CategoryList>
             <Label htmlFor="category">카테고리</Label>
-            <Select className="" id="category">
+            <Select className="" id="category" onChange={handleCategory}>
               <Option>-- 선택하세요 --</Option>
               {category.length > 0 &&
-                category.map((item) => (
-                  <Option key={item.id}>{item.name}</Option>
+                category.map((item, idx) => (
+                  <Option key={idx} value={item.id}>
+                    {item.name}
+                  </Option>
                 ))}
             </Select>
           </CategoryList>
@@ -202,10 +440,48 @@ const Search = () => {
           </Location>
           <FrindContainer>
             <FriendLabel>친구와 함께하기</FriendLabel>
-            <FriendList></FriendList>
+            <FriendList>
+              {friendList.map((friend: FriendType) => {
+                if (selectedFriend.includes(friend.email)) {
+                  return (
+                    <Friend
+                      title={friend.email}
+                      onClick={handleJoin}
+                      key={friend.email}
+                      checked={true}
+                    >
+                      <FriendImg>
+                        <Image src={friend.profile_img} />
+                      </FriendImg>
+                      <FriendNick>{friend.nick_name}</FriendNick>
+                    </Friend>
+                  );
+                } else {
+                  return (
+                    <Friend
+                      title={friend.email}
+                      onClick={handleJoin}
+                      key={friend.email}
+                      checked={false}
+                    >
+                      <FriendImg>
+                        <Image src={friend.profile_img} />
+                      </FriendImg>
+                      <FriendNick>{friend.nick_name}</FriendNick>
+                    </Friend>
+                  );
+                }
+              })}
+              {/* <Friend title="test@gmail.com">
+                <FriendImg>
+                  <Image src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
+                </FriendImg>
+                <FriendNick>김코딩</FriendNick>
+              </Friend> */}
+            </FriendList>
           </FrindContainer>
           <ButtonContainer>
-            <Button>모임 찾기</Button>
+            <Button onClick={handleJoinRoom}>모임 찾기</Button>
           </ButtonContainer>
         </OptionContainer>
       </SearchContainer>
