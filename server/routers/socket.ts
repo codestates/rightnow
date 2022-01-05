@@ -156,16 +156,17 @@ searchNamespace.on('connection', (socket: any) => {
       }
     }
 
-    let location = await roomValidation.getLocation(data.lat, data.lon);
-    // ... 여기에 카카오로 데이터 가져와서 location에 저장하는 로직 추가
-    //범위가 벗어난 경우(한국이 아닌 경우) reject
-    if (location === 'out of range') {
-      searchNamespace.to(data.email).emit('reject_match', {
-        message: location,
-      });
-      return;
-    }
-    data.location = location;
+    // let location = await roomValidation.getLocation(data.lat, data.lon);
+    //  ... 여기에 카카오로 데이터 가져와서 location에 저장하는 로직 추가 - 사용안함
+    // 범위가 벗어난 경우(한국이 아닌 경우) reject
+    // if (location === 'out of range') {
+    //   searchNamespace.to(data.email).emit('reject_match', {
+    //     message: location,
+    //   });
+    //   return;
+    // }
+    //data.location = location;
+
     // 이미 모임 searching 중인 경우
     //상태 wait -> user_enter 으로 emit search -> search_room으로 emit
     let find = findUsers.get(data.email);
@@ -535,7 +536,7 @@ searchNamespace.on('connection', (socket: any) => {
         socket.leave(findUser.uuid);
       }
       findUsers.delete(data.email);
-      //todo 그룹일 경우 - 유저들 전부 삭제 - 완료 ! 테스트 필요
+      //그룹일 경우 - 유저들 전부 삭제 - 완료 ! 테스트 완료
       if (data.type === 'GROUP') {
         for (let email of data.email_list) findUsers.delete(email);
       }
