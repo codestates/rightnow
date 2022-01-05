@@ -9,14 +9,10 @@ adminRouter.get(
   adminValidation.getReportedUser,
   adminController.getReportedUser,
 );
-adminRouter.put(
-  '/give/authority',
-  adminValidation.giveAuthority,
-  adminController.giveAuthority,
+adminRouter.patch(
+  '/restraint/user',
+  adminValidation.restraintUser,
+  adminController.restraintUser,
 );
-adminRouter.put(
-  '/take/authority',
-  adminValidation.takeAuthority,
-  adminController.takeAuthority,
-);
+
 export default adminRouter;

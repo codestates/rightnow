@@ -6,7 +6,6 @@ dotenv.config();
 
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
-const axios: any = require('axios');
 const bcrypt: any = require('bcrypt');
 import accessTokenRequestValidation from './accessTokenRequest';
 
@@ -16,12 +15,7 @@ interface AdminValidation {
     res: Response,
     next: NextFunction,
   ): Promise<any>;
-  giveAuthority(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any>;
-  takeAuthority(
+  restraintUser(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -37,7 +31,7 @@ const adminValidation: AdminValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const type: string = 'admin';
+    const type: string = 'adminReported';
     if (!req.headers.authorization) {
       await accessTokenRequestValidation.accessTokenRequest(
         req,
@@ -69,12 +63,25 @@ const adminValidation: AdminValidation = {
             } else {
               delete adminInfo.dataValues.password;
               if (adminInfo.role === 'ADMIN') {
-                const reportedUserInfo: any = await db[
-                  'Report_Messages'
-                ].findall();
-                console.log(reportedUserInfo);
+                let reportedUserInfo: any = await db['Message'].findAll({
+                  include: [
+                    {
+                      model: db['Report_message'],
+                    },
+                    {
+                      model: db['User'],
+                    },
+                  ],
+                });
+                reportedUserInfo = reportedUserInfo.map((el: any) => {
+                  return el.dataValues;
+                });
+                for (let i = 0; i < reportedUserInfo.length; i++) {
+                  delete reportedUserInfo[i].User.dataValues.password;
+                }
+
                 req.sendData = {
-                  // data: { userInfo: userInfo.dataValues },
+                  data: { reportedUserInfo: reportedUserInfo },
                   message: 'ok',
                 };
                 next();
@@ -92,79 +99,15 @@ const adminValidation: AdminValidation = {
   },
 
   /*
-  관리자 권한 부여
+  신고된 유저 정지시키기
   */
-  async giveAuthority(
+  async restraintUser(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.body;
-    const type: string = 'admin';
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-
-    if (!req.headers.authorization) {
-      await accessTokenRequestValidation.accessTokenRequest(
-        req,
-        res,
-        type,
-        next,
-      );
-      return;
-    } else {
-      jwt.verify(
-        req.headers.authorization,
-        process.env.ACCESS_SECRET,
-        async (err: any, decoded: any) => {
-          if (err) {
-            await accessTokenRequestValidation.accessTokenRequest(
-              req,
-              res,
-              type,
-              next,
-            );
-            return;
-          } else {
-            const adminInfo: any = await db['User'].findOne({
-              where: { email: decoded.email },
-            });
-            if (adminInfo.role === 'ROOT') {
-              if (userInfo) {
-                delete userInfo.dataValues.password;
-                await db['User'].update(
-                  { role: 'ADMIN' },
-                  { where: { email } },
-                );
-                userInfo.dataValues.role = 'ADMIN';
-                req.sendData = {
-                  data: { userInfo: userInfo.dataValues },
-                  message: 'ok',
-                };
-                next();
-              } else if (!userInfo) {
-                req.sendData = { message: 'no exists user account' };
-                next();
-              }
-            } else {
-              req.sendData = { message: 'not root account' };
-              next();
-            }
-          }
-        },
-      );
-    }
+    next();
   },
-
-  /*
-  관리자 권한 뺏기
-  */
-  async takeAuthority(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any> {},
 };
 
 export default adminValidation;
