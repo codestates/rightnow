@@ -44,4 +44,6 @@ TEAM CodeBaker는 코드스테이츠 34기 2주, 4주 프로젝트를 통해 결
 <br>
 
 # REFERNECES
-👉🏻 Back-End API Infomation: [rightnow API Docs](https://moyeora.gitbook.io/api-docs/QKwZQ5JnuOYEc4zO35aw/)  
+👉🏻 Back-End API Infomation: [rightnow API Docs](https://moyeora.gitbook.io/api-docs/QKwZQ5JnuOYEc4zO35aw/)
+👉🏻 Back-End API Infomation: [rightnow DB Schema](https://moyeora.gitbook.io/api-docs/QKwZQ5JnuOYEc4zO35aw/)  
+👉🏻 Back-End API Infomation: [rightnow Prototype](https://moyeora.gitbook.io/api-docs/QKwZQ5JnuOYEc4zO35aw/)  
