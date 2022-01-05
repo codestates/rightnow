@@ -39,6 +39,7 @@ TEAM CodeBaker는 코드스테이츠 34기 2주, 4주 프로젝트를 통해 결
 
 |[Jeong Subi](https://github.com/JeongSubi)|[Park Namsu](https://github.com/PARKNAMSU)|[Jang SaeJin](https://github.com/JangSeBaRi)|[Kim doyeon](https://github.com/kimdoyeonn)
 |-----|-----|-----|----|
+|LEADER|MEMBER|MEMBER|MEMBER|
 |Back-End|Back-End|Front-End|Front-End|
 
 <br>
