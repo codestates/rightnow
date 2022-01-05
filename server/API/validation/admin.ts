@@ -1,5 +1,6 @@
 import { AnyRecord } from 'dns';
 import { Request, Response, NextFunction } from 'express';
+import { DATEONLY } from 'sequelize/dist';
 const moment: any = require('moment');
 
 import { CustomRequest } from '../../type/type';
@@ -114,7 +115,6 @@ const adminValidation: AdminValidation = {
     next: NextFunction,
   ): Promise<any> {
     const { block_emails, block_date } = req.body;
-
     for (let i = 0; i < block_emails.length; i++) {
       await db['User'].update(
         { block_date: block_date, is_block: 'Y' },
@@ -125,9 +125,15 @@ const adminValidation: AdminValidation = {
       message: 'ok',
     };
     next();
+
     cron.schedule(`0 0 0 * * *`, async () => {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+
       for (let i = 0; i < block_emails.length; i++) {
-        if (block_date === now()) {
+        if (block_date === `${year}-${month}-${day}`) {
           await db['User'].update(
             { block_date: null, is_block: 'N' },
             { where: { email: block_emails[i] } },
