@@ -66,7 +66,7 @@ const RoomNav = styled.div`
 const NavItem = styled.label<{ back: any }>`
   height: 1.8rem;
   line-height: 1.8rem;
-  width: 7rem;
+  width: 6.7rem;
   text-align: center;
   margin-right: 0.7rem;
   border-radius: 12px 12px 0px 0px;
@@ -78,6 +78,8 @@ const NavItem = styled.label<{ back: any }>`
       return 'black';
     }
   }};
+  transition: 0.3s;
+  box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const Radio = styled.input`
@@ -86,8 +88,12 @@ const Radio = styled.input`
   &:checked + label {
     &{NavItem} {
       height: 2.1rem;
+      width: 7.2rem;
       margin-top: -0.3rem;
-      font-weight: 600;
+      /* font-weight: 600; */
+      line-height: 2rem;
+      font-size: 1.1rem;
+      box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.5);
     }
   }
 `;
@@ -118,23 +124,22 @@ const QuitMessage = styled.div`
   padding-top: 3rem;
   width: 25rem;
   padding-bottom: 2rem;
+  white-space: pre-line;
 `;
 
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
-  talkContents: Object[];
+  talkContents: MessageType[];
   handleQuit: MouseEventHandler<HTMLButtonElement>;
 }
 
-interface IMessage {
-  messageData: {
-    id: number;
-    user: { email: string; nick_name: string; profile_img: string };
-    content: string;
-    isUpdate: string;
-    writeDate: string;
-  };
+interface MessageType {
+  id: number;
+  user: { email: string; nick_name: string; profile_img: string };
+  content: string;
+  isUpdate: string;
+  writeDate: string;
 }
 
 const ChattingRoom = ({
@@ -190,7 +195,7 @@ const ChattingRoom = ({
       </Content>
       {menu === 'talk' ? (
         <>
-          <ChattingContainer>
+          <ChattingContainer className="drop-shadow">
             <Chatting>
               {talkContents && talkContents.length > 0 ? (
                 talkContents.map((messageData: any) => (
@@ -201,7 +206,11 @@ const ChattingRoom = ({
               )}
             </Chatting>
           </ChattingContainer>
-          <ChattingInput onChange={handleText} value={text} />
+          <ChattingInput
+            className="drop-shadow focus:drop-shadow-lg"
+            onChange={handleText}
+            value={text}
+          />
         </>
       ) : menu === 'map' ? (
         <MenuContainer>모임 위치(지도 표시)</MenuContainer>
