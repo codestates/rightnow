@@ -56,54 +56,111 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, password } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-
-    if (!userInfo) {
-      req.sendData = { message: 'no exists email' };
-      next();
-      return;
-    }
-
-    bcrypt.compare(
-      password,
-      userInfo.password,
-      function (err: any, resp: any): void {
-        if (resp === false) {
-          req.sendData = { message: 'incorrect password' };
-          next();
-        } else if (resp === true) {
-          delete userInfo.dataValues.password;
-
-          const accessToken: any = jwt.sign(
-            userInfo.dataValues,
-            process.env.ACCESS_SECRET,
-            {
-              expiresIn: '15m',
-            },
-          );
-
-          const refreshToken: any = jwt.sign(
-            userInfo.dataValues,
-            process.env.REFRESH_SECRET,
-            {
-              expiresIn: '30d',
-            },
-          );
-
+    if (req.body.type === 'TEMP') {
+      const { nick_name, password } = req.body;
+      const userInfo: any = await db['User'].findOne({
+        where: { nick_name },
+      });
+      if (!userInfo) {
+        req.sendData = { message: 'no exists email' };
+        next();
+      } else {
+        if (userInfo.is_block === 'Y') {
           req.sendData = {
-            data: { refreshToken: refreshToken, accessToken: accessToken },
-            message: 'ok',
+            data: { block_date: userInfo.block_date },
+            message: 'block user',
           };
           next();
-        } else {
-          req.sendData = { message: 'err' };
-          next();
+          return;
         }
-      },
-    );
+        bcrypt.compare(
+          password,
+          userInfo.password,
+          function (err: any, resp: any): void {
+            if (resp === false) {
+              req.sendData = { message: 'incorrect password' };
+              next();
+            } else if (resp === true) {
+              delete userInfo.dataValues.password;
+              const accessToken: any = jwt.sign(
+                userInfo.dataValues,
+                process.env.ACCESS_SECRET,
+                {
+                  expiresIn: '15m',
+                },
+              );
+              const refreshToken: any = jwt.sign(
+                userInfo.dataValues,
+                process.env.REFRESH_SECRET,
+                {
+                  expiresIn: '30d',
+                },
+              );
+              req.sendData = {
+                data: { refreshToken: refreshToken, accessToken: accessToken },
+                message: 'ok',
+              };
+              next();
+            } else {
+              req.sendData = { message: 'err' };
+              next();
+            }
+          },
+        );
+      }
+    } else {
+      const { email, password } = req.body;
+      const userInfo: any = await db['User'].findOne({
+        where: { email },
+      });
+      if (!userInfo) {
+        req.sendData = { message: 'no exists email' };
+        next();
+      } else {
+        if (userInfo.is_block === 'Y') {
+          req.sendData = {
+            data: { block_date: userInfo.block_date },
+            message: 'block user',
+          };
+          next();
+          return;
+        }
+        bcrypt.compare(
+          password,
+          userInfo.password,
+          function (err: any, resp: any): void {
+            if (resp === false) {
+              req.sendData = { message: 'incorrect password' };
+              next();
+            } else if (resp === true) {
+              delete userInfo.dataValues.password;
+              const accessToken: any = jwt.sign(
+                userInfo.dataValues,
+                process.env.ACCESS_SECRET,
+                {
+                  expiresIn: '15m',
+                },
+              );
+              const refreshToken: any = jwt.sign(
+                userInfo.dataValues,
+                process.env.REFRESH_SECRET,
+                {
+                  expiresIn: '30d',
+                },
+              );
+              req.sendData = {
+                data: { refreshToken: refreshToken, accessToken: accessToken },
+                message: 'ok',
+              };
+              next();
+            } else {
+              req.sendData = { message: 'err' };
+              next();
+            }
+          },
+        );
+      }
+    }
   },
 
   /*
@@ -126,32 +183,32 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, password, nick_name } = req.body;
-    if (!email || !password || !nick_name) {
-      req.sendData = { message: 'insufficient parameters supplied' };
-      next();
-    } else {
+    const { nick_name, password } = req.body;
+    if (req.body.type === 'TEMP') {
       const userInfo: any = await db['User'].findOne({
-        where: { email },
+        where: { nick_name },
       });
-      if (userInfo) {
-        req.sendData = { message: 'email exists' };
-        next();
-      } else {
+      if (!userInfo) {
         const encryptedPassword: any = bcrypt.hashSync(
           password,
           Number(process.env.PASSWORD_SALT),
         );
+        const rightNow: any = new Date();
+        const email: any = rightNow
+          .toISOString()
+          .slice(0, 19)
+          .replace(/-/g, '')
+          .replace(/:/g, '');
         db['User'].create({
           email,
-          password: encryptedPassword,
           nick_name,
-          role: 'USER',
+          password: encryptedPassword,
+          role: 'TEMP',
         });
         const newUser: any = {
           email,
           nick_name,
-          role: 'USER',
+          role: 'TEMP',
         };
         const accessToken: any = jwt.sign(newUser, process.env.ACCESS_SECRET, {
           expiresIn: '15m',
@@ -173,6 +230,64 @@ const userValidation: UserValidation = {
           message: 'ok',
         };
         next();
+      } else {
+        req.sendData = { message: 'exists nickname' };
+        next();
+      }
+    } else {
+      const { email } = req.body;
+      if (!email || !password || !nick_name) {
+        req.sendData = { message: 'insufficient parameters supplied' };
+        next();
+      } else {
+        const userInfo: any = await db['User'].findOne({
+          where: { email },
+        });
+        if (userInfo) {
+          req.sendData = { message: 'email exists' };
+          next();
+        } else {
+          const encryptedPassword: any = bcrypt.hashSync(
+            password,
+            Number(process.env.PASSWORD_SALT),
+          );
+          db['User'].create({
+            email,
+            password: encryptedPassword,
+            nick_name,
+            role: 'USER',
+          });
+          const newUser: any = {
+            email,
+            nick_name,
+            role: 'USER',
+          };
+
+          const accessToken: any = jwt.sign(
+            newUser,
+            process.env.ACCESS_SECRET,
+            {
+              expiresIn: '15m',
+            },
+          );
+
+          const refreshToken: any = jwt.sign(
+            newUser,
+            process.env.REFRESH_SECRET,
+            {
+              expiresIn: '30d',
+            },
+          );
+
+          req.sendData = {
+            data: {
+              refreshToken: refreshToken,
+              accessToken: accessToken,
+            },
+            message: 'ok',
+          };
+          next();
+        }
       }
     }
   },
