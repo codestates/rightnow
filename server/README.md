@@ -10,11 +10,11 @@ $ npx pm2 install typescript
 #### start
 
 ```
-npx pm2 start ts-node -- --project config/tsconfig.json app.ts --watch
+authbind --deep pm2 start ts-node -- --project config/tsconfig.json app.ts --watch
 ```
 
 #### stop
 
 ```
-npx pm2 stop ts-node
+authbind --deep pm2 stop ts-node
 ```

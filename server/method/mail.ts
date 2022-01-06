@@ -27,6 +27,8 @@ module.exports = {
           message: 'mail send fail',
           code: err,
         });
+      } else if (req.sendData.message === 'exists email') {
+        res.status(404).send({ message: 'exists email' });
       } else {
         console.log(`sent: ${info.response}`);
         res.status(200).send({ data: number, message: 'ok' });
