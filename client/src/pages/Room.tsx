@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
-import Alert from '../components/Alert';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
 
@@ -12,7 +11,8 @@ const Container = styled.div`
   height: 100vh;
   padding-top: 6rem;
   background: ${(props) => props.theme.color.main};
-  color: ${(props) => props.theme.color.subFont};
+  color: ${(props) => props.theme.color.font};
+  overflow: hidden;
 
   @media only screen and (max-width: 600px) {
     & {
@@ -39,11 +39,11 @@ const ContentContainer = styled.div`
 
 const GroupTitle = styled.div`
   font-size: 1.5rem;
-  background: #e83635;
+  background: ${(props) => props.theme.color.main};
   color: black;
   padding: 0.5rem 0.5rem;
   margin-bottom: 0.3rem;
-  box-shadow: 6px 6px 0 0 rgb(232, 54, 53, 0.4);
+  box-shadow: 6px 6px 0 0 rgb(255, 99, 53, 0.4);
   width: 21rem;
 `;
 
@@ -78,12 +78,26 @@ const MemberContainer = styled.div`
   padding: 1rem 1.3rem;
   border-radius: 0.5rem;
   width: 30%;
-  height: 35rem;
+  height: 38.3rem;
 `;
 
 const MemberList = styled.div`
   overflow-y: scroll;
   height: 95%;
+  margin-top: 0.6rem;
+
+  &::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    padding: 1rem;
+  }
 `;
 
 const Member = styled.div`
@@ -92,15 +106,10 @@ const Member = styled.div`
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
   margin-bottom: 0.3rem;
+  transition: background 0.2s ease-in;
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);
-    &{ProfileMenu}::after {
-      content: '\f141';
-      font-family: 'Font Awesome 5 Free';
-      font-weight: 900;
-      cursor: pointer;
-    }
   }
 `;
 
@@ -201,47 +210,46 @@ const Room = () => {
   };
 
   return (
-   <>
-    <Header />
-    <Container>
-      <ChatContainer>
-        <RoomDetail>
-          {/** 위치와 카테고리로 모임 타이틀 표시 */}
-          <GroupTitle>#서울시 #동대문구 #맛집</GroupTitle>
-        </RoomDetail>
-        <ContentContainer>
-          <ChatBox>
-            <ChatContent
-              talkContents={talkContents}
-              text={text}
-              handleText={handleText}
-              handleQuit={handleQuit}
-            />
-          </ChatBox>
-          <MemberContainer className="drop-shadow">
-            <SubTitle>대화 상대</SubTitle>
-            <MemberList>
-              {memberList && memberList.length > 0 ? (
-                memberList.map((member: User) => {
-                  return (
-                    <Member key={member.email}>
-                      <ImageContainer>
-                        <ProfileImg url={member.profile_img} />
-                      </ImageContainer>
-                      <ProfileName>{member.nick_name}</ProfileName>
-                    </Member>
-                  );
-                })
-              ) : (
-                <div>대화 상대가 없습니다.</div>
-              )}
-            </MemberList>
-          </MemberContainer>
-        </ContentContainer>
-      </ChatContainer>
-    </Container>
-    <Alert />
-  </>
+    <>
+      <Header />
+      <Container>
+        <ChatContainer>
+          <RoomDetail>
+            {/** 위치와 카테고리로 모임 타이틀 표시 */}
+            <GroupTitle>#서울시 #동대문구 #맛집</GroupTitle>
+          </RoomDetail>
+          <ContentContainer>
+            <ChatBox>
+              <ChatContent
+                talkContents={talkContents}
+                text={text}
+                handleText={handleText}
+                handleQuit={handleQuit}
+              />
+            </ChatBox>
+            <MemberContainer className="drop-shadow">
+              <SubTitle>대화 상대</SubTitle>
+              <MemberList>
+                {memberList && memberList.length > 0 ? (
+                  memberList.map((member: User) => {
+                    return (
+                      <Member key={member.email}>
+                        <ImageContainer>
+                          <ProfileImg url={member.profile_img} />
+                        </ImageContainer>
+                        <ProfileName>{member.nick_name}</ProfileName>
+                      </Member>
+                    );
+                  })
+                ) : (
+                  <div>대화 상대가 없습니다.</div>
+                )}
+              </MemberList>
+            </MemberContainer>
+          </ContentContainer>
+        </ChatContainer>
+      </Container>
+    </>
   );
 };
 

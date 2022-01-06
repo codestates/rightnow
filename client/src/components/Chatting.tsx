@@ -3,9 +3,7 @@ import styled from 'styled-components';
 import Message from './Message';
 
 const Container = styled.div`
-  display: flex;
   height: 80%;
-  flex-direction: column;
 `;
 
 const ChattingContainer = styled.div``;
@@ -78,8 +76,11 @@ const NavItem = styled.label<{ back: any }>`
       return 'black';
     }
   }};
-  transition: 0.3s;
-  box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const Radio = styled.input`
@@ -87,13 +88,16 @@ const Radio = styled.input`
   opacity: 0;
   &:checked + label {
     &{NavItem} {
-      height: 2.1rem;
-      width: 7.2rem;
-      margin-top: -0.3rem;
+      height: 2.3rem;
+      width: 8rem;
+      margin-top: -0.5rem;
       /* font-weight: 600; */
-      line-height: 2rem;
+      line-height: 2.3rem;
       font-size: 1.1rem;
-      box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
+    }
+    &{NavItem}:hover {
+      cursor: default;
     }
   }
 `;
@@ -110,13 +114,13 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 0 0 0.4rem 0.4rem;
 `;
 
 const QuitBtn = styled.button`
+  background: ${(props) => props.theme.color.sub.red};
   width: 13rem;
   height: 2.3rem;
-  background: ${(props) => props.theme.color.sub.orange};
-  color: black;
   border-radius: 3px;
 `;
 
@@ -155,8 +159,8 @@ const ChattingRoom = ({
   };
 
   return (
-    <Container>
-      <Content>
+    <Container className="flex flex-col">
+      <Content className="drop-shadow">
         <RoomNav>
           <Radio
             type="radio"
@@ -166,7 +170,7 @@ const ChattingRoom = ({
             name="menu"
             checked={menu === 'talk'}
           />
-          <NavItem htmlFor="talk" back="brown">
+          <NavItem className="hover:shadow-inner" htmlFor="talk" back="brown">
             대화
           </NavItem>
           <Radio
@@ -177,7 +181,11 @@ const ChattingRoom = ({
             name="menu"
             checked={menu === 'map'}
           />
-          <NavItem htmlFor="map" back="pink">
+          <NavItem
+            className="hover:shadow-inner shadow"
+            htmlFor="map"
+            back="yellow"
+          >
             모임위치
           </NavItem>
           <Radio
@@ -188,7 +196,7 @@ const ChattingRoom = ({
             name="menu"
             checked={menu === 'quit'}
           />
-          <NavItem htmlFor="quit" back="orange">
+          <NavItem className="hover:shadow-inner" htmlFor="quit" back="orange">
             나가기
           </NavItem>
         </RoomNav>
@@ -210,17 +218,25 @@ const ChattingRoom = ({
             className="drop-shadow focus:drop-shadow-lg"
             onChange={handleText}
             value={text}
+            placeholder="메세지 보내기"
           />
         </>
       ) : menu === 'map' ? (
-        <MenuContainer>모임 위치(지도 표시)</MenuContainer>
+        <MenuContainer className="drop-shadow">
+          모임 위치(지도 표시)
+        </MenuContainer>
       ) : (
-        <MenuContainer>
+        <MenuContainer className="drop-shadow">
           <QuitMessage>
             {`한 번 나간 모임은 다시 입장할 수 없습니다. 
             일회용 계정을 사용하신 경우 모임에서 나가면 해당 계정은 삭제됩니다.`}
           </QuitMessage>
-          <QuitBtn onClick={handleQuit}>나가기</QuitBtn>
+          <QuitBtn
+            className="text-stone-50 shadow-md hover:bg-red-500 transition-colors"
+            onClick={handleQuit}
+          >
+            나가기
+          </QuitBtn>
         </MenuContainer>
       )}
     </Container>
