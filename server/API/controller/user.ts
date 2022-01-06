@@ -16,6 +16,7 @@ interface UserController {
   updateUserInfo(req: CustomRequest, res: Response): Promise<void>;
   changePassword(req: CustomRequest, res: Response): Promise<void>;
   uploadProfileImage(req: CustomRequest, res: Response): Promise<void>;
+  reportUser(req: CustomRequest, res: Response): Promise<void>;
 }
 
 const userController: UserController = {
@@ -39,6 +40,11 @@ const userController: UserController = {
       });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
+    } else if (req.sendData.message === 'block user') {
+      res.status(404).send({
+        data: { block_date: req.sendData.data.block_date },
+        message: 'block user',
+      });
     }
   },
 
@@ -71,6 +77,8 @@ const userController: UserController = {
           data: { accessToken: req.sendData.data.accessToken },
           message: 'ok',
         });
+    } else if (req.sendData.message === 'exists nickname') {
+      res.status(400).send({ message: 'exists nickname' });
     }
   },
 
@@ -205,6 +213,19 @@ const userController: UserController = {
       res.status(404).send({ message: 'no exists file' });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
+    }
+  },
+
+  /*
+  유저 신고하기
+  */
+  async reportUser(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(201).send({ message: 'ok' });
+    } else if (req.sendData.message === 'insufficient parameters supplied') {
+      res.status(409).send({ message: 'insufficient parameters supplied' });
+    } else if (req.sendData.message === 'incorrect parameters supplied') {
+      res.status(404).send({ message: 'incorrect parameters supplied' });
     }
   },
 };

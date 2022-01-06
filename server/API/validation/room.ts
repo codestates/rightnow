@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../../type/type';
+import axios from 'axios';
 const db: any = require('../../models/index');
 const bcrypt: any = require('bcrypt');
 import { Op } from 'sequelize';
+const dotenv: any = require('dotenv');
+dotenv.config();
 interface RoomValidation {
   createRoom(data: any): Promise<any>;
   closeRoom(
@@ -10,7 +13,7 @@ interface RoomValidation {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
-  notifyUpdate(
+  getRoomInfo(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -21,8 +24,13 @@ interface RoomValidation {
     next: NextFunction,
   ): Promise<void>;
   searchRoom(data: any): Promise<string>;
+  getLocation(lat: number, lon: number): Promise<string>;
+  getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }
-
 const roomValidation: RoomValidation = {
   /*
     모임 룸 생성 - req body 데이터 받아서 생성
@@ -47,33 +55,49 @@ const roomValidation: RoomValidation = {
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
-    // let id: string = req.body.room_id;
-    // let find: any = await db.Room.findOne({
-    //   attributes: {
-    //     exclude: [
-    //       /*'UserId', 'CategoryId'*/
-    //     ],
-    //   },
-    //   where: { id },
-    // });
-    // if (!find) {
-    //   res.status(409).send({
-    //     message: 'roomId not exist',
-    //   });
-    //   return;
-    // }
-    // await db.Room.update({ is_close: 'Y' }, { where: { id } });
-    // next();
-  },
+  ): Promise<void> {},
   /*
-    모임 공지 생성
+    모임룸 정보
   */
-  async notifyUpdate(
+  async getRoomInfo(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {},
+  ): Promise<void> {
+    let id = req.body.room_id;
+    try {
+      let room = await db.Room.findOne({
+        include: [
+          {
+            model: db.Participant,
+            include: {
+              model: db.User,
+              attributes: {
+                exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
+              },
+            },
+          },
+          {
+            model: db.Message,
+          },
+        ],
+        order: [[db.Message, 'write_date', 'ASC']],
+        where: { id },
+      });
+      if (room === null)
+        req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
+      else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
+      next();
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'get Room Info: invalid access',
+        status: 200,
+        data: e,
+      };
+      next();
+    }
+  },
   /*
     모임 업데이트
   */
@@ -136,6 +160,75 @@ const roomValidation: RoomValidation = {
     }
 
     return 'fail';
+  },
+  // lat:y lon:x
+  async getLocation(lat: number, lon: number): Promise<string> {
+    let location: string = '';
+    let url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lon}&y=${lat}`;
+    let auth = `KakaoAK ${process.env.KAKAO_AUTH || ''}`;
+    await axios
+      .get(url, {
+        headers: { Authorization: auth },
+      })
+      .then((result: any) => {
+        let data = result.data;
+        location = data.documents[0].address_name;
+      })
+      .catch((err) => {
+        location = 'out of range';
+      });
+
+    return location;
+  },
+
+  async getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    let body: any = req.body;
+    let send: any = null;
+    try {
+      let pastRooms = await db.Room.findAll({
+        where: [
+          {
+            [`$Participants.user_email$`]: body.email,
+          },
+          {
+            close_date: {
+              [Op.lt]: new Date(),
+            },
+          },
+        ],
+        include: { model: db.Participant },
+      });
+
+      for (let i = 0; i < pastRooms.length; i++) {
+        let participants = await db.Participant.findAll({
+          where: { room_id: pastRooms[i].dataValues.id },
+        });
+        pastRooms[i].dataValues.Participants = participants;
+      }
+      if (pastRooms.length === 0) {
+        send = {
+          status: 200,
+          message: 'N/A',
+        };
+      } else {
+        send = {
+          status: 200,
+          message: 'ok',
+          data: pastRooms,
+        };
+      }
+      req.sendData = send;
+      next();
+    } catch (e) {
+      res.status(400).send({
+        message: 'invalid access',
+        code: e,
+      });
+    }
   },
 };
 

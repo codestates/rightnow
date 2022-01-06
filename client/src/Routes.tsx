@@ -11,6 +11,7 @@ import { useAppSelector, useAppDispatch } from './config/hooks';
 import { userAccessToken, getUserInfo, IUserInfo } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
+import Search from './pages/Search';
 
 function Routes() {
   const location = useLocation();
@@ -33,6 +34,7 @@ function Routes() {
         <Route path="/auth/*" element={<AuthLayout />} />
         <Route path="/mypage/*" element={<MypageLayout />} />
         <Route path="/room" element={<Room />} />
+        <Route path="/search" element={<Search />} />
       </Switch>
     </>
   );
