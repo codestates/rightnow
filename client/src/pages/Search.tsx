@@ -17,6 +17,7 @@ import {
   setRoomCategory,
 } from '../reducers/roomSlice';
 import Loading from '../components/Loading';
+import { useNavigate } from 'react-router';
 
 const Container = styled.div`
   display: flex;
@@ -218,9 +219,11 @@ const initCategory = {
   updatedAt: '',
 };
 
+let socket: any = null;
+
 const Search = () => {
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
@@ -234,6 +237,8 @@ const Search = () => {
     useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
   const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
 
+  const [maxNum, setMaxNum] = useState<number>(initCategory.user_num); // matching 에 전달할 최대인원수 - modal 전달
+  const [joinNum, setJoinNum] = useState<number>(0); // ); //현재 matching된 인원 수 - modal 전달
   const location = useAppSelector(roomLocation);
   const lat = useAppSelector(roomLat);
   const lon = useAppSelector(roomLon);
@@ -373,19 +378,113 @@ const Search = () => {
   /**
    * 모임 매칭 전에 검색
    */
+  // useEffect(() => {
+  //   if (isSearching) {
+  //     // 모임을 찾기
+
+  //     // 3초 후에 로딩 화면이 사라짐(테스트용)
+  //     setTimeout(() => {
+  //       setIsSearching(false); // 로딩 사라짐
+  //       setIsMatching(true); // 매칭화면으로 넘어감
+  //     }, 3000);
+  //   }
+  //   return () => {};
+  // }, [isSearching]);
+
+  //소켓 연동 - 페이지 들어올 떄 한번만
   useEffect(() => {
-    if (isSearching) {
-      // 모임을 찾기
+    const io = require('socket.io-client');
+    socket = io('http://localhost:4000/search', {
+      withCredentials: true,
+    });
+    socket.on('reject_match', (res: any) => {
+      socket.emit('enter', { email });
+      console.log(res);
+      //setMessage(res.message);
+      if (res.message === 'another client request') {
+        // 매칭 중 다른 탭 또는 다른 클라이언트에서 본인 아이디로 매칭을 한 경우 - 메인화면으로 이동 or 로그아웃
+        navigate('/');
+      }
+      if (res.message === 'aleady attended room') {
+        let { room_id } = res;
+        navigate('/room');
+        // todo: 이미 어떤 방에 참가한 경우 - 받아온 room_id 에 맞는 채팅방 이동
+      }
+      if (res.message === 'someone aleady attended room') {
+        // todo: 그룹 매칭 시 그룹중 한명이 이미 방에 참가한 경우 - 모달창으로 알람 발생
+      }
+      if (res.message === 'some group member aleady searching') {
+        // todo: 그룹 매칭 시 그룹중 한명이 이미 매칭 검색중인 경우 - 모달창으로 알람 발생 후 페이지 reload
+      }
+      if (res.message === 'out of range user number') {
+        // todo: 그룹 매칭 시 카테고리 허용 인원 수 <= 그룹인원의 수  인 경우 - 모달창으로 알람 발생
+      }
+      socket.emit('enter', { email });
+    });
 
-      // 3초 후에 로딩 화면이 사라짐(테스트용)
-      setTimeout(() => {
-        setIsSearching(false); // 로딩 사라짐
-        setIsMatching(true); // 매칭화면으로 넘어감
-      }, 3000);
-    }
-    return () => {};
-  }, [isSearching]);
+    //
+    socket.on('search_room', async (res: any) => {
+      setIsSearching(true);
+      console.log('now searching');
+      res.count++;
+      socket.emit('search_room', res);
+    });
 
+    //임시 룸 waiting
+    socket.on('waiting', async (data: any) => {
+      if (data.is_insert) {
+        data.email = email;
+        socket.emit('enter', data);
+
+        // todo: 임시 대기룸 인원 다 찼을경우 - room_id 에 맞는 채팅룸 이동
+        let room_id = data.room_id;
+        navigate('/room');
+      } else {
+        setIsSearching(false);
+        setIsMatching(true);
+        console.log(data);
+        setJoinNum(data.participants.length);
+        console.log('now enter: ' + data.participants.length);
+      }
+    });
+
+    //매칭 취소
+    socket.on('cancel', (res: any) => {
+      console.log('matching cancel');
+    });
+
+    //매칭 성공
+    socket.on('enter', (res: any) => {
+      console.log(res);
+      socket.emit('enter', res);
+      console.log('matched !! \n todo:indexPage or chat room redirection');
+
+      // todo: db에서 원하는 조건의 방을 찾았을 경우 - room_id 에 맞는 채팅룸 이동
+      let room_id = res.room_id;
+      navigate('/room');
+    });
+
+    //친구정보를 전달하고 현재 matching 진행중인 유저를 받아옴
+    socket.on('searching_friend', (res: any) => {
+      //검색중인 친구 목록
+      let { find_friends } = res;
+      // todo: 같이할 친구 목록에 받아온 데이터 제외
+    });
+    // 필터링
+    socket.on('searching_check', (res: any) => {
+      console.log(res.message);
+      if (res.message !== 'ok') {
+        console.log(res.maxNum);
+        setMaxNum(res.maxNum);
+      }
+    });
+
+    //친구정보를 전달하고 현재 matching 진행중인 유저를 체크
+    //todo: 현재 친구 목록 전달
+    //socket.emit('searching_friend',{})
+
+    socket.emit('searching_check', { email });
+  }, []);
   /**
    * 선택한 친구들이 정해진 인원보다 많은지 검사
    * 상황에 따라 메지시를 모여줌
@@ -439,6 +538,7 @@ const Search = () => {
     } else {
       setSelectedCategory(selected);
       dispatch(setRoomCategory(selected.name));
+      setMaxNum(selected.user_num);
     }
     setSelectedFriend([]);
     setMessage('');
@@ -468,9 +568,13 @@ const Search = () => {
 
     // 원하는 모임 조건 선택(조건은 임시)
     if (category_id !== -1) {
+      console.log(searchData);
       // 모임 찾기
       setIsSearching(true); // isSearching이 true로 바뀌면 useEffect가 실행됨
       // useEffect에서 모임검색이 끝나면 isMatching이 true로 바뀌면서 매칭 모달이 뜸
+
+      //소켓 통신 이용해 searching 시작
+      socket.emit('find_room', searchData);
     }
   };
 
@@ -478,13 +582,29 @@ const Search = () => {
    * matching을 끝냄
    */
   const handleMatching = () => {
-    setIsMatching(false); // 모달 창을 닫음
-  };
+    const email_list: string[] = [...selectedFriend];
+    const type: string = email_list.length > 0 ? 'GROUP' : 'ALONE';
 
+    // socket cancel emit
+    socket.emit('cancel', { email, type, email_list });
+    setIsMatching(false); // 모달 창을 닫음
+    setIsSearching(false);
+    setJoinNum(0);
+    socket.emit('searching_check', { email });
+  };
+  //todo: searching 중에도 cancel 버튼 있으면 좋을듯..
   return (
     <Container>
       {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
-      {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
+      {isMatching ? (
+        <MatchingModal
+          handleMatching={handleMatching}
+          maxNum={maxNum}
+          joinNum={joinNum}
+        />
+      ) : (
+        <></>
+      )}
       {isSearching ? <Searching></Searching> : <></>}
       <SearchContainer>
         <TitleContainer>

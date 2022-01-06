@@ -115,8 +115,9 @@ const participantValidation: ParticipantValidation = {
       inserts.push({ user_email: email, room_id, lon, lat });
       await db.Participant.bulkCreate(inserts);
     }
-    let room = db.Room.findOne({ where: { id: room_id } });
-    return room.dataValues;
+    let room = await db.Room.findOne({ where: { id: room_id } });
+    console.log(room);
+    return room.dataValues.id;
   },
   async leaveRoom(email: string, room_id: string): Promise<any> {
     let transaction: any = await db.sequelize.transaction();
