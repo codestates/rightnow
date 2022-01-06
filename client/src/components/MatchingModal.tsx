@@ -74,9 +74,11 @@ const Button = styled.button`
 
 interface ModalProps {
   handleMatching: MouseEventHandler;
+  maxNum: number;
+  joinNum: number;
 }
 
-const MatchingModal = ({ handleMatching }: ModalProps) => {
+const MatchingModal = ({ handleMatching, maxNum, joinNum }: ModalProps) => {
   const location = useAppSelector(roomLocation);
   const category = useAppSelector(roomCategory);
   const [joinCnt, setJoinCnt] = useState<number>(0); // 모인 인원
@@ -88,8 +90,8 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
    */
   useEffect(() => {
     console.log(joinCnt);
-    const increase = setInterval(() => setJoinCnt(joinCnt + 1), 1000);
-    return () => clearInterval(increase);
+    //const increase = setInterval(() => setJoinCnt(joinCnt + 1), 1000);
+    //return () => clearInterval(increase);
   }, [joinCnt]);
 
   /**
@@ -109,12 +111,12 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
   /**
    * 모인 인원을 확인하다가 모임이 다 차면 채팅 방으로 넘어감
    */
-  useEffect(() => {
-    if (maxCnt !== 0 && joinCnt === maxCnt) {
-      navigate('/room');
-    }
-    JoinDisplay();
-  }, [joinCnt]);
+  // useEffect(() => {
+  //   if (maxCnt !== 0 && joinCnt === maxCnt) {
+  //     navigate('/room');
+  //   }
+  //   JoinDisplay();
+  // }, [joinCnt]);
 
   /**
    * joinCnt(모인 인원)와 maxCnt(모임의 최대 인원)로 현재 채워진 인원을 표시함
@@ -123,8 +125,8 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
    */
   const JoinDisplay = (): ReactNode[] => {
     let result: ReactNode[] = [];
-    for (let idx = 0; idx < maxCnt; idx++) {
-      if (joinCnt > idx) {
+    for (let idx = 0; idx < maxNum; idx++) {
+      if (joinNum > idx) {
         result.push(
           <Join>
             <Item type="join"></Item>
