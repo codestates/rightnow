@@ -88,7 +88,7 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
    */
   useEffect(() => {
     console.log(joinCnt);
-    const increase = setTimeout(() => setJoinCnt(joinCnt + 1), 1000);
+    const increase = setInterval(() => setJoinCnt(joinCnt + 1), 1000);
     return () => clearInterval(increase);
   }, [joinCnt]);
 
