@@ -3,7 +3,7 @@
 
 <br/>
 
-![](https://cdn.discordapp.com/attachments/916188054576844830/928214485485895710/2022-01-05_6.12.38.png)
+![](https://cdn.discordapp.com/attachments/919801014239002675/928634523980271626/rightnow_logo.png)
 
 👉🏻 [rightnow 사이트 바로가기]()  
 👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)  
