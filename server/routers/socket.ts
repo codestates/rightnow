@@ -155,7 +155,7 @@ searchNamespace.on('connection', (socket: any) => {
         return;
       }
     }
-
+    console.log(data.location);
     // let location = await roomValidation.getLocation(data.lat, data.lon);
     //  ... 여기에 카카오로 데이터 가져와서 location에 저장하는 로직 추가 - 사용안함
     // 범위가 벗어난 경우(한국이 아닌 경우) reject
@@ -175,7 +175,7 @@ searchNamespace.on('connection', (socket: any) => {
       if (find.status === 'wait') {
         let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
         socket.join(find.uuid);
-        searchNamespace.to(find.uuid).emit('user_enter', findRoom);
+        searchNamespace.to(find.uuid).emit('waiting', findRoom);
       }
       if (find.status === 'search') {
         searchNamespace.to(data.email).emit('search_room', find);
@@ -199,7 +199,7 @@ searchNamespace.on('connection', (socket: any) => {
         });
       }
     }
-
+    //searchNamespace.to(socket.id).emit('search_room', data);
     searchNamespace.to(data.email).emit('search_room', data);
   });
   // 방 찾는 로직
@@ -219,6 +219,7 @@ searchNamespace.on('connection', (socket: any) => {
 
   socket.on('search_room', async (data: any): Promise<void> => {
     let id: string = '';
+    console.log(socket.adapter.rooms);
     try {
       console.log(data.email + 'searching');
 
@@ -228,7 +229,7 @@ searchNamespace.on('connection', (socket: any) => {
         let tempRoom = tempRooms.find((item) => item.uuid === findUser.uuid);
         socket.join(findUser.uuid);
         // todo user_enter -> waiting 으로 변경
-        searchNamespace.to(findUser.uuid).emit('user_enter', tempRoom);
+        searchNamespace.to(findUser.uuid).emit('waiting', tempRoom);
         return;
       }
 
@@ -245,7 +246,7 @@ searchNamespace.on('connection', (socket: any) => {
     }
     // database 에서 방찾기가 성공했을 경우
     if (id !== 'fail') {
-      console.log('database room find');
+      console.log('database room find' + socket);
 
       let roomData = null;
       try {
@@ -381,7 +382,7 @@ searchNamespace.on('connection', (socket: any) => {
         let send = { ...findRoom };
         send.is_insert = true;
         socket.join(data.uuid);
-        searchNamespace.to(data.uuid).emit('user_enter', send);
+        searchNamespace.to(data.uuid).emit('waiting', send);
         return;
       }
     }
@@ -459,39 +460,39 @@ searchNamespace.on('connection', (socket: any) => {
     clearTimeout(searchings.get(data.email));
     searchings.delete(data.email);
     socket.join(data.uuid);
-    searchNamespace.to(data.uuid).emit('user_enter', data.room);
+    searchNamespace.to(data.uuid).emit('waiting', data.room);
     return;
   });
 
   //! 임시 룸에 들어와서 기다리고 있음 - 사용안함
-  socket.on('waiting', async (data: any): Promise<void> => {
-    try {
-      console.log(data.email + 'waiting');
-      let me = findUsers.get(data.email);
-      if (!me) {
-        clearTimeout(searchings.get(data.email));
-        searchings.delete(data.email);
-        // findUsers 에서 제거 - 이미 제거됨
-        searchNamespace.to(data.email).emit('enter', data);
-        return;
-      }
-      let tempRoom = tempRooms.find((item) => (item.uuid = data.uuid));
-      data.room = tempRoom;
+  // socket.on('waiting', async (data: any): Promise<void> => {
+  //   try {
+  //     console.log(data.email + 'waiting');
+  //     let me = findUsers.get(data.email);
+  //     if (!me) {
+  //       clearTimeout(searchings.get(data.email));
+  //       searchings.delete(data.email);
+  //       // findUsers 에서 제거 - 이미 제거됨
+  //       searchNamespace.to(data.email).emit('enter', data);
+  //       return;
+  //     }
+  //     let tempRoom = tempRooms.find((item) => (item.uuid = data.uuid));
+  //     data.room = tempRoom;
 
-      clearTimeout(searchings.get(data.email));
-      let interval = setTimeout((): void => {
-        searchNamespace.to(data.email).emit('waiting', data);
-      }, LOOP_TIME);
-      searchings.set(data.email, interval);
-    } catch (e) {
-      if (data) {
-        searchNamespace
-          .to(socket.id)
-          .emit('reject_match', { message: 'wait: invalid access' });
-        return;
-      } else console.log('wait:invalid access');
-    }
-  });
+  //     clearTimeout(searchings.get(data.email));
+  //     let interval = setTimeout((): void => {
+  //       searchNamespace.to(data.email).emit('waiting', data);
+  //     }, LOOP_TIME);
+  //     searchings.set(data.email, interval);
+  //   } catch (e) {
+  //     if (data) {
+  //       searchNamespace
+  //         .to(socket.id)
+  //         .emit('reject_match', { message: 'wait: invalid access' });
+  //       return;
+  //     } else console.log('wait:invalid access');
+  //   }
+  // });
 
   //client 에서 cancel 버튼 클릭 시
   socket.on('cancel', async (data: any): Promise<void> => {
@@ -531,7 +532,7 @@ searchNamespace.on('connection', (socket: any) => {
         // 만약 유저가 더이상 없다면 - 해당 임시룸 삭제 수정완료 ! 테스트 완료
         if (myRoom.participants.length === 0)
           tempRooms.splice(tempRooms.indexOf(myRoom), 1);
-        else searchNamespace.to(findUser.uuid).emit('user_enter', myRoom);
+        else searchNamespace.to(findUser.uuid).emit('waiting', myRoom);
 
         socket.leave(findUser.uuid);
       }
@@ -699,7 +700,11 @@ chatNamespace.on('connection', (socket: any) => {
     //socket.leave(data.room_id);
 
     //본인이 나갔다는 사실을 방의 인원들에게 알림
-    chatNamespace.to(data.room_id).emit('leave_meeting', { email: data.email });
+    if (deleteMe.message !== 'room delete') {
+      chatNamespace
+        .to(data.room_id)
+        .emit('leave_meeting', { email: data.email });
+    }
     //leave room 으로 이동
     chatNamespace.to(socket.id).emit('leave_room', data);
   });

@@ -25,6 +25,11 @@ interface RoomValidation {
   ): Promise<void>;
   searchRoom(data: any): Promise<string>;
   getLocation(lat: number, lon: number): Promise<string>;
+  getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }
 const roomValidation: RoomValidation = {
   /*
@@ -174,6 +179,56 @@ const roomValidation: RoomValidation = {
       });
 
     return location;
+  },
+
+  async getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    let body: any = req.body;
+    let send: any = null;
+    try {
+      let pastRooms = await db.Room.findAll({
+        where: [
+          {
+            [`$Participants.user_email$`]: body.email,
+          },
+          {
+            close_date: {
+              [Op.lt]: new Date(),
+            },
+          },
+        ],
+        include: { model: db.Participant },
+      });
+
+      for (let i = 0; i < pastRooms.length; i++) {
+        let participants = await db.Participant.findAll({
+          where: { room_id: pastRooms[i].dataValues.id },
+        });
+        pastRooms[i].dataValues.Participants = participants;
+      }
+      if (pastRooms.length === 0) {
+        send = {
+          status: 200,
+          message: 'N/A',
+        };
+      } else {
+        send = {
+          status: 200,
+          message: 'ok',
+          data: pastRooms,
+        };
+      }
+      req.sendData = send;
+      next();
+    } catch (e) {
+      res.status(400).send({
+        message: 'invalid access',
+        code: e,
+      });
+    }
   },
 };
 

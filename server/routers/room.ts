@@ -11,5 +11,10 @@ roomRouter.post(
 );
 roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
 roomRouter.post('/get', roomValidation.getRoomInfo, roomController.getRoomInfo);
+roomRouter.post(
+  '/get/past',
+  roomValidation.getPastMeet,
+  roomController.getPastMeet,
+);
 
 export default roomRouter;
