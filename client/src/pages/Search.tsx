@@ -16,6 +16,7 @@ import {
   setLocation,
   setRoomCategory,
 } from '../reducers/roomSlice';
+import Loading from '../components/Loading';
 
 const Container = styled.div`
   display: flex;
@@ -193,6 +194,8 @@ const Message = styled.div`
 
 const Modal = styled(ModalTemp)``;
 
+const Searching = styled(Loading)``;
+
 interface CategoryType {
   id: number;
   name: string;
@@ -222,6 +225,7 @@ const Search = () => {
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
   const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭중 모달 상태
+  const [isSearching, setIsSearching] = useState<boolean>(false); // 방 찾는 중 상태
 
   const [category, setCategory] = useState<CategoryType[]>([]); // DB에서 가져온 카테고리 리스트
   const [friendList, setFriendList] = useState<FriendType[]>([]); // DB에서 가져온 친구 리스트
@@ -367,6 +371,22 @@ const Search = () => {
   }, []);
 
   /**
+   * 모임 매칭 전에 검색
+   */
+  useEffect(() => {
+    if (isSearching) {
+      // 모임을 찾기
+
+      // 3초 후에 로딩 화면이 사라짐(테스트용)
+      setTimeout(() => {
+        setIsSearching(false); // 로딩 사라짐
+        setIsMatching(true); // 매칭화면으로 넘어감
+      }, 3000);
+    }
+    return () => {};
+  }, [isSearching]);
+
+  /**
    * 선택한 친구들이 정해진 인원보다 많은지 검사
    * 상황에 따라 메지시를 모여줌
    */
@@ -446,17 +466,16 @@ const Search = () => {
       lat,
     }; // 모임을 참가할 때 필요한 데이터들
 
-    // 모임 찾기
-
+    // 원하는 모임 조건 선택(조건은 임시)
     if (category_id !== -1) {
-      // 필요한 조건을 전부 선택하고,
-      // 방이 만들어지면
-      setIsMatching(true); // 매칭으로 넘어감
+      // 모임 찾기
+      setIsSearching(true); // isSearching이 true로 바뀌면 useEffect가 실행됨
+      // useEffect에서 모임검색이 끝나면 isMatching이 true로 바뀌면서 매칭 모달이 뜸
     }
   };
 
   /**
-   * searching을 끝냄
+   * matching을 끝냄
    */
   const handleMatching = () => {
     setIsMatching(false); // 모달 창을 닫음
@@ -466,6 +485,7 @@ const Search = () => {
     <Container>
       {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
       {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
+      {isSearching ? <Searching></Searching> : <></>}
       <SearchContainer>
         <TitleContainer>
           <Title># 모임 찾기</Title>
