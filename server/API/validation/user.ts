@@ -620,6 +620,14 @@ const userValidation: UserValidation = {
       next();
     }
   },
+
+  /*
+  카카오 소셜로그인
+  */
+
+  /*
+  구글 소셜로그인
+  */
 };
 
 export default userValidation;
