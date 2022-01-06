@@ -1,8 +1,8 @@
 import express, { Request, Response, Router, NextFunction } from 'express';
 import participantValidation from '../API/validation/participant';
 import roomValidation from '../API/validation/room';
-import myDate from '../method/myDate';
 import messageValidation from '../API/validation/message';
+import { CacheUser, Participant, TempRoom, CacheRoomList } from '../type/type';
 const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
 const http: any = require('http').createServer(socketRouter);
@@ -22,23 +22,34 @@ const io: any = require('socket.io')(http, {
   },
 });
 
-interface Participant {
-  email: string;
-  lon: number;
-  lat: number;
-}
-interface TempRoom {
-  uuid: string;
-  category_id: string;
-  allow_num: number;
-  location: string;
-  participants: Array<any>;
-}
+// interface CacheUser {
+//   category_id: number;
+//   location: string;
+//   email: string;
+//   type: string;
+//   email_list?: Array<string>;
+//   lon: number;
+//   lat: number;
+//   status: string;
+//   uuid?: string;
+// }
+// interface Participant {
+//   email: string;
+//   lon: number;
+//   lat: number;
+// }
+// interface TempRoom {
+//   uuid: string;
+//   category_id: string;
+//   allow_num: number;
+//   location: string;
+//   participants: Array<any>;
+// }
 
 //let findUsers: Map<string, string | Array<string>> = new Map();
 
 //현재 찾기 진행중인 유저들
-let findUsers: Map<string, any> = new Map();
+let findUsers: Map<string, CacheUser | any> = new Map();
 
 //유저들의 로직
 let searchings: Map<string, NodeJS.Timer | any> = new Map();
@@ -67,6 +78,22 @@ searchNamespace.on('connection', (socket: any) => {
     } catch {}
   });
   console.log(socket.id + ' conntect');
+
+  /*
+    현재 검색중인 친구 찾기
+    data ={
+      email_list: Array<string>
+    }
+  */
+  socket.on('searching_friend', async (data: any): Promise<void> => {
+    let findList: Array<string> = [];
+    await data.email_list.forEach((item: string) =>
+      findUsers.get(item) ? findList.push(item) : '',
+    );
+    searchNamespace
+      .to(socket.id)
+      .emit('searching_friend', { find_friends: findList });
+  });
   //모임 매치를 클릭했을 경우
   /*
    데이터 형식
@@ -87,7 +114,7 @@ searchNamespace.on('connection', (socket: any) => {
     }
     socket.leave(data.email);
   });
-  socket.on('find_room', async (data: any): Promise<void> => {
+  socket.on('find_room', async (data: CacheUser | any): Promise<void> => {
     //강제 종료했다가 들어오지 않은 경우만
     let findUser = findUsers.get(data.email);
     if (!findUser) {
@@ -144,13 +171,20 @@ searchNamespace.on('connection', (socket: any) => {
           return;
         }
       }
-      let category: any = await db.Category.findOne({
-        where: { id: data.category_id },
-      });
-      // searching 중인 카테고리의 허용 숫자가 그룹 인원보다 적거나 같을경우
-      if (category.dataValues.user_num <= data.email_list.length + 1) {
-        searchNamespace.to(data.email).emit('reject_match', {
-          message: 'out of user number',
+      try {
+        let category: any = await db.Category.findOne({
+          where: { id: data.category_id },
+        });
+        // searching 중인 카테고리의 허용 숫자가 그룹 인원보다 적거나 같을경우
+        if (category.dataValues.user_num <= data.email_list.length + 1) {
+          searchNamespace.to(data.email).emit('reject_match', {
+            message: 'out of user number',
+          });
+          return;
+        }
+      } catch (e) {
+        await searchNamespace.to(data.email).emit('reject_match', {
+          message: 'find category: invalid access',
         });
         return;
       }
@@ -367,6 +401,7 @@ searchNamespace.on('connection', (socket: any) => {
             participants,
           );
         } catch (e) {
+          console.log(e);
           searchNamespace.to(socket.id).emit('reject_match', {
             message: 'room create: invalid access',
             code: e,
@@ -381,6 +416,9 @@ searchNamespace.on('connection', (socket: any) => {
         findRoom.room_id = room.id;
         let send = { ...findRoom };
         send.is_insert = true;
+
+        clearTimeout(searchings.get(data.email));
+        searchings.delete(data.email);
         socket.join(data.uuid);
         searchNamespace.to(data.uuid).emit('waiting', send);
         return;
@@ -495,6 +533,13 @@ searchNamespace.on('connection', (socket: any) => {
   // });
 
   //client 에서 cancel 버튼 클릭 시
+  /*
+    data = {
+      email,
+      type,
+      email_list // only group
+    }
+  */
   socket.on('cancel', async (data: any): Promise<void> => {
     try {
       console.log(data.email + ' cancel');
@@ -505,6 +550,13 @@ searchNamespace.on('connection', (socket: any) => {
 
       // 대기중인 방에서 삭제
       let findUser = findUsers.get(data.email);
+
+      if (!findUser) {
+        searchNamespace
+          .to(socket.id)
+          .emit('reject_match', { message: 'cancel: invalid access' });
+        return;
+      }
       if (findUser.uuid) {
         let myRoom = tempRooms.find(
           (item: any): boolean => item.uuid === findUser.uuid,
@@ -549,7 +601,10 @@ searchNamespace.on('connection', (socket: any) => {
   });
 });
 
-let roomList: Map<string, any> = new Map();
+// interface CacheRoomList {
+//   users: Array<string>;
+// }
+let roomList: Map<string, CacheRoomList | any> = new Map();
 //  todo chatting room - 작업 완료 ! 테스트 필요
 chatNamespace.on('connection', (socket: any) => {
   console.log(socket.adapter.rooms);
@@ -616,6 +671,7 @@ chatNamespace.on('connection', (socket: any) => {
         message_id: message.id,
       });
     } catch (e) {
+      console.log(e);
       chatNamespace
         .to(socket.id)
         .emit('reject', { message: 'msg: invalid access', code: e });
@@ -645,6 +701,7 @@ chatNamespace.on('connection', (socket: any) => {
         message_id: message.id,
       });
     } catch (e) {
+      console.log(e);
       chatNamespace
         .to(socket.id)
         .emit('reject', { message: 'msg: invalid access', code: e });
@@ -663,8 +720,9 @@ chatNamespace.on('connection', (socket: any) => {
       let user = await db.User.findOne({ where: { email: data.email } });
       user = user.dataValues;
 
+      //현재 룸 캐시에서 삭제
       let myRoom = roomList.get(data.room_id);
-      myRoom.splice(myRoom.indexOf(data.email), 1);
+      myRoom.users.splice(myRoom.users.indexOf(data.email), 1);
       roomList.set(data.room_id, myRoom);
 
       socket.leave(data.room_id);
@@ -673,6 +731,7 @@ chatNamespace.on('connection', (socket: any) => {
         users: myRoom.users,
       });
     } catch (e) {
+      console.log(e);
       chatNamespace
         .to(socket.id)
         .emit('reject', { message: 'leave_room: invalid access', code: e });
