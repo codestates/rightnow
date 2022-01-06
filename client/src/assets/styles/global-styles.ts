@@ -7,9 +7,6 @@ const GlobalStyle = createGlobalStyle`
   ${normalize}
 
   html,
-  body {
-    overflow: hidden;
-  }
 
   * {
     box-sizing: border-box;

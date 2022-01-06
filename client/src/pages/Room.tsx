@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
+import Alert from '../components/Alert';
 import Chatting from '../components/Chatting';
+import Header from '../components/layout/Header';
 
 const Container = styled.div`
   display: flex;
@@ -199,6 +201,8 @@ const Room = () => {
   };
 
   return (
+   <>
+    <Header />
     <Container>
       <ChatContainer>
         <RoomDetail>
@@ -236,6 +240,8 @@ const Room = () => {
         </ContentContainer>
       </ChatContainer>
     </Container>
+    <Alert />
+  </>
   );
 };
 

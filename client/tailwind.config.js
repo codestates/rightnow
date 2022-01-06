@@ -13,6 +13,7 @@ module.exports = {
             "8xl": "96rem",
             "9xl": "128rem",
             0.75: "3px",
+            4.5: "18px",
             8.5: "34px",
             14.5: "58px",
             15: "60px",
@@ -25,7 +26,10 @@ module.exports = {
             50: "200px",
             60: "240px",
             120: "480px",
+            167.5: "670px",
             192: "768px",
+            250: "1000px",
+            278: "1112px",
             "102%": "102%",
             "100vh": "100vh",
         },
@@ -38,6 +42,7 @@ module.exports = {
         colors: {
             main: "#FC1681",
             subMain: "#ffffef",
+            sub: "#1C1C1B"
         },
         minHeight: {
             login: "calc(100vh - 72px)",
