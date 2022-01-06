@@ -266,8 +266,6 @@ const friendValidation: FriendValidation = {
     const FriendList: any = [...FriendList1, ...FriendList2];
     req.sendData = { data: { FriendList: FriendList }, message: 'ok' };
     next();
-
-    next();
   },
 };
 
