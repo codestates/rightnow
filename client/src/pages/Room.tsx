@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Alert from '../components/Alert';
 import Chatting from '../components/Chatting';
+import Header from '../components/layout/Header';
 
 const Container = styled.div`
   display: flex;
@@ -139,39 +141,41 @@ const Room = () => {
   const handleQuit = () => {};
 
   return (
-    <Container>
-      <ChatContainer>
-        <RoomDetail>
-          {/** 위치와 카테고리로 모임 타이틀 표시 */}
-          <GroupTitle>#서울시 #동대문구 #맛집</GroupTitle>
-        </RoomDetail>
-        <ContentContainer>
-          <ChatBox>
-            <ChatContent
-              talkContents={talkContents!}
-              text={text}
-              handleText={handleText}
-              handleQuit={handleQuit}
-            />
-          </ChatBox>
-          <MemberContainer>
-            <SubTitle>대화 상대</SubTitle>
-            <MemberList>
-              {memberList && memberList.length > 0 ? (
-                memberList.map((member: any) => {
-                  return (
-                    <Member key={member.email}>
-                      <ImageContainer>
-                        <ProfileImg url={member.profile_img} />
-                      </ImageContainer>
-                      <ProfileName>member.nick_name</ProfileName>
-                    </Member>
-                  );
-                })
-              ) : (
-                <div>대화 상대가 없습니다.</div>
-              )}
-              {/* <Member>
+    <>
+      <Header />
+      <Container>
+        <ChatContainer>
+          <RoomDetail>
+            {/** 위치와 카테고리로 모임 타이틀 표시 */}
+            <GroupTitle>#서울시 #동대문구 #맛집</GroupTitle>
+          </RoomDetail>
+          <ContentContainer>
+            <ChatBox>
+              <ChatContent
+                talkContents={talkContents!}
+                text={text}
+                handleText={handleText}
+                handleQuit={handleQuit}
+              />
+            </ChatBox>
+            <MemberContainer>
+              <SubTitle>대화 상대</SubTitle>
+              <MemberList>
+                {memberList && memberList.length > 0 ? (
+                  memberList.map((member: any) => {
+                    return (
+                      <Member key={member.email}>
+                        <ImageContainer>
+                          <ProfileImg url={member.profile_img} />
+                        </ImageContainer>
+                        <ProfileName>member.nick_name</ProfileName>
+                      </Member>
+                    );
+                  })
+                ) : (
+                  <div>대화 상대가 없습니다.</div>
+                )}
+                {/* <Member>
                 <ImageContainer>
                   <ProfileImg url="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE" />
                 </ImageContainer>
@@ -213,11 +217,13 @@ const Room = () => {
                 <ProfileName>이름</ProfileName>
                 <ProfileMenu />
               </Member> */}
-            </MemberList>
-          </MemberContainer>
-        </ContentContainer>
-      </ChatContainer>
-    </Container>
+              </MemberList>
+            </MemberContainer>
+          </ContentContainer>
+        </ChatContainer>
+      </Container>
+      <Alert />
+    </>
   );
 };
 

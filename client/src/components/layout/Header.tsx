@@ -35,10 +35,10 @@ const Header = () => {
           }
         }}
       >
-        <Link to={'/'} className="flex items-center">
+        <Link to={isLogin ? '/room' : '/'} className="flex items-center">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Logo />
-            <p className="text-main font-serif font-semibold text-3xl underline whitespace-nowrap w-auto ">
+            <p className="text-slate-700 font-sans font-bold text-4xl whitespace-nowrap w-auto ">
               rightnow
             </p>
           </div>

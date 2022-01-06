@@ -10,6 +10,7 @@ import userApi from './api/userApi';
 import { useAppSelector, useAppDispatch } from './config/hooks';
 import { userAccessToken, getUserInfo, IUserInfo } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
+import AuthLayout from './pages/auth/AuthLayout';
 
 function Routes() {
   const location = useLocation();
@@ -27,12 +28,9 @@ function Routes() {
   }, [location]);
   return (
     <>
-      <Header />
       <Switch>
         <Route path="/" element={<RendingPage />} />
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/join" element={<Join />} />
-        <Route path="/auth/resetPassword" element={<ResetPassword />} />
+        <Route path="/auth/*" element={<AuthLayout />} />
         <Route path="/mypage/*" element={<MypageLayout />} />
         <Route path="/room" element={<Room />} />
       </Switch>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Route, Routes as Switch, Link, useLocation } from 'react-router-dom';
 import FriendsLayout from './friends/FriendsLayout';
 import AccountLayout from './account/AccountLayout';
+import Header from '../../components/layout/Header';
 
 interface IOption {
   id: string;
@@ -21,11 +22,12 @@ const MypageLayout = () => {
   );
 
   useEffect(() => {
-    setSelectedId(location.pathname.split('/')[2])
-  },[location])
+    setSelectedId(location.pathname.split('/')[2]);
+  }, [location]);
 
   return (
     <>
+      <Header/>
       <header className="mt-1 text-center bg-white h-10 shadow-md fixed top-16 w-screen">
         <div className="inline-flex w-222 h-full items-center relative">
           {headerOption.map((v, i) => {
