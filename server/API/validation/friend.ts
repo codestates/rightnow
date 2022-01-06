@@ -204,9 +204,9 @@ const friendValidation: FriendValidation = {
         message: 'no exists email',
       };
     }
-
     next();
   },
+
   /*
   요청이 온  친구 신청 목록 보기 
   */
@@ -214,7 +214,25 @@ const friendValidation: FriendValidation = {
     req: CustomRequest,
     res: Response,
     next: NextFunction,
-  ): Promise<any> {},
+  ): Promise<any> {
+    const { email } = req.body;
+    const userInfo: any = await db['User'].findOne({
+      where: { email: email },
+    });
+    if (!userInfo) {
+      req.sendData = { message: 'no exists userInfo' };
+      next();
+      return;
+    }
+    let RequestFriend: any = await db['Friend'].findAll({
+      where: { res_user: email },
+    });
+    RequestFriend = RequestFriend.filter((el: any) => {
+      return el.dataValues.is_accept === 'N';
+    });
+    req.sendData = { data: { RequestFriend: RequestFriend }, message: 'ok' };
+    next();
+  },
 
   /*
   나의 친구목록 보기
@@ -224,14 +242,31 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.params;
-    const FriendList: any = await db['Friend'].findAll({
+    const { email } = req.body;
+    const userInfo: any = await db['User'].findOne({
+      where: { email },
+    });
+    if (!userInfo) {
+      req.sendData = { message: 'no exists userInfo' };
+      next();
+      return;
+    }
+    let FriendList1: any = await db['Friend'].findAll({
       where: { req_user: email },
     });
-    const FriendList2: any = await db['Friend'].findAll({
+    let FriendList2: any = await db['Friend'].findAll({
       where: { res_user: email },
     });
-    for (let i = 0; i < FriendList; i++) {}
+    FriendList1 = FriendList1.filter((el: any) => {
+      return el.dataValues.is_accept === 'Y';
+    });
+    FriendList2 = FriendList2.filter((el: any) => {
+      return el.dataValues.is_accept === 'Y';
+    });
+    const FriendList: any = [...FriendList1, ...FriendList2];
+    req.sendData = { data: { FriendList: FriendList }, message: 'ok' };
+    next();
+
     next();
   },
 };
