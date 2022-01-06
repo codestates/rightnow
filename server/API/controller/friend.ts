@@ -82,12 +82,34 @@ const friendController: FriendController = {
   /*
   요청이 온 친구 신청 목록 보기 
   */
-  async requestList(req: CustomRequest, res: Response): Promise<void> {},
+  async requestList(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).send({
+        data: {
+          RequestFriend: req.sendData.data.RequestFriend,
+        },
+        message: 'ok',
+      });
+    } else if (req.sendData.message === 'no exists userInfo') {
+      res.status(404).send({ message: 'no exists userInfo' });
+    }
+  },
 
   /*
   나의 친구목록 보기
   */
-  async friendList(req: CustomRequest, res: Response): Promise<void> {},
+  async friendList(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).send({
+        data: {
+          FriendList: req.sendData.data.FriendList,
+        },
+        message: 'ok',
+      });
+    } else if (req.sendData.message === 'no exists userInfo') {
+      res.status(404).send({ message: 'no exists userInfo' });
+    }
+  },
 };
 
 export default friendController;
