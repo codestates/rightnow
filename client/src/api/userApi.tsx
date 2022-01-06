@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const endpoint = '127.0.0.1:80';
+const endpoint = process.env.REACT_APP_ENDPOINT;
+axios.defaults.withCredentials = true
 
 export default function userApi(
   name: string,

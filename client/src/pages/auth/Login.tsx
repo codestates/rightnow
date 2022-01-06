@@ -76,7 +76,7 @@ const Login = () => {
     const callback = (code: number, data: string) => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
-        router('/');
+        router('/room');
         setTimeout(() => {
           dispatch(showAlert('login'));
         }, 50);
