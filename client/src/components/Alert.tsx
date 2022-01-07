@@ -51,7 +51,7 @@ const Alert = () => {
         break;
       case 'alreadyRoomFriend':
         setTitle('모임검색');
-        setSubTitle('함께 할 수 없는 친구가 있어요.(모임 참가중)');
+        setSubTitle('이미 방에 참가 중인 유저와는 매칭을 시작할 수 없습니다.');
         break;
       case 'alreadyRoomUser':
         setTitle('모임검색');
@@ -61,11 +61,15 @@ const Alert = () => {
         break;
       case 'alreadySearchingFriend':
         setTitle('모임검색');
-        setSubTitle('함께 할 수 없는 친구가 있어요.(모임 찾기중)');
+        setSubTitle('매칭 중인 유저와는 매칭을 시작할 수 없습니다.');
         break;
       case 'outOfRange':
         setTitle('모임검색');
-        setSubTitle('선택한 인원이 너무 많아요.');
+        setSubTitle('선택한 친구가 카테고리 제한 인원보다 많습니다.');
+        break;
+      case 'cannotCancel':
+        setTitle('모임검색');
+        setSubTitle('매칭 취소는 그룹장만 할 수 있습니다.');
         break;
     }
   }, [alertType]);
