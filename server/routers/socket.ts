@@ -22,32 +22,6 @@ const io: any = require('socket.io')(http, {
   },
 });
 
-// interface CacheUser {
-//   category_id: number;
-//   location: string;
-//   email: string;
-//   type: string;
-//   email_list?: Array<string>;
-//   lon: number;
-//   lat: number;
-//   status: string;
-//   uuid?: string;
-// }
-// interface Participant {
-//   email: string;
-//   lon: number;
-//   lat: number;
-// }
-// interface TempRoom {
-//   uuid: string;
-//   category_id: string;
-//   allow_num: number;
-//   location: string;
-//   participants: Array<any>;
-// }
-
-//let findUsers: Map<string, string | Array<string>> = new Map();
-
 //현재 찾기 진행중인 유저들
 let findUsers: Map<string, CacheUser | any> = new Map();
 
@@ -153,9 +127,32 @@ searchNamespace.on('connection', (socket: any) => {
   */
   socket.on('searching_friend', async (data: any): Promise<void> => {
     let findList: Array<string> = [];
-    await data.email_list.forEach((item: string) =>
-      findUsers.get(item) ? findList.push(item) : '',
-    );
+    let leaveList: Array<string> = [...data.email_list];
+
+    //현재 matching 진행중인 친구 확인
+    await data.email_list.forEach((item: string) => {
+      if (findUsers.get(item)) {
+        findList.push(item);
+        leaveList.splice(leaveList.indexOf(item), 1);
+      }
+    });
+
+    //이미 룸에 들어가 있는 친구 확인
+    if (leaveList.length > 0) {
+      try {
+        let canEnter = await participantValidation.checkParticipant(
+          'none',
+          'GROUP',
+          leaveList,
+        );
+        if (canEnter !== 'no exist') findList = [...findList, ...canEnter.list];
+      } catch (e) {
+        console.log(e);
+        searchNamespace
+          .to(socket.id)
+          .emit('reject_match', { message: 'invalid access' });
+      }
+    }
     searchNamespace
       .to(socket.id)
       .emit('searching_friend', { find_friends: findList });
