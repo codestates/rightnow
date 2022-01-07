@@ -72,7 +72,10 @@ const participantValidation: ParticipantValidation = {
         ? { message: 'no exist' }
         : find
         ? { message: 'exist', room_id: find.dataValues.room_id }
-        : { message: 'someone exist' };
+        : {
+            message: 'someone exist',
+            list: finds.map((item: any) => item.dataValues.user_email),
+          };
     }
   },
   /*

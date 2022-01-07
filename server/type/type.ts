@@ -14,6 +14,7 @@ interface CacheUser {
   lat: number;
   status?: string;
   uuid?: string;
+  is_master?: boolean;
 }
 interface Participant {
   email: string;
