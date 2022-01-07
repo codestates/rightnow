@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
+import { categoryAPI } from '../api/categoryApi';
+import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
 
@@ -41,10 +43,12 @@ const GroupTitle = styled.div`
   font-size: 1.5rem;
   background: ${(props) => props.theme.color.main};
   color: black;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 0.8rem;
   margin-bottom: 0.3rem;
   box-shadow: 6px 6px 0 0 rgb(255, 99, 53, 0.4);
-  width: 21rem;
+  width: 30rem;
+  height: 3rem;
+  line-height: 2rem;
 `;
 
 const ProfileMenu = styled.div`
@@ -83,6 +87,7 @@ const MemberContainer = styled.div`
 
 const MemberList = styled.div`
   overflow-y: scroll;
+  overflow-x: hidden;
   height: 95%;
   margin-top: 0.6rem;
 
@@ -138,61 +143,58 @@ interface MessageType {
   writeDate: string;
 }
 
+interface StateType {
+  room_id: string;
+}
+
+interface CategoryType {
+  id: number;
+  name: string;
+  user_num: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const Room = () => {
+  const location = useLocation();
+  const state = location.state as StateType;
+  const { room_id } = state;
+
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
   const [memberList, setMemberList] = useState<User[]>([]);
+  const [category, setCategory] = useState<string>('');
+  const [roomLocation, setRoomLocation] = useState<string>('');
+
   const navigate = useNavigate();
-
   useEffect(() => {
-    setTalkContents([
-      {
-        id: 1,
-        user: {
-          email: 'test@gmail.com',
-          nick_name: '테스트',
-          profile_img: 'https://via.placeholder.com/800x600',
+    const roomData = async () => {
+      const {
+        data: {
+          data: { Messages, Participants, category_id, location },
         },
-        content: '안녕하세요',
-        isUpdate: 'N',
-        writeDate: '2021-12-12',
-      },
-      {
-        id: 2,
-        user: {
-          email: 'test@gmail.com',
-          nick_name: '테스트',
-          profile_img: 'https://via.placeholder.com/800x600',
-        },
-        content: '안녕하세요',
-        isUpdate: 'N',
-        writeDate: '2021-12-12',
-      },
-      {
-        id: 3,
-        user: {
-          email: 'test@gmail.com',
-          nick_name: '테스트',
-          profile_img: 'https://via.placeholder.com/800x600',
-        },
-        content: '안녕하세요',
-        isUpdate: 'N',
-        writeDate: '2021-12-12',
-      },
-    ]);
-  }, []);
+      } = await roomAPI.getRoomInfo(room_id);
+      setTalkContents(Messages);
+      setRoomLocation(location);
 
-  useEffect(() => {
-    setMemberList([
-      {
-        email: 'test@gmail.com',
-        nick_name: '테스트',
-        profile_img: 'https://via.placeholder.com/800x600',
-        enterDate: '2021-12-12',
-        role: 'HOST',
-      },
-    ]);
-  }, []);
+      const members = Participants.map((member: any) => {
+        return member.User;
+      });
+      setMemberList(members);
+
+      const {
+        data: {
+          data: { categoryList },
+        },
+      } = await categoryAPI.list();
+      categoryList.filter((cat: CategoryType) => {
+        if (category_id === cat.id) {
+          setCategory(cat.name);
+        }
+      });
+    };
+    roomData();
+  }, [room_id]);
 
   /**
    * 채팅 입력창 메시지 상태 관리
@@ -200,6 +202,14 @@ const Room = () => {
    */
   const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
+  };
+
+  /**
+   * 방 카테고리와 주소를 타이틀로 만들어서 반환함
+   * @returns 타이틀
+   */
+  const roomTitle = () => {
+    return `#${category} #${roomLocation.split(' ').join('_')}`;
   };
 
   /**
@@ -215,8 +225,7 @@ const Room = () => {
       <Container>
         <ChatContainer>
           <RoomDetail>
-            {/** 위치와 카테고리로 모임 타이틀 표시 */}
-            <GroupTitle>#서울시 #동대문구 #맛집</GroupTitle>
+            <GroupTitle>{roomTitle()}</GroupTitle>
           </RoomDetail>
           <ContentContainer>
             <ChatBox>
