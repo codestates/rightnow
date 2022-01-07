@@ -432,7 +432,7 @@ const Search = () => {
       if (res.message === 'someone aleady attended room') {
         // 그룹 매칭 시 그룹중 한명이 이미 방에 참가한 경우 - 모달창으로 알람 발생
         console.log('그룹원중 한명이 이미 방에 참가하였습니다.');
-        dispatch(showAlert('그룹원중 한명이 이미 방에 참가하였습니다.'));
+        dispatch(showAlert('alreadyRoomFriend'));
         setIsSearching(false);
         setIsMatching(false);
         return;
@@ -440,7 +440,7 @@ const Search = () => {
       if (res.message === 'some group member aleady searching') {
         // 그룹 매칭 시 그룹중 한명이 이미 매칭 검색중인 경우 - 모달창으로 알람 발생 후 페이지 reload
         console.log('그룹원중 한명이 이미 매칭을 진행중 입니다.');
-        dispatch(showAlert('그룹원중 한명이 이미 매칭을 진행중 입니다.'));
+        dispatch(showAlert('alreadySearchingFriend'));
         setIsSearching(false);
         setIsMatching(false);
         return;
@@ -448,7 +448,7 @@ const Search = () => {
       if (res.message === 'out of range user number') {
         // 그룹 매칭 시 카테고리 허용 인원 수 <= 그룹인원의 수  인 경우 - 모달창으로 알람 발생
         console.log('매칭인원이 카테고리의 인원보다 많거나 같습니다.');
-        dispatch(showAlert('매칭인원이 카테고리의 인원보다 많거나 같습니다.'));
+        dispatch(showAlert('outOfRange'));
         setIsSearching(false);
         setIsMatching(false);
         return;
@@ -456,7 +456,7 @@ const Search = () => {
       if (res.message === 'not group master') {
         //dispatch(showAlert('그룹장이 아니어서 매칭취소를 할 수 없습니다.'));
         console.log('그룹장이 아니어서 매칭취소를 할 수 없습니다');
-        dispatch(showAlert('그룹장이 아니어서 매칭취소를 할 수 없습니다.'));
+        dispatch(showAlert('cannotCancel'));
         return;
       }
     });
