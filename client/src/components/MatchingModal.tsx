@@ -86,7 +86,7 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
   const joinCnt = useAppSelector(roomJoinCnt); // 모인 인원
   const maxCnt = useAppSelector(roomMaxCnt); // 채워져야 하는 인원
   const navigate = useNavigate();
-
+  console.log(maxCnt);
   /**
    * 사람이 모이는게 보이게 함(테스트용)
    */
@@ -100,14 +100,14 @@ const MatchingModal = ({ handleMatching }: ModalProps) => {
    * 채워져야 하는 인원
    */
   useEffect(() => {
-    dispatch(setMaxCnt(11));
+    //dispatch(setMaxCnt(11));
   }, []);
 
   /**
    * 현재 모인 인원
    */
   useEffect(() => {
-    dispatch(setJoinCnt(1));
+    //dispatch(setJoinCnt(1));
   }, []);
 
   /**
