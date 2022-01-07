@@ -20,4 +20,8 @@ export const roomAPI = {
         lat,
       },
     }),
+  report: (message_id: number, reporter_email: string) =>
+    api.post(`user/report`, {
+      data: { message_id, reporter_email },
+    }),
 };
