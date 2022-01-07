@@ -15,9 +15,16 @@ import {
   setLat,
   setLocation,
   setRoomCategory,
+  roomMaxCnt,
+  setJoinCnt,
+  setMaxCnt,
+  roomJoinCnt,
 } from '../reducers/roomSlice';
 import Loading from '../components/Loading';
 import { useNavigate } from 'react-router';
+import { showAlert } from '../reducers/componetSlice';
+import Header from '../components/layout/Header';
+import Alert from '../components/Alert';
 
 const Container = styled.div`
   display: flex;
@@ -26,9 +33,9 @@ const Container = styled.div`
   height: 100vh;
   padding-top: 6rem;
   background: ${(props) => props.theme.color.main};
-  color: ${(props) => props.theme.color.subFont};
+  color: #494949;
 
-  @media only screen and (max-width: 600px) {
+  @media only screen and (max-width: 768px) {
     & {
       background-color: lightblue;
     }
@@ -67,20 +74,25 @@ const OptionContainer = styled.div`
 const FrindContainer = styled.div`
   display: flex;
   width: 29rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2.6rem;
 `;
 
 const ButtonContainer = styled.div``;
 
 const Button = styled.button`
-  width: 14rem;
+  width: 15rem;
   height: 2.2rem;
   border-radius: 3px;
   background: ${(props) => props.theme.color.main};
   color: black;
+  transition: 0.2s;
 
   &:active {
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+    background: rgb(211, 76, 52);
+  }
+
+  &:hover {
+    opacity: 0.95;
   }
 `;
 
@@ -191,11 +203,23 @@ const FriendNick = styled.div``;
 const Message = styled.div`
   height: 2rem;
   margin-top: -2rem;
+  color: ${(props) => props.theme.color.sub.red};
 `;
 
 const Modal = styled(ModalTemp)``;
 
-const Searching = styled(Loading)``;
+const Searching = styled(Loading)`
+  display: flex;
+  flex-direaction: column;
+`;
+
+const CancelBtn = styled.button`
+  width: 10rem;
+  height 2rem;
+  color: black;
+  background: ${(props) => props.theme.color.sub.yellow};
+  margin-top: 2rem;
+`;
 
 interface CategoryType {
   id: number;
@@ -228,7 +252,7 @@ const Search = () => {
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
   const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭중 모달 상태
-  const [isSearching, setIsSearching] = useState<boolean>(false); // 방 찾는 중 상태
+  const [isSearching, setIsSearching] = useState<boolean>(true); // 방 찾는 중 상태
 
   const [category, setCategory] = useState<CategoryType[]>([]); // DB에서 가져온 카테고리 리스트
   const [friendList, setFriendList] = useState<FriendType[]>([]); // DB에서 가져온 친구 리스트
@@ -237,8 +261,8 @@ const Search = () => {
     useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
   const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
 
-  const [maxNum, setMaxNum] = useState<number>(initCategory.user_num); // matching 에 전달할 최대인원수 - modal 전달
-  const [joinNum, setJoinNum] = useState<number>(0); // ); //현재 matching된 인원 수 - modal 전달
+  const maxCnt = useAppSelector(roomMaxCnt); // matching 에 전달할 최대인원수 - modal 전달
+  const joinCnt = useAppSelector(roomJoinCnt); // ); //현재 matching된 인원 수 - modal 전달
   const location = useAppSelector(roomLocation);
   const lat = useAppSelector(roomLat);
   const lon = useAppSelector(roomLon);
@@ -375,22 +399,6 @@ const Search = () => {
     }
   }, []);
 
-  /**
-   * 모임 매칭 전에 검색
-   */
-  // useEffect(() => {
-  //   if (isSearching) {
-  //     // 모임을 찾기
-
-  //     // 3초 후에 로딩 화면이 사라짐(테스트용)
-  //     setTimeout(() => {
-  //       setIsSearching(false); // 로딩 사라짐
-  //       setIsMatching(true); // 매칭화면으로 넘어감
-  //     }, 3000);
-  //   }
-  //   return () => {};
-  // }, [isSearching]);
-
   //소켓 연동 - 페이지 들어올 떄 한번만
   useEffect(() => {
     const io = require('socket.io-client');
@@ -407,17 +415,20 @@ const Search = () => {
       }
       if (res.message === 'aleady attended room') {
         let { room_id } = res;
-        navigate('/room');
         // todo: 이미 어떤 방에 참가한 경우 - 받아온 room_id 에 맞는 채팅방 이동
+        navigate('/room', { state: { room_id } });
       }
       if (res.message === 'someone aleady attended room') {
         // todo: 그룹 매칭 시 그룹중 한명이 이미 방에 참가한 경우 - 모달창으로 알람 발생
+        dispatch(showAlert('alreadyRoomFriend'));
       }
       if (res.message === 'some group member aleady searching') {
         // todo: 그룹 매칭 시 그룹중 한명이 이미 매칭 검색중인 경우 - 모달창으로 알람 발생 후 페이지 reload
+        dispatch(showAlert('alreadySearchingFriend'));
       }
       if (res.message === 'out of range user number') {
         // todo: 그룹 매칭 시 카테고리 허용 인원 수 <= 그룹인원의 수  인 경우 - 모달창으로 알람 발생
+        dispatch(showAlert('outOfRange'));
       }
       socket.emit('enter', { email });
     });
@@ -438,12 +449,12 @@ const Search = () => {
 
         // todo: 임시 대기룸 인원 다 찼을경우 - room_id 에 맞는 채팅룸 이동
         let room_id = data.room_id;
-        navigate('/room');
+        navigate('/room', { state: { room_id } });
       } else {
         setIsSearching(false);
         setIsMatching(true);
         console.log(data);
-        setJoinNum(data.participants.length);
+        dispatch(setJoinCnt(data.participants.length));
         console.log('now enter: ' + data.participants.length);
       }
     });
@@ -461,7 +472,7 @@ const Search = () => {
 
       // todo: db에서 원하는 조건의 방을 찾았을 경우 - room_id 에 맞는 채팅룸 이동
       let room_id = res.room_id;
-      navigate('/room');
+      navigate('/room', { state: { room_id } });
     });
 
     //친구정보를 전달하고 현재 matching 진행중인 유저를 받아옴
@@ -475,7 +486,7 @@ const Search = () => {
       console.log(res.message);
       if (res.message !== 'ok') {
         console.log(res.maxNum);
-        setMaxNum(res.maxNum);
+        dispatch(setMaxCnt(res.maxNum));
       }
     });
 
@@ -538,7 +549,7 @@ const Search = () => {
     } else {
       setSelectedCategory(selected);
       dispatch(setRoomCategory(selected.name));
-      setMaxNum(selected.user_num);
+      dispatch(setMaxCnt(selected.user_num));
     }
     setSelectedFriend([]);
     setMessage('');
@@ -570,11 +581,12 @@ const Search = () => {
     if (category_id !== -1) {
       console.log(searchData);
       // 모임 찾기
-      setIsSearching(true); // isSearching이 true로 바뀌면 useEffect가 실행됨
-      // useEffect에서 모임검색이 끝나면 isMatching이 true로 바뀌면서 매칭 모달이 뜸
+      setIsSearching(true);
 
       //소켓 통신 이용해 searching 시작
       socket.emit('find_room', searchData);
+    } else {
+      setMessage('카테고리를 선택해주세요.');
     }
   };
 
@@ -589,90 +601,96 @@ const Search = () => {
     socket.emit('cancel', { email, type, email_list });
     setIsMatching(false); // 모달 창을 닫음
     setIsSearching(false);
-    setJoinNum(0);
+    dispatch(setJoinCnt(0));
     socket.emit('searching_check', { email });
   };
+
   //todo: searching 중에도 cancel 버튼 있으면 좋을듯..
+  const handleSearchCancel = () => {
+    setIsSearching(false);
+  };
   return (
-    <Container>
-      {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
-      {isMatching ? (
-        <MatchingModal
-          handleMatching={handleMatching}
-          maxNum={maxNum}
-          joinNum={joinNum}
-        />
-      ) : (
-        <></>
-      )}
-      {isSearching ? <Searching></Searching> : <></>}
-      <SearchContainer>
-        <TitleContainer>
-          <Title># 모임 찾기</Title>
-        </TitleContainer>
-        <OptionContainer>
-          <Message>{message}</Message>
-          {/* <Dropdown optionList={category} /> */}
-          <CategoryList>
-            <Label htmlFor="category">카테고리</Label>
-            <Select className="" id="category" onChange={handleCategory}>
-              <Option>카테고리를 선택해주세요</Option>
-              {category.length > 0 &&
-                category.map((item, idx) => (
-                  <Option key={idx} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-            </Select>
-          </CategoryList>
-          <Location>
-            <Label htmlFor="location">현재 위치</Label>
-            <Select id="location" disabled>
-              <Option>{location}</Option>
-            </Select>
-          </Location>
-          <FrindContainer>
-            <FriendLabel>친구와 함께하기</FriendLabel>
-            <FriendList>
-              {friendList.map((friend: FriendType) => {
-                if (selectedFriend.includes(friend.email)) {
-                  return (
-                    <Friend
-                      title={friend.email}
-                      onClick={handleJoin}
-                      key={friend.email}
-                      checked={true}
-                    >
-                      <FriendImg>
-                        <Image src={friend.profile_img} />
-                      </FriendImg>
-                      <FriendNick>{friend.nick_name}</FriendNick>
-                    </Friend>
-                  );
-                } else {
-                  return (
-                    <Friend
-                      title={friend.email}
-                      onClick={handleJoin}
-                      key={friend.email}
-                      checked={false}
-                    >
-                      <FriendImg>
-                        <Image src={friend.profile_img} />
-                      </FriendImg>
-                      <FriendNick>{friend.nick_name}</FriendNick>
-                    </Friend>
-                  );
-                }
-              })}
-            </FriendList>
-          </FrindContainer>
-          <ButtonContainer>
-            <Button onClick={handleJoinRoom}>모임 찾기</Button>
-          </ButtonContainer>
-        </OptionContainer>
-      </SearchContainer>
-    </Container>
+    <>
+      <Header />
+      <Container>
+        {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
+        {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
+        {isSearching ? (
+          <Searching>
+            <CancelBtn onClick={handleSearchCancel}>취소</CancelBtn>
+          </Searching>
+        ) : (
+          <></>
+        )}
+        <SearchContainer>
+          <TitleContainer>
+            <Title># 모임 찾기</Title>
+          </TitleContainer>
+          <OptionContainer>
+            <Message>{message}</Message>
+            {/* <Dropdown optionList={category} /> */}
+            <CategoryList>
+              <Label htmlFor="category">카테고리</Label>
+              <Select className="" id="category" onChange={handleCategory}>
+                <Option>카테고리를 선택해주세요</Option>
+                {category.length > 0 &&
+                  category.map((item, idx) => (
+                    <Option key={idx} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+              </Select>
+            </CategoryList>
+            <Location>
+              <Label htmlFor="location">현재 위치</Label>
+              <Select id="location" disabled>
+                <Option>{location}</Option>
+              </Select>
+            </Location>
+            <FrindContainer>
+              <FriendLabel>친구와 함께하기</FriendLabel>
+              <FriendList>
+                {friendList.map((friend: FriendType) => {
+                  if (selectedFriend.includes(friend.email)) {
+                    return (
+                      <Friend
+                        title={friend.email}
+                        onClick={handleJoin}
+                        key={friend.email}
+                        checked={true}
+                      >
+                        <FriendImg>
+                          <Image src={friend.profile_img} />
+                        </FriendImg>
+                        <FriendNick>{friend.nick_name}</FriendNick>
+                      </Friend>
+                    );
+                  } else {
+                    return (
+                      <Friend
+                        title={friend.email}
+                        onClick={handleJoin}
+                        key={friend.email}
+                        checked={false}
+                      >
+                        <FriendImg>
+                          <Image src={friend.profile_img} />
+                        </FriendImg>
+                        <FriendNick>{friend.nick_name}</FriendNick>
+                      </Friend>
+                    );
+                  }
+                })}
+              </FriendList>
+            </FrindContainer>
+            <ButtonContainer>
+              <Button onClick={handleJoinRoom}>모임 찾기</Button>
+            </ButtonContainer>
+          </OptionContainer>
+        </SearchContainer>
+      </Container>
+      <Alert />
+    </>
   );
 };
 

@@ -19,14 +19,22 @@ const LoadingContainer = styled.div`
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   /* margin: 20px auto; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
-const Loading = () => {
+interface LoadingProps {
+  children: React.ReactNode;
+}
+
+const Loading = ({ children }: LoadingProps) => {
   return (
     <>
       <Container>
         <LoadingContainer>
           <BounceBall />
+          {children}
         </LoadingContainer>
       </Container>
     </>
