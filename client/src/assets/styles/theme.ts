@@ -8,8 +8,10 @@ const theme: DefaultTheme = {
     sub: {
       white: '#F2F2F2',
       brown: '#80524A',
-      pink: '#E86A35',
-      orange: '#FF913B',
+      red: '#E83635',
+      pink: '#FFA494',
+      orange: '#E86A35',
+      yellow: '#FF913B',
     },
     gray: '#C4C4C4',
     font: '#282822',

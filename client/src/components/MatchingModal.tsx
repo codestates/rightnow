@@ -1,14 +1,16 @@
-import React, {
-  MouseEventHandler,
-  ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import React, { MouseEventHandler, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import ModalTemp from '../components/ModalTemp';
-import { useAppSelector } from '../config/hooks';
-import { roomCategory, roomLocation } from '../reducers/roomSlice';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
+import {
+  roomCategory,
+  roomJoinCnt,
+  roomLocation,
+  roomMaxCnt,
+  setJoinCnt,
+  setMaxCnt,
+} from '../reducers/roomSlice';
 
 const Container = styled(ModalTemp)`
   @media only screen and (max-width: 600px) {
@@ -74,15 +76,15 @@ const Button = styled.button`
 
 interface ModalProps {
   handleMatching: MouseEventHandler;
-  maxNum: number;
-  joinNum: number;
 }
 
-const MatchingModal = ({ handleMatching, maxNum, joinNum }: ModalProps) => {
+const MatchingModal = ({ handleMatching }: ModalProps) => {
+  const dispatch = useAppDispatch();
+
   const location = useAppSelector(roomLocation);
   const category = useAppSelector(roomCategory);
-  const [joinCnt, setJoinCnt] = useState<number>(0); // 모인 인원
-  const [maxCnt, setMaxCnt] = useState<number>(0); // 채워져야 하는 인원
+  const joinCnt = useAppSelector(roomJoinCnt); // 모인 인원
+  const maxCnt = useAppSelector(roomMaxCnt); // 채워져야 하는 인원
   const navigate = useNavigate();
 
   /**
@@ -98,14 +100,14 @@ const MatchingModal = ({ handleMatching, maxNum, joinNum }: ModalProps) => {
    * 채워져야 하는 인원
    */
   useEffect(() => {
-    setMaxCnt(11);
+    dispatch(setMaxCnt(11));
   }, []);
 
   /**
    * 현재 모인 인원
    */
   useEffect(() => {
-    setJoinCnt(1);
+    dispatch(setJoinCnt(1));
   }, []);
 
   /**
@@ -125,8 +127,8 @@ const MatchingModal = ({ handleMatching, maxNum, joinNum }: ModalProps) => {
    */
   const JoinDisplay = (): ReactNode[] => {
     let result: ReactNode[] = [];
-    for (let idx = 0; idx < maxNum; idx++) {
-      if (joinNum > idx) {
+    for (let idx = 0; idx < maxCnt; idx++) {
+      if (joinCnt > idx) {
         result.push(
           <Join>
             <Item type="join"></Item>

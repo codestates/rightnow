@@ -8,7 +8,7 @@ const Menu = styled.div`
 
 const Container = styled.div`
   display: flex;
-  padding: 0.4rem 2rem;
+  padding: 0.4rem 1.3rem;
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);

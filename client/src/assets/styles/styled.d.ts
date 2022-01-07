@@ -11,8 +11,10 @@ declare module 'styled-components' {
         [index: string]: string;
         white: string;
         brown: string;
+        red: string;
         pink: string;
         orange: string;
+        yellow: string;
       };
       gray: string;
       font: string;
