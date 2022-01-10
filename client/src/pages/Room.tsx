@@ -201,14 +201,14 @@ interface User {
 
 interface MessageType {
   id: number;
-  user: {
+  User: {
     email: string;
     nick_name: string;
     profile_image: string; // fix - profile_img -> profile_image
   };
   content: string;
-  isUpdate: string;
-  writeDate: string;
+  is_update: string;
+  write_date: string;
   isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
 }
 
@@ -288,10 +288,10 @@ const Room = () => {
       setAttendMembers(data.users);
       let message: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 들어온 인원 알림
@@ -302,33 +302,35 @@ const Room = () => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: false,
       };
       //전달받은 메세지 추가
       setTalkContents((item: Array<MessageType>) => [...item, getMessage]);
+      console.log(talkContents);
     });
     socket.on('msg_update', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'Y',
-        writeDate: data.writeDate,
+        is_update: 'Y',
+        write_date: data.writeDate,
         isAlarm: false,
       };
+
       //전달받은 메세지 변경
       setTalkContents((item: Array<MessageType>): any => {
         return item.map((message: MessageType) => {
@@ -340,10 +342,10 @@ const Room = () => {
       let { users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -355,10 +357,10 @@ const Room = () => {
       let { email, users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -400,7 +402,7 @@ const Room = () => {
     navigate('/search'); // 모임 검색 페이지로 이동
   };
 
-  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임
+  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
   const handleInsertMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('보내기');
@@ -408,16 +410,16 @@ const Room = () => {
       return;
     }
     socket.emit('msg_insert', { email, room_id, content: text });
+    setText('');
   };
 
-  //todo message update 이벤트 추가
+  //todo message update 이벤트 추가 - 수정 후 엔터
   const updateMessage = (content: string, message_id: number) => {
     socket.emit('msg_update', {
-      /* 
       room_id,
       email,
       content,
-      message_id*/
+      message_id,
     });
   };
   return (
