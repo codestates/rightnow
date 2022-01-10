@@ -21,13 +21,13 @@ const friendController: FriendController = {
     if (req.sendData.message === 'ok') {
       res.status(200).send({ message: 'ok' });
     } else if (req.sendData.message === 'already exists friend List') {
-      res.status(200).send({ message: 'you already exists friend List' });
+      res.status(409).send({ message: 'you already exists friend List' });
     } else if (req.sendData.message === 'you already request friend') {
-      res.status(200).send({ message: 'you already request friend' });
+      res.status(400).send({ message: 'you already request friend' });
     } else if (req.sendData.message === 'you already recieved friend request') {
-      res.status(200).send({ message: 'you already recieved friend request' });
+      res.status(409).send({ message: 'you already recieved friend request' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
     }
   },
 
@@ -40,11 +40,11 @@ const friendController: FriendController = {
     } else if (req.sendData.message === 'ok, rejected') {
       res.status(200).send({ message: 'ok, rejected' });
     } else if (req.sendData.message === 'already exists friend List') {
-      res.status(200).send({ message: 'already exists friend List' });
+      res.status(409).send({ message: 'already exists friend List' });
     } else if (req.sendData.message === 'no exists request') {
-      res.status(200).send({ message: 'no exists request' });
+      res.status(404).send({ message: 'no exists request' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
     }
   },
 
@@ -55,9 +55,9 @@ const friendController: FriendController = {
     if (req.sendData.message === 'ok') {
       res.status(200).send({ message: 'ok' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
     } else if (req.sendData.message === 'not friend') {
-      res.status(200).send({ message: 'not friend' });
+      res.status(404).send({ message: 'not friend' });
     }
   },
 

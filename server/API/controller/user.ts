@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { nextTick } from 'process';
 import { CustomRequest } from '../../type/type';
 
 const mailMethod: any = require('../../method/mail.ts');

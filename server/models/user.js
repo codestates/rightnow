@@ -52,6 +52,8 @@ module.exports = (sequelize, DataTypes) => {
       nick_name: DataTypes.STRING,
       profile_image: DataTypes.STRING,
       role: { type: DataTypes.STRING, defaultValue: 'USER' },
+      social_login: { type: DataTypes.STRING, defaultValue: 'original' },
+      auth_code: { type: DataTypes.STRING, defaultValue: '' },
       is_block: DataTypes.STRING,
       block_date: DataTypes.STRING,
     },
