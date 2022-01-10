@@ -31,4 +31,17 @@ interface TempRoom {
 interface CacheRoomList {
   users: Array<string>;
 }
-export { CustomRequest, CacheUser, Participant, TempRoom, CacheRoomList };
+interface ChatCommunicationData {
+  room_id: string;
+  email: string;
+  content?: string;
+  message_id?: number;
+}
+export {
+  CustomRequest,
+  CacheUser,
+  Participant,
+  TempRoom,
+  CacheRoomList,
+  ChatCommunicationData,
+};
