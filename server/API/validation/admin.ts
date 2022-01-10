@@ -1,6 +1,4 @@
-import { AnyRecord } from 'dns';
 import { Request, Response, NextFunction } from 'express';
-import { DATEONLY } from 'sequelize/dist';
 const moment: any = require('moment');
 
 import { CustomRequest } from '../../type/type';

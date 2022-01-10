@@ -22,32 +22,6 @@ const io: any = require('socket.io')(http, {
   },
 });
 
-// interface CacheUser {
-//   category_id: number;
-//   location: string;
-//   email: string;
-//   type: string;
-//   email_list?: Array<string>;
-//   lon: number;
-//   lat: number;
-//   status: string;
-//   uuid?: string;
-// }
-// interface Participant {
-//   email: string;
-//   lon: number;
-//   lat: number;
-// }
-// interface TempRoom {
-//   uuid: string;
-//   category_id: string;
-//   allow_num: number;
-//   location: string;
-//   participants: Array<any>;
-// }
-
-//let findUsers: Map<string, string | Array<string>> = new Map();
-
 //현재 찾기 진행중인 유저들
 let findUsers: Map<string, CacheUser | any> = new Map();
 
@@ -85,14 +59,117 @@ searchNamespace.on('connection', (socket: any) => {
       email_list: Array<string>
     }
   */
+  socket.on('searching_check', async (data: any): Promise<void> => {
+    let canEnter: any = true;
+    if (socket.adapter.rooms.get(data.email)) {
+      await searchNamespace.to(data.email).emit('reject_match', {
+        message: 'another client request',
+      });
+    }
+    try {
+      canEnter = await participantValidation.checkParticipant(
+        data.email,
+        'ALONE',
+        [],
+      );
+    } catch (e) {
+      console.log('searching ck catch');
+      console.log(e);
+      searchNamespace.to(socket.id).emit('reject_match', {
+        message: 'invalid access',
+      });
+    }
+
+    if (canEnter.message === 'exist') {
+      //클라이언트에서 해당 룸으로 리다이렉션 시킴
+      searchNamespace.to(socket.id).emit('reject_match', {
+        message: 'aleady attended room',
+        room_id: canEnter.room_id,
+      });
+      return;
+    }
+    let find = findUsers.get(data.email);
+    console.log(find);
+    socket.join(data.email);
+    if (find) {
+      console.log('reject' + socket.id);
+      if (find.status === 'wait') {
+        let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
+        socket.join(find.uuid);
+        await searchNamespace.to(socket.id).emit('searching_check', {
+          message: 'waiting',
+          maxNum: findRoom.allow_num,
+        });
+        searchNamespace.to(find.uuid).emit('waiting', findRoom);
+      }
+      if (find.status === 'search') {
+        let category = await db.Category.findOne({
+          where: { id: find.category_id },
+        });
+        await searchNamespace.to(socket.id).emit('searching_check', {
+          message: 'search',
+          maxNum: category.dataValues.user_num,
+        });
+        if (find.type === 'GROUP' && find.is_master) {
+          find.count = 0;
+          searchNamespace.to(data.email).emit('search_room', find);
+        }
+      }
+      return;
+    } else {
+      searchNamespace.to(socket.id).emit('searching_check', { message: 'ok' });
+    }
+  });
+  /*
+    data = {
+      email_list: array<string>
+    }
+  */
   socket.on('searching_friend', async (data: any): Promise<void> => {
     let findList: Array<string> = [];
-    await data.email_list.forEach((item: string) =>
-      findUsers.get(item) ? findList.push(item) : '',
-    );
-    searchNamespace
-      .to(socket.id)
-      .emit('searching_friend', { find_friends: findList });
+    let leaveList: Array<any> = [...data.email_list];
+    //현재 matching 진행중인 친구 확인
+    await data.email_list.forEach((item: any) => {
+      if (findUsers.get(item.email)) {
+        findList.push(item.email);
+        leaveList.splice(
+          leaveList.indexOf(
+            leaveList.find((user: any) => user.email === item.email),
+          ),
+          1,
+        );
+      }
+    });
+
+    //이미 룸에 들어가 있는 친구 확인
+    if (leaveList.length > 0) {
+      try {
+        let canEnter = await participantValidation.checkParticipant(
+          'none',
+          'GROUP',
+          leaveList.map((item: any) => item.email),
+        );
+        if (canEnter !== 'no exist') {
+          await canEnter.list.forEach((item: any) => {
+            leaveList.splice(
+              leaveList.indexOf(
+                leaveList.find((user: any) => user.email === item),
+              ),
+              1,
+            );
+          });
+        }
+      } catch (e) {
+        console.log('searching frends');
+        console.log(e);
+        searchNamespace
+          .to(socket.id)
+          .emit('reject_match', { message: 'invalid access' });
+      }
+    }
+    searchNamespace.to(socket.id).emit('searching_friend', {
+      leave_friends: leaveList,
+    });
   });
   //모임 매치를 클릭했을 경우
   /*
@@ -118,15 +195,15 @@ searchNamespace.on('connection', (socket: any) => {
     //강제 종료했다가 들어오지 않은 경우만
     let findUser = findUsers.get(data.email);
     if (!findUser) {
-      await socket.join(data.email);
+      //await socket.join(data.email);
     } else {
       //강제 종료 후(또는 다른 탭을 또 열어서) 들어온 경우 - 기존의 연결을 끊고 재연결 한다.
-      if (socket.adapter.rooms.get(data.email)) {
-        await searchNamespace.to(data.email).emit('reject_match', {
-          message: 'anther client request',
-        });
-      }
-      socket.join(data.email);
+      // if (socket.adapter.rooms.get(data.email)) {
+      //   await searchNamespace.to(data.email).emit('reject_match', {
+      //     message: 'anther client request',
+      //   });
+      // }
+      //socket.join(data.email);
     }
     console.log(socket.adapter.rooms);
     // 이미 어떠한 방에 들어가 있는 경우
@@ -138,9 +215,10 @@ searchNamespace.on('connection', (socket: any) => {
         data.type === 'ALONE' ? [] : data.email_list,
       );
     } catch (e) {
+      console.log('searching find - ck part');
       console.log(e);
       searchNamespace.to(socket.id).emit('reject_match', {
-        message: 'find: invalid access',
+        message: 'invalid access',
       });
     }
     if (canEnter.message === 'exist' || canEnter.message === 'someone exist') {
@@ -178,13 +256,14 @@ searchNamespace.on('connection', (socket: any) => {
         // searching 중인 카테고리의 허용 숫자가 그룹 인원보다 적거나 같을경우
         if (category.dataValues.user_num <= data.email_list.length + 1) {
           searchNamespace.to(data.email).emit('reject_match', {
-            message: 'out of user number',
+            message: 'out of range user number',
           });
           return;
         }
       } catch (e) {
+        console.log('searching find inval');
         await searchNamespace.to(data.email).emit('reject_match', {
-          message: 'find category: invalid access',
+          message: 'invalid access',
         });
         return;
       }
@@ -203,36 +282,44 @@ searchNamespace.on('connection', (socket: any) => {
 
     // 이미 모임 searching 중인 경우
     //상태 wait -> user_enter 으로 emit search -> search_room으로 emit
-    let find = findUsers.get(data.email);
-    console.log(find);
-    if (find) {
-      if (find.status === 'wait') {
-        let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
-        socket.join(find.uuid);
-        searchNamespace.to(find.uuid).emit('waiting', findRoom);
-      }
-      if (find.status === 'search') {
-        searchNamespace.to(data.email).emit('search_room', find);
-      }
-      return;
-    }
+    // let find = findUsers.get(data.email);
+    // console.log(find);
+    // if (find) {
+    //   if (find.status === 'wait') {
+    //     let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
+    //     socket.join(find.uuid);
+    //     searchNamespace.to(find.uuid).emit('waiting', findRoom);
+    //   }
+    //   if (find.status === 'search') {
+    //     searchNamespace.to(data.email).emit('search_room', find);
+    //   }
+    //   return;
+    // }
 
     //위 조건이 모두 일치하면 searching 으로 넘어감 - 5초마다 searching
     data.count = 0;
-    findUsers.set(data.email, {
-      ...data,
-      status: 'search',
-    });
-
+    if (data.type === 'ALONE') {
+      findUsers.set(data.email, {
+        ...data,
+        status: 'search',
+      });
+    }
     //그룹일 경우 그룹 모든 인원 findUsers에 추가
     if (data.type === 'GROUP') {
+      findUsers.set(data.email, {
+        ...data,
+        status: 'search',
+        is_master: true,
+      });
       for (let email of data.email_list) {
-        findUsers.set(data.email, {
+        findUsers.set(email, {
           ...data,
           status: 'search',
         });
       }
     }
+    console.log('insert findUsers' + findUsers.get(data.email));
+    console.log(findUsers);
     //searchNamespace.to(socket.id).emit('search_room', data);
     searchNamespace.to(data.email).emit('search_room', data);
   });
@@ -258,21 +345,31 @@ searchNamespace.on('connection', (socket: any) => {
       console.log(data.email + 'searching');
 
       // find_room에서 필터링 했지만 혹시모를 상황 대비하여 방 참가중인 경우는 search 안하고 user_enter로 이동
-      let findUser = findUsers.get(data.email);
-      if (findUser.uuid) {
-        let tempRoom = tempRooms.find((item) => item.uuid === findUser.uuid);
-        socket.join(findUser.uuid);
-        // todo user_enter -> waiting 으로 변경
-        searchNamespace.to(findUser.uuid).emit('waiting', tempRoom);
-        return;
-      }
+      // let findUser = findUsers.get(data.email);
+      // if (findUser) {
+      //   let tempRoom = tempRooms.find((item) => item.uuid === findUser.uuid);
+      //   socket.join(findUser.uuid);
+      //   // todo user_enter -> waiting 으로 변경
+      //   searchNamespace
+      //     .to(findUser.uuid)
+      //     .emit('reject_match', { message: 'invalid access' });
+      //   return;
+      // }
+      // if (findUser.uuid) {
+      //   let tempRoom = tempRooms.find((item) => item.uuid === findUser.uuid);
+      //   socket.join(findUser.uuid);
+      //   // todo user_enter -> waiting 으로 변경
+      //   searchNamespace.to(findUser.uuid).emit('waiting', tempRoom);
+      //   return;
+      // }
 
       id = await roomValidation.searchRoom(data);
     } catch (e) {
       if (data) {
+        console.log('searching room ck 2');
         console.log(e);
         searchNamespace.to(data.email).emit('reject_match', {
-          message: 'room search: invalid access',
+          message: 'invalid access',
           code: e,
         });
         return;
@@ -282,7 +379,7 @@ searchNamespace.on('connection', (socket: any) => {
     if (id !== 'fail') {
       console.log('database room find' + socket);
 
-      let roomData = null;
+      let room_id = null;
       try {
         if (data.count > SEARCH_COUNT) return;
         if (searchings.get(data.email)) {
@@ -294,7 +391,7 @@ searchNamespace.on('connection', (socket: any) => {
         if (data.type === 'GROUP') {
           for (let email of data.email_list) findUsers.delete(email);
         }
-        roomData = await participantValidation.enterRoom(
+        room_id = await participantValidation.enterRoom(
           data.email,
           id,
           data.type,
@@ -303,30 +400,37 @@ searchNamespace.on('connection', (socket: any) => {
           data.type === 'GROUP' ? data.email_list : [],
         );
       } catch (e) {
+        console.log('searching enter');
         //잘못된 계정은 invalid 리턴
         searchNamespace.to(data.email).emit('reject_match', {
-          message: 'enter room: invalid access',
+          message: 'invalid access',
           code: e,
         });
         console.log(e);
         return;
       }
       // db에 있는 방에 들어가면 해당 방으로 리다이렉션
-      data.roomData = roomData;
+      data.room_id = room_id;
       searchNamespace.to(data.email).emit('enter', data);
       socket.leave(data.email);
       return;
     }
-
     //임시 룸 검색 ...
     let findRoom: any = tempRooms.find((item) => {
-      return item.category_id === data.category_id &&
-        item.location === data.location &&
+      let allow_num =
         data.type === 'ALONE'
-        ? item.allow_num > item.participants.length
-        : item.allow_num > item.participants.length + data.email_list.length;
+          ? item.allow_num > item.participants.length
+          : item.allow_num > item.participants.length + data.email_list.length;
+      console.log(allow_num);
+      return (
+        item.category_id === data.category_id &&
+        item.location === data.location &&
+        allow_num
+      );
     });
-
+    console.log(data.email + ' find');
+    console.log(data);
+    console.log(findRoom);
     // 조건에 맞는 임시 룸이 있을 경우 임시 룸에 참가
     if (findRoom) {
       console.log('temp room find');
@@ -401,9 +505,10 @@ searchNamespace.on('connection', (socket: any) => {
             participants,
           );
         } catch (e) {
+          console.log('searching temp to db');
           console.log(e);
           searchNamespace.to(socket.id).emit('reject_match', {
-            message: 'room create: invalid access',
+            message: 'invalid access',
             code: e,
           });
           return;
@@ -417,8 +522,8 @@ searchNamespace.on('connection', (socket: any) => {
         let send = { ...findRoom };
         send.is_insert = true;
 
-        clearTimeout(searchings.get(data.email));
-        searchings.delete(data.email);
+        //clearTimeout(searchings.get(data.email));
+        //searchings.delete(data.email);
         socket.join(data.uuid);
         searchNamespace.to(data.uuid).emit('waiting', send);
         return;
@@ -429,11 +534,12 @@ searchNamespace.on('connection', (socket: any) => {
       // 찾기 count가 10회 미만일 경우 - 계속 찾기
 
       if (data.count < SEARCH_COUNT) {
-        clearTimeout(searchings.get(data.email));
-        let interval = setTimeout((): void => {
-          searchNamespace.to(data.email).emit('search_room', data);
-        }, LOOP_TIME);
-        searchings.set(data.email, interval);
+        //clearTimeout(searchings.get(data.email));
+        // let interval = setTimeout((): void => {
+        //   searchNamespace.to(data.email).emit('search_room', data);
+        // }, LOOP_TIME);
+        // searchings.set(data.email, interval);
+        searchNamespace.to(data.email).emit('search_room', data);
         return;
       } else {
         // 찾기 count가 10회 이상일 경우 - 룸 생성
@@ -471,6 +577,7 @@ searchNamespace.on('connection', (socket: any) => {
           location: data.location,
           participants,
         };
+        console.log(tempRoom);
         tempRooms = [...tempRooms, tempRoom];
         data.uuid = uuid;
         data.room = tempRoom;
@@ -495,42 +602,23 @@ searchNamespace.on('connection', (socket: any) => {
       }
     }
 
-    clearTimeout(searchings.get(data.email));
+    // clearTimeout(searchings.get(data.email));
     searchings.delete(data.email);
     socket.join(data.uuid);
     searchNamespace.to(data.uuid).emit('waiting', data.room);
+    if (data.type === 'GROUP') {
+      for (let email of data.email_list)
+        searchNamespace.to(email).emit('waiting_group', data.room);
+    }
     return;
   });
 
-  //! 임시 룸에 들어와서 기다리고 있음 - 사용안함
-  // socket.on('waiting', async (data: any): Promise<void> => {
-  //   try {
-  //     console.log(data.email + 'waiting');
-  //     let me = findUsers.get(data.email);
-  //     if (!me) {
-  //       clearTimeout(searchings.get(data.email));
-  //       searchings.delete(data.email);
-  //       // findUsers 에서 제거 - 이미 제거됨
-  //       searchNamespace.to(data.email).emit('enter', data);
-  //       return;
-  //     }
-  //     let tempRoom = tempRooms.find((item) => (item.uuid = data.uuid));
-  //     data.room = tempRoom;
-
-  //     clearTimeout(searchings.get(data.email));
-  //     let interval = setTimeout((): void => {
-  //       searchNamespace.to(data.email).emit('waiting', data);
-  //     }, LOOP_TIME);
-  //     searchings.set(data.email, interval);
-  //   } catch (e) {
-  //     if (data) {
-  //       searchNamespace
-  //         .to(socket.id)
-  //         .emit('reject_match', { message: 'wait: invalid access' });
-  //       return;
-  //     } else console.log('wait:invalid access');
-  //   }
-  // });
+  //그룹원들 waiting 으로 이동
+  socket.on('waiting_group', (data: any) => {
+    console.log('waiting group');
+    socket.join(data.uuid);
+    searchNamespace.to(data.uuid).emit('waiting', data);
+  });
 
   //client 에서 cancel 버튼 클릭 시
   /*
@@ -543,20 +631,28 @@ searchNamespace.on('connection', (socket: any) => {
   socket.on('cancel', async (data: any): Promise<void> => {
     try {
       console.log(data.email + ' cancel');
-      if (searchings.get(data.email)) {
-        clearTimeout(searchings.get(data.email));
-        searchings.delete(data.email);
-      }
+      // if (searchings.get(data.email)) {
+      //   clearTimeout(searchings.get(data.email));
+      //   searchings.delete(data.email);
+      // }
 
-      // 대기중인 방에서 삭제
       let findUser = findUsers.get(data.email);
-
+      console.log(data);
+      console.log(findUser);
       if (!findUser) {
         searchNamespace
           .to(socket.id)
-          .emit('reject_match', { message: 'cancel: invalid access' });
+          .emit('reject_match', { message: 'invalid access' });
         return;
       }
+      if (findUser.type === 'GROUP' && !findUser.is_master) {
+        console.log('reject cancel ' + data.email);
+        searchNamespace
+          .to(socket.id)
+          .emit('reject_match', { message: 'not group master' });
+        return;
+      }
+      // 대기중인 방에서 삭제
       if (findUser.uuid) {
         let myRoom = tempRooms.find(
           (item: any): boolean => item.uuid === findUser.uuid,
@@ -570,7 +666,7 @@ searchNamespace.on('connection', (socket: any) => {
         //해당 유저를 룸에서 제거
         myRoom.participants.splice(idx, 1);
         //그룹인 경우 그룹원들도 룸에서 삭제
-        if (data.type === 'GROUP') {
+        if (findUser.type === 'GROUP') {
           for (let email of data.email_list) {
             let subIdx = myRoom.participants.indexOf(
               myRoom.participants.find(
@@ -578,25 +674,32 @@ searchNamespace.on('connection', (socket: any) => {
               ),
             );
             myRoom.participants.splice(subIdx, 1);
+            console.log(findUsers.get(email));
           }
         }
         console.log(myRoom);
+        socket.leave(findUser.uuid);
         // 만약 유저가 더이상 없다면 - 해당 임시룸 삭제 수정완료 ! 테스트 완료
         if (myRoom.participants.length === 0)
           tempRooms.splice(tempRooms.indexOf(myRoom), 1);
         else searchNamespace.to(findUser.uuid).emit('waiting', myRoom);
-
-        socket.leave(findUser.uuid);
       }
       findUsers.delete(data.email);
       //그룹일 경우 - 유저들 전부 삭제 - 완료 ! 테스트 완료
-      if (data.type === 'GROUP') {
-        for (let email of data.email_list) findUsers.delete(email);
+      if (findUser.type === 'GROUP') {
+        for (let email of data.email_list) {
+          findUsers.delete(email);
+          searchNamespace
+            .to(email)
+            .emit('cancel', { is_master: false, uuid: findUser.uuid });
+        }
       }
-      searchNamespace.to(data.email).emit('cancel', data);
+      searchNamespace.to(data.email).emit('cancel', { is_master: true });
       socket.leave(data.email);
     } catch (e) {
-      console.log('cancel: invalid access');
+      console.log('cancel catch');
+      console.log(e);
+      console.log('invalid access');
     }
   });
 });
@@ -642,6 +745,7 @@ chatNamespace.on('connection', (socket: any) => {
         users: myRoom.users,
       });
     } catch (e) {
+      console.log('join catch');
       console.log(e);
       chatNamespace
         .to(socket.id)

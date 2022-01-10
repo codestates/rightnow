@@ -49,6 +49,28 @@ const Alert = () => {
         setTitle('계정삭제');
         setSubTitle('현재 비밀번호가 일치하지 않습니다.');
         break;
+      case 'alreadyRoomFriend':
+        setTitle('모임검색');
+        setSubTitle('이미 방에 참가 중인 유저와는 매칭을 시작할 수 없습니다.');
+        break;
+      case 'alreadyRoomUser':
+        setTitle('모임검색');
+        setSubTitle(
+          '참가 중인 모임이 끝나야 새로운 모임을 찾을 수 있어요.(확인을 누르면 방으로 이동합니다.)',
+        );
+        break;
+      case 'alreadySearchingFriend':
+        setTitle('모임검색');
+        setSubTitle('매칭 중인 유저와는 매칭을 시작할 수 없습니다.');
+        break;
+      case 'outOfRange':
+        setTitle('모임검색');
+        setSubTitle('선택한 친구가 카테고리 제한 인원보다 많습니다.');
+        break;
+      case 'cannotCancel':
+        setTitle('모임검색');
+        setSubTitle('매칭 취소는 그룹장만 할 수 있습니다.');
+        break;
     }
   }, [alertType]);
 

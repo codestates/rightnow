@@ -1,21 +1,41 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Menu = styled.div`
+const MenuContent = styled.div`
+  position: absolute;
+  top: 1rem;
+
+  display: hidden;
+  justify-content: center;
+  align-items: center;
+  width: 6.5rem;
+  height: 2.6rem;
+  background: gray;
+  border-radius: 4px;
+`;
+
+const Report = styled.div`
   margin-left: auto;
   position: absolute;
+  width: 2rem;
+  &:hover {
+    ${MenuContent} {
+      display: flex;
+    }
+  }
 `;
 
 const Container = styled.div`
   display: flex;
-  padding: 0.4rem 2rem;
+  padding: 0.4rem 1.3rem;
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);
-    &{Menu}::after {
-      content: '\f141';
-      font-family: 'Font Awesome 5 Free';
-      font-weight: 900;
+    ${Report}::after {
+      content: '신고';
+      font-size: 0.8rem;
+      color: ${(props) => props.theme.color.sub.red};
+      weight: 600;
       cursor: pointer;
     }
   }
@@ -61,6 +81,13 @@ const Content = styled.div``;
 
 const Edited = styled.div``;
 
+const MenuContainer = styled.div`
+  position: absolute;
+  right: 2rem;
+  height: 1rem;
+  width: 1rem;
+`;
+
 interface IMessage {
   messageData: {
     id: number;
@@ -69,10 +96,12 @@ interface IMessage {
     isUpdate: string;
     writeDate: string;
   };
+  handleModal: any;
 }
 
-const Message = ({ messageData }: IMessage) => {
+const Message = ({ messageData, handleModal }: IMessage) => {
   const { id, user, content, isUpdate, writeDate } = messageData;
+
   return (
     <Container key={id}>
       <ImageContainer>
@@ -83,7 +112,9 @@ const Message = ({ messageData }: IMessage) => {
           <Name>{user.nick_name}</Name>
           <Date>{writeDate}</Date>
           <Edited>{isUpdate === 'N' ? '' : '(수정됨)'}</Edited>
-          <Menu />
+          <MenuContainer>
+            <Report onClick={() => handleModal(user.nick_name, id)} />
+          </MenuContainer>
         </Title>
         <Content>{content}</Content>
       </MainContent>

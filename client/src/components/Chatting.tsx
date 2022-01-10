@@ -1,12 +1,10 @@
 import React, { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 import styled from 'styled-components';
+import { roomAPI } from '../api/roomApi';
+import { useAppSelector } from '../config/hooks';
+import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
-
-const Container = styled.div`
-  display: flex;
-  height: 80%;
-  flex-direction: column;
-`;
+import ModalTemp from './ModalTemp';
 
 const ChattingContainer = styled.div``;
 
@@ -16,10 +14,12 @@ const Chatting = styled.div`
   background-color: white;
   border-radius: 0.3rem;
   overflow-y: scroll;
+  overflow-x: hidden;
   margin-bottom: 1rem;
+  padding-top: 0.3rem;
 
   &::-webkit-scrollbar {
-    width: 0.5rem;
+    width: 0.3rem;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -29,6 +29,23 @@ const Chatting = styled.div`
 
   &::-webkit-scrollbar-track {
     padding: 1rem;
+  }
+`;
+
+const Container = styled.div`
+  height: 80%;
+
+  @media screen and (max-width: 1200px) {
+    & {
+    }
+  }
+  @media screen and (max-width: 992px) {
+    & {
+    }
+  }
+  @media screen and (max-width: 768px) {
+    & {
+    }
   }
 `;
 
@@ -78,8 +95,18 @@ const NavItem = styled.label<{ back: any }>`
       return 'black';
     }
   }};
-  transition: 0.3s;
-  box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+
+  display: ${(props) => (props.htmlFor === 'member' ? 'none' : '')};
+
+  &:hover {
+    cursor: pointer;
+  }
+  @media screen and (max-width: 768px) {
+    & {
+      display: block;
+    }
+  }
 `;
 
 const Radio = styled.input`
@@ -87,13 +114,16 @@ const Radio = styled.input`
   opacity: 0;
   &:checked + label {
     &{NavItem} {
-      height: 2.1rem;
-      width: 7.2rem;
-      margin-top: -0.3rem;
+      height: 2.3rem;
+      width: 8rem;
+      margin-top: -0.5rem;
       /* font-weight: 600; */
-      line-height: 2rem;
+      line-height: 2.3rem;
       font-size: 1.1rem;
-      box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
+    }
+    &{NavItem}:hover {
+      cursor: default;
     }
   }
 `;
@@ -106,25 +136,59 @@ const Content = styled.div`
 
 const MenuContainer = styled.div`
   background: white;
-  height: 45rem;
+  height: 45.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 0 0 0.4rem 0.4rem;
 `;
 
 const QuitBtn = styled.button`
+  background: ${(props) => props.theme.color.sub.red};
   width: 13rem;
   height: 2.3rem;
-  background: ${(props) => props.theme.color.sub.orange};
-  color: black;
   border-radius: 3px;
 `;
 
 const QuitMessage = styled.div`
   padding-top: 3rem;
   width: 25rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
   white-space: pre-line;
+`;
+
+const ReportConfirm = styled(ModalTemp)``;
+
+const ReportContent = styled.div``;
+
+const ReportMessage = styled.div``;
+
+const ButtonContainer = styled.div``;
+
+const ReportBtn = styled.button`
+  background: ${(props) => props.theme.color.sub.red};
+  color: white;
+`;
+
+const CancelBtn = styled.button``;
+
+const WarningIcon = styled.div`
+  font-size: 3em;
+  text-align: center;
+  margin-bottom: 1rem;
+  &::after {
+    content: '\f071';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: black;
+  }
+`;
+
+const WarningMessage = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 interface ChattingProps {
@@ -149,14 +213,53 @@ const ChattingRoom = ({
   handleQuit,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
+  const email = useAppSelector(userEmail);
+  const [isShow, setIsShow] = useState<boolean>(false);
+  const [reportNick, setReportNick] = useState<string>('');
+  const [reportMessage, setReportMessage] = useState<number>(-1);
 
   const handleMenu = (e: any) => {
     setMenu(e.target.value);
   };
 
+  const handleReport = async (message_id: number) => {
+    const result = await roomAPI.report(message_id, email);
+    console.log(result);
+    handleModal('', -1);
+  };
+
+  const handleModal = (nickName: string, id: number) => {
+    setReportMessage(id);
+    setReportNick(nickName);
+    setIsShow((prev) => !prev);
+  };
+
   return (
-    <Container>
-      <Content>
+    <Container className="flex flex-col">
+      {isShow && (
+        <ReportConfirm>
+          <ReportContent>
+            <ReportMessage className="pb-6 pt-3 w-56">
+              <span className="font-bold">{reportNick}</span>을(를) 신고할까요?
+            </ReportMessage>
+            <ButtonContainer>
+              <ReportBtn
+                className="mr-4 rounded w-16 h-8 hover:bg-red-700 transition-colors"
+                onClick={() => handleReport(reportMessage)}
+              >
+                신고
+              </ReportBtn>
+              <CancelBtn
+                className="rounded w-16 h-8 bg-gray-200 hover:bg-gray-300 transition-colors"
+                onClick={() => handleModal('', -1)}
+              >
+                취소
+              </CancelBtn>
+            </ButtonContainer>
+          </ReportContent>
+        </ReportConfirm>
+      )}
+      <Content className="drop-shadow">
         <RoomNav>
           <Radio
             type="radio"
@@ -164,7 +267,7 @@ const ChattingRoom = ({
             value="talk"
             id="talk"
             name="menu"
-            checked={menu === 'talk'}
+            defaultChecked={menu === 'talk'}
           />
           <NavItem htmlFor="talk" back="brown">
             대화
@@ -175,10 +278,13 @@ const ChattingRoom = ({
             value="map"
             id="map"
             name="menu"
-            checked={menu === 'map'}
+            defaultChecked={menu === 'map'}
           />
-          <NavItem htmlFor="map" back="pink">
+          <NavItem htmlFor="map" back="yellow">
             모임위치
+          </NavItem>
+          <NavItem htmlFor="member" back="yellow">
+            대화 상대
           </NavItem>
           <Radio
             type="radio"
@@ -186,7 +292,7 @@ const ChattingRoom = ({
             value="quit"
             id="quit"
             name="menu"
-            checked={menu === 'quit'}
+            defaultChecked={menu === 'quit'}
           />
           <NavItem htmlFor="quit" back="orange">
             나가기
@@ -198,8 +304,12 @@ const ChattingRoom = ({
           <ChattingContainer className="drop-shadow">
             <Chatting>
               {talkContents && talkContents.length > 0 ? (
-                talkContents.map((messageData: any) => (
-                  <Message messageData={messageData}></Message>
+                talkContents.map((messageData: MessageType, idx) => (
+                  <Message
+                    key={idx}
+                    messageData={messageData}
+                    handleModal={handleModal}
+                  ></Message>
                 ))
               ) : (
                 <div>아직 메시지가 없습니다. 대회를 시작해보세요!</div>
@@ -210,17 +320,32 @@ const ChattingRoom = ({
             className="drop-shadow focus:drop-shadow-lg"
             onChange={handleText}
             value={text}
+            placeholder="메세지 보내기"
           />
         </>
       ) : menu === 'map' ? (
-        <MenuContainer>모임 위치(지도 표시)</MenuContainer>
+        <MenuContainer className="drop-shadow">
+          모임 위치(지도 표시)
+        </MenuContainer>
       ) : (
-        <MenuContainer>
+        <MenuContainer className="drop-shadow">
           <QuitMessage>
-            {`한 번 나간 모임은 다시 입장할 수 없습니다. 
-            일회용 계정을 사용하신 경우 모임에서 나가면 해당 계정은 삭제됩니다.`}
+            <WarningIcon></WarningIcon>
+            <WarningMessage>
+              <div className="pb-2">
+                나가면 같은 모임으로 다시 입장할 수 없어요.
+              </div>
+              <div>
+                (일회용 계정을 사용한 경우, 모임을 나가면 계정이 삭제돼요.)
+              </div>
+            </WarningMessage>
           </QuitMessage>
-          <QuitBtn onClick={handleQuit}>나가기</QuitBtn>
+          <QuitBtn
+            className="text-stone-50 shadow-md hover:bg-red-500 transition-colors"
+            onClick={handleQuit}
+          >
+            나가기
+          </QuitBtn>
         </MenuContainer>
       )}
     </Container>

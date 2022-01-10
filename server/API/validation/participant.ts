@@ -72,7 +72,10 @@ const participantValidation: ParticipantValidation = {
         ? { message: 'no exist' }
         : find
         ? { message: 'exist', room_id: find.dataValues.room_id }
-        : { message: 'someone exist' };
+        : {
+            message: 'someone exist',
+            list: finds.map((item: any) => item.dataValues.user_email),
+          };
     }
   },
   /*
@@ -115,8 +118,9 @@ const participantValidation: ParticipantValidation = {
       inserts.push({ user_email: email, room_id, lon, lat });
       await db.Participant.bulkCreate(inserts);
     }
-    let room = db.Room.findOne({ where: { id: room_id } });
-    return room.dataValues;
+    let room = await db.Room.findOne({ where: { id: room_id } });
+    console.log(room);
+    return room.dataValues.id;
   },
   async leaveRoom(email: string, room_id: string): Promise<any> {
     let transaction: any = await db.sequelize.transaction();
