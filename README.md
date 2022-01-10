@@ -42,7 +42,6 @@ TEAM CodeBaker는 코드스테이츠 34기 2주, 4주 프로젝트를 통해 결
 
 # REFERNECES
 👉🏻 Back-End API Infomation: [rightnow API Docs](https://moyeora.gitbook.io/api-docs/QKwZQ5JnuOYEc4zO35aw/)
-
-👉🏻 Socket Communication: [rightnow Socket](https://brainy-ballcap-627.notion.site/right-now-socket-cce97c4fbc134eb6b04a9912ece33690)
 👉🏻 DB Schema: [rightnow DB Schema](https://dbdiagram.io/d/61cbba0d3205b45b73d01dca)  
 👉🏻 Prototye: [rightnow Prototype](https://www.figma.com/proto/ffXiZogbhOdGHm4b1FjDoU/Right-now?node-id=37%3A841&scaling=min-zoom&page-id=0%3A1&starting-point-node-id=37%3A964&show-proto-sidebar=1)  
+👉🏻 Socket Communication: [rightnow Socket](https://brainy-ballcap-627.notion.site/right-now-socket-cce97c4fbc134eb6b04a9912ece33690)  
