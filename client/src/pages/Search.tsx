@@ -39,7 +39,7 @@ const Container = styled.div`
 
   @media only screen and (max-width: 768px) {
     & {
-      background-color: lightblue;
+      padding-top: 4rem;
     }
   }
 `;
@@ -47,30 +47,58 @@ const Container = styled.div`
 const SearchContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
-  height: 48rem;
+  height: 85%;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
+
+  @media screen and (max-width: 1200px) {
+    & {
+      width: 80%;
+    }
+  }
+  @media screen and (max-width: 992px) {
+    & {
+      width: 90%;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    & {
+      width: 100%;
+      height: 100vh;
+    }
+  }
 `;
 
 const Title = styled.div`
   font-size: 1.5rem;
-  background: #e83635;
+  background: ${(props) => props.theme.color.sub.title};
   color: black;
   padding: 0.5rem 0.5rem;
   margin-bottom: 0.3rem;
-  box-shadow: 6px 6px 0 0 rgb(232, 54, 53, 0.4);
+  box-shadow: 6px 6px 0 0 rgb(255, 76, 75, 0.4);
   width: 15rem;
+  @media screen and (max-width: 768px) {
+    & {
+      font-size: 1.3rem;
+      width: 40%;
+    }
+  }
 `;
 
 const TitleContainer = styled.div``;
 
 const OptionContainer = styled.div`
   width: 100%;
-  height: 40rem;
+  height: 85%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  @media screen and (max-width: 768px) {
+    & {
+      font-size: 0.9rem;
+    }
+  }
 `;
 
 const FrindContainer = styled.div`
@@ -112,6 +140,8 @@ const Select = styled.select`
   border-radius: 0.4rem;
   box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
 
+  transition: all 0.3s;
+
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -138,6 +168,11 @@ const Select = styled.select`
 
 const Option = styled.option`
   padding: 0.7rem 1rem;
+  @media screen and (max-width: 768px) {
+    & {
+      font-size: 1rem;
+    }
+  }
 `;
 
 const Location = styled.div`
@@ -154,6 +189,12 @@ const Label = styled.label`
   font-weight: 600;
 
   display: inline-block;
+
+  @media screen and (max-width: 768px) {
+    & {
+      font-size: 1rem;
+    }
+  }
 `;
 
 const FriendLabel = styled(Label)`
@@ -169,6 +210,19 @@ const FriendList = styled.div`
   margin-left: -0.1rem;
   padding: 0.3rem 0.4rem;
   border-radius: 4px;
+
+  &::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    padding: 1rem;
+  }
 `;
 
 const Friend = styled.div<{ checked: boolean }>`
@@ -221,6 +275,11 @@ const CancelBtn = styled.button`
   color: black;
   background: ${(props) => props.theme.color.sub.yellow};
   margin-top: 2rem;
+  border-radius: 4px;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 interface CategoryType {
@@ -275,7 +334,7 @@ const Search = () => {
    * 친구 목록 가져오기
    */
   useEffect(() => {
-    setFriendList([
+    setVisibleFriend([
       {
         nick_name: 'lee',
         profile_img:
@@ -534,6 +593,10 @@ const Search = () => {
     });
     //친구정보를 전달하고 현재 matching 진행중인 유저를 체크
     socket.emit('searching_check', { email });
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
   //같이 할 수 있는 친구목록 체크
@@ -731,7 +794,9 @@ const Search = () => {
               </FriendList>
             </FrindContainer>
             <ButtonContainer>
-              <Button onClick={handleJoinRoom}>모임 찾기</Button>
+              <Button className="hover:bg-red-500" onClick={handleJoinRoom}>
+                모임 찾기
+              </Button>
             </ButtonContainer>
           </OptionContainer>
         </SearchContainer>
