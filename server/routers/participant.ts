@@ -9,5 +9,9 @@ participantRouter.get(
   participantValidation.getLocationForKakao,
   participantController.getLocationForKakao,
 );
-
+participantRouter.post(
+  '/check',
+  participantValidation.checkParticipantAPI,
+  participantController.checkParticipantAPI,
+);
 export default participantRouter;
