@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       models.Participant.belongsTo(models.User, {
         foreignKey: 'user_email',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       });
     }
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'Participant',
       timestamps: false,
-    }
+    },
   );
   return Participant;
 };
