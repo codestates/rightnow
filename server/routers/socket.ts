@@ -756,19 +756,16 @@ chatNamespace.on('connection', (socket: any) => {
   */
   socket.on('join_room', async (data: ChatCommunicationData): Promise<void> => {
     try {
+      // 미리 접속되어있던 클라이언트를 나가게 변경
       for (const [key, value] of attendUsers) {
         console.log(value);
         if (value.email === data.email) {
           console.log('access');
-          await chatNamespace.to(socket.id).emit('reject', {
+          await chatNamespace.to(key).emit('reject', {
             message: 'another client access',
           });
-          // await chatNamespace.to(socket.id).emit('reject', {
-          //   message: 'wait sec',
-          //   mili: 2000,
-          // });
-          return;
         }
+        attendUsers.delete(key);
       }
       let user = await db.User.findOne({
         attributes: ['email', 'nick_name', 'profile_image', 'role'],
@@ -794,11 +791,11 @@ chatNamespace.on('connection', (socket: any) => {
       ) {
         myRoom.users = [...myRoom.users, user];
         roomList.set(data.room_id, myRoom);
+        chatNamespace.to(data.room_id).emit('alarm_enter', {
+          message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
+          users: myRoom.users,
+        });
       }
-      chatNamespace.to(data.room_id).emit('alarm_enter', {
-        message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
-        users: myRoom.users,
-      });
     } catch (e) {
       console.log('join catch');
       console.log(e);
