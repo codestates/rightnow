@@ -6,6 +6,19 @@ import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
 
+const MemberContainer = styled.div`
+  background-color: white;
+  padding: 1rem 1.3rem;
+  border-radius: 0.5rem;
+  width: 30%;
+  height: 38.3rem;
+`;
+
+const ChatBox = styled.div`
+  width: 70%;
+  margin-right: 1rem;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,9 +29,9 @@ const Container = styled.div`
   color: ${(props) => props.theme.color.font};
   overflow: hidden;
 
-  @media only screen and (max-width: 600px) {
+  @media only screen and (max-width: 768px) {
     & {
-      background-color: lightblue;
+      padding-top: 4rem;
     }
   }
 `;
@@ -29,6 +42,28 @@ const ChatContainer = styled.div`
   height: 48rem;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
+  @media screen and (max-width: 1200px) {
+    & {
+      width: 80%;
+    }
+  }
+  @media screen and (max-width: 992px) {
+    & {
+      width: 90%;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    & {
+      width: 100%;
+      height: 100%;
+    }
+    ${MemberContainer} {
+      display: none;
+    }
+    ${ChatBox} {
+      width: 100%;
+    }
+  }
 `;
 
 const RoomDetail = styled.div`
@@ -77,14 +112,6 @@ const ProfileImg = styled.div<{ url: string }>`
   margin-right: 1rem;
 `;
 
-const MemberContainer = styled.div`
-  background-color: white;
-  padding: 1rem 1.3rem;
-  border-radius: 0.5rem;
-  width: 30%;
-  height: 38.3rem;
-`;
-
 const MemberList = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
@@ -116,11 +143,6 @@ const Member = styled.div`
   &:hover {
     background: rgba(0, 0, 0, 0.05);
   }
-`;
-
-const ChatBox = styled.div`
-  width: 70%;
-  margin-right: 1rem;
 `;
 
 const ChatContent = styled(Chatting)`
