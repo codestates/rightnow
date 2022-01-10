@@ -265,7 +265,7 @@ const Room = () => {
 
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/chat', {
+    socket = io('http://52.78.25.230:4000/chat', {
       withCredentials: true,
     });
     socket.on('reject', (data: any) => {
