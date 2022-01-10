@@ -113,10 +113,10 @@ const EditInput = styled.input``;
 interface IMessage {
   messageData: {
     id: number;
-    user: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
+    User: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
     content: string;
-    isUpdate: string;
-    writeDate: string;
+    is_update: string;
+    write_date: string;
     isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
   };
   handleModal: any;
@@ -124,10 +124,9 @@ interface IMessage {
 }
 
 const Message = ({ messageData, handleModal, updateMessage }: IMessage) => {
-  const { id, user, content, isUpdate, writeDate, isAlarm } = messageData;
+  const { id, User, content, is_update, write_date, isAlarm } = messageData;
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(content);
-
   /**
    * 수정 중인 메시지 상태 관리
    * @param e
@@ -153,19 +152,19 @@ const Message = ({ messageData, handleModal, updateMessage }: IMessage) => {
   return (
     <Container key={id}>
       <ImageContainer>
-        <MImage url={user && user.profile_image} />
+        <MImage url={User.profile_image} />
       </ImageContainer>
       <MainContent>
         <Title>
-          <Name>{isAlarm ? '' : user && user.nick_name}</Name>
-          <Date>{writeDate}</Date>
-          <Edited>{isUpdate === 'N' ? '' : '(수정됨)'}</Edited>
+          <Name>{isAlarm ? '' : User.nick_name}</Name>
+          <Date>{write_date}</Date>
+          <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
           {isAlarm ? (
             ''
           ) : (
             <MenuContainer>
               <Edit onClick={handleEdit} />
-              <Report onClick={() => handleModal(user.nick_name, id)} />
+              <Report onClick={() => handleModal(User.nick_name, id)} />
             </MenuContainer>
           )}
         </Title>

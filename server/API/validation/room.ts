@@ -79,11 +79,18 @@ const roomValidation: RoomValidation = {
           },
           {
             model: db.Message,
+            include: {
+              model: db.User,
+              attributes: {
+                exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
+              },
+            },
           },
         ],
         order: [[db.Message, 'write_date', 'ASC']],
         where: { id },
       });
+
       if (room === null)
         req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
       else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };

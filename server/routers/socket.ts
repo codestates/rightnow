@@ -823,7 +823,6 @@ chatNamespace.on('connection', (socket: any) => {
         data.content,
         user.email,
       );
-      message = message.dataValues;
       chatNamespace.to(data.room_id).emit('msg_insert', {
         message: `${data.content}`,
         sender: user,
@@ -853,7 +852,6 @@ chatNamespace.on('connection', (socket: any) => {
         data.message_id,
         data.content,
       );
-      user = user.dataValues;
       chatNamespace.to(data.room_id).emit('msg_update', {
         message: `${data.content}`,
         sender: user,
