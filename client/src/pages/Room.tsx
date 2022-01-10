@@ -179,8 +179,8 @@ interface CategoryType {
 
 const Room = () => {
   const location = useLocation();
-  // const state = location.state as StateType;
-  // const { room_id } = state;
+  const state = location.state as StateType;
+  const { room_id } = state;
 
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
@@ -189,34 +189,34 @@ const Room = () => {
   const [roomLocation, setRoomLocation] = useState<string>('');
 
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   const roomData = async () => {
-  //     const {
-  //       data: {
-  //         data: { Messages, Participants, category_id, location },
-  //       },
-  //     } = await roomAPI.getRoomInfo(room_id);
-  //     setTalkContents(Messages);
-  //     setRoomLocation(location);
+  useEffect(() => {
+    const roomData = async () => {
+      const {
+        data: {
+          data: { Messages, Participants, category_id, location },
+        },
+      } = await roomAPI.getRoomInfo(room_id);
+      setTalkContents(Messages);
+      setRoomLocation(location);
 
-  //     const members = Participants.map((member: any) => {
-  //       return member.User;
-  //     });
-  //     setMemberList(members);
+      const members = Participants.map((member: any) => {
+        return member.User;
+      });
+      setMemberList(members);
 
-  //     const {
-  //       data: {
-  //         data: { categoryList },
-  //       },
-  //     } = await categoryAPI.list();
-  //     categoryList.filter((cat: CategoryType) => {
-  //       if (category_id === cat.id) {
-  //         setCategory(cat.name);
-  //       }
-  //     });
-  //   };
-  //   roomData();
-  // }, [room_id]);
+      const {
+        data: {
+          data: { categoryList },
+        },
+      } = await categoryAPI.list();
+      categoryList.filter((cat: CategoryType) => {
+        if (category_id === cat.id) {
+          setCategory(cat.name);
+        }
+      });
+    };
+    roomData();
+  }, [room_id]);
 
   /**
    * 채팅 입력창 메시지 상태 관리
