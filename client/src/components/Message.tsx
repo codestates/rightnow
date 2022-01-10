@@ -91,29 +91,34 @@ const MenuContainer = styled.div`
 interface IMessage {
   messageData: {
     id: number;
-    user: { email: string; nick_name: string; profile_img: string };
+    user: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
     content: string;
     isUpdate: string;
     writeDate: string;
+    isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
   };
   handleModal: any;
 }
 
 const Message = ({ messageData, handleModal }: IMessage) => {
-  const { id, user, content, isUpdate, writeDate } = messageData;
+  const { id, user, content, isUpdate, writeDate, isAlarm } = messageData;
 
   return (
     <Container key={id}>
       <ImageContainer>
-        <MImage url={user.profile_img} />
+        <MImage url={user.profile_image} />
       </ImageContainer>
       <MainContent>
         <Title>
-          <Name>{user.nick_name}</Name>
+          <Name>{isAlarm ? '' : user.nick_name}</Name>
           <Date>{writeDate}</Date>
           <Edited>{isUpdate === 'N' ? '' : '(수정됨)'}</Edited>
           <MenuContainer>
-            <Report onClick={() => handleModal(user.nick_name, id)} />
+            {isAlarm ? (
+              ''
+            ) : (
+              <Report onClick={() => handleModal(user.nick_name, id)} />
+            )}
           </MenuContainer>
         </Title>
         <Content>{content}</Content>
