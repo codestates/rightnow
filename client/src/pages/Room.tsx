@@ -5,6 +5,46 @@ import { categoryAPI } from '../api/categoryApi';
 import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
+import { userEmail } from '../reducers/userSlice';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { setTimeout } from 'timers';
+
+function dateToString(
+  date: Date,
+  format: string = '',
+  needTime: boolean = false,
+): string {
+  let dd: any = date.getDate();
+  let mm: any = date.getMonth() + 1; //January is 0!
+
+  let yyyy: any = date.getFullYear();
+  if (dd < 10) {
+    dd = '0' + dd;
+  }
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
+
+  yyyy = yyyy.toString();
+  mm = mm.toString();
+  dd = dd.toString();
+
+  let m: any = date.getHours();
+  let s: any = date.getMinutes();
+
+  if (m < 10) {
+    m = '0' + m;
+  }
+  if (s < 10) {
+    s = '0' + s;
+  }
+  m = m.toString();
+  s = s.toString();
+
+  let s1 = yyyy + format + mm + format + dd;
+  let s2 = yyyy + format + mm + format + dd + ' ' + m + ':' + s;
+  return needTime ? s2 : s1;
+}
 
 const MemberContainer = styled.div`
   background-color: white;
@@ -148,21 +188,26 @@ const Member = styled.div`
 const ChatContent = styled(Chatting)`
   width: 100%;
 `;
-
+let socket: any = null;
 interface User {
   email: string;
   nick_name: string;
-  profile_img: string;
+  profile_image: string;
   enterDate: string;
   role: string;
 }
 
 interface MessageType {
   id: number;
-  user: { email: string; nick_name: string; profile_img: string };
+  user: {
+    email: string;
+    nick_name: string;
+    profile_image: string; // fix - profile_img -> profile_image
+  };
   content: string;
   isUpdate: string;
   writeDate: string;
+  isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
 }
 
 interface StateType {
@@ -181,13 +226,13 @@ const Room = () => {
   const location = useLocation();
   const state = location.state as StateType;
   const { room_id } = state;
-
+  const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
   const [memberList, setMemberList] = useState<User[]>([]);
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
-
+  const [attendMembers, setAttendMembers] = useState<User[]>([]);
   const navigate = useNavigate();
   useEffect(() => {
     const roomData = async () => {
@@ -218,6 +263,113 @@ const Room = () => {
     roomData();
   }, [room_id]);
 
+  useEffect(() => {
+    const io = require('socket.io-client');
+    socket = io('http://localhost:4000/chat', {
+      withCredentials: true,
+    });
+    socket.on('reject', (data: any) => {
+      console.log(data.message);
+      if (data.message === 'another client access') {
+        navigate('/');
+      }
+      if (data.message === 'wait sec') {
+        // const wakeUpTime: any = Date.now() + 2000;
+        // while (Date.now() < wakeUpTime) {}
+        // socket.emit('join_room', { email, room_id });
+      }
+    });
+    socket.on('alarm_enter', (data: any) => {
+      // todo - 현재 채팅방 참가중인(모임 참가인원 아님) 인원들 추가 - 일단 추가해 놓음 ! 필요하면 사용
+      // 참가중인 멤버 업데이트
+      setAttendMembers(data.users);
+      let message: MessageType = {
+        id: -1,
+        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        content: data.message,
+        isUpdate: 'N',
+        writeDate: dateToString(new Date(), '-', true),
+        isAlarm: true,
+      };
+      // 들어온 인원 알림
+      setTalkContents((item: Array<MessageType>) => [...item, message]);
+      console.log(talkContents);
+    });
+    socket.on('msg_insert', (data: any) => {
+      let { email, nick_name, profile_image } = data.sender;
+      let getMessage = {
+        id: data.message_id,
+        user: {
+          email,
+          nick_name,
+          profile_image,
+        },
+        content: data.message,
+        isUpdate: 'N',
+        writeDate: dateToString(new Date(), '-', true),
+        isAlarm: false,
+      };
+      //전달받은 메세지 추가
+      setTalkContents((item: Array<MessageType>) => [...item, getMessage]);
+    });
+    socket.on('msg_update', (data: any) => {
+      let { email, nick_name, profile_image } = data.sender;
+      let getMessage = {
+        id: data.message_id,
+        user: {
+          email,
+          nick_name,
+          profile_image,
+        },
+        content: data.message,
+        isUpdate: 'Y',
+        writeDate: data.writeDate,
+        isAlarm: false,
+      };
+      //전달받은 메세지 변경
+      setTalkContents((item: Array<MessageType>): any => {
+        return item.map((message: MessageType) => {
+          return message.id === data.message_id ? getMessage : message;
+        });
+      });
+    });
+    socket.on('leave_room', (data: any) => {
+      let { users, message } = data;
+      let inputMessage: MessageType = {
+        id: -1,
+        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        content: message,
+        isUpdate: 'N',
+        writeDate: dateToString(new Date(), '-', true),
+        isAlarm: true,
+      };
+      // 나간인원 알림
+      setTalkContents((item: Array<MessageType>) => [...item, inputMessage]);
+      // 참가중인 멤버 업데이트
+      setAttendMembers(users);
+    });
+    socket.on('leave_meeting', (data: any) => {
+      let { email, users, message } = data;
+      let inputMessage: MessageType = {
+        id: -1,
+        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        content: message,
+        isUpdate: 'N',
+        writeDate: dateToString(new Date(), '-', true),
+        isAlarm: true,
+      };
+      // 나간인원 알림
+      setTalkContents((item: Array<MessageType>) => [...item, inputMessage]);
+      // 참가중인 멤버 업데이트
+      setAttendMembers(users);
+      // 멤버 목록에서 나간 유저 제외
+      setMemberList((item: Array<User>) => {
+        return item.filter((user: User) => user.email !== email);
+      });
+    });
+
+    socket.emit('join_room', { room_id, email });
+  }, []);
   /**
    * 채팅 입력창 메시지 상태 관리
    * @param e event
@@ -238,9 +390,28 @@ const Room = () => {
    * 모임 나가기
    */
   const handleQuit = () => {
+    socket.emit('leave_meeting', { room_id, email });
     navigate('/search'); // 모임 검색 페이지로 이동
   };
 
+  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임
+  const handleInsertMessage = () => {
+    if (!text || text === '') {
+      return;
+    }
+    socket.emit('msg_insert', { email, room_id, content: text });
+  };
+
+  //todo message update 이벤트 추가
+  const updateMessage = () => {
+    socket.emit('msg_update', {
+      /* 
+      room_id,
+      email,
+      content,
+      message_id*/
+    });
+  };
   return (
     <>
       <Header />
@@ -266,7 +437,7 @@ const Room = () => {
                     return (
                       <Member key={member.email}>
                         <ImageContainer>
-                          <ProfileImg url={member.profile_img} />
+                          <ProfileImg url={member.profile_image} />
                         </ImageContainer>
                         <ProfileName>{member.nick_name}</ProfileName>
                       </Member>

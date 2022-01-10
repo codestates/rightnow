@@ -28,8 +28,15 @@ interface TempRoom {
   location: string;
   participants: Array<any>;
 }
+interface User {
+  email: string;
+  nick_name: string;
+  profile_img: string;
+  enterDate: string;
+  role: string;
+}
 interface CacheRoomList {
-  users: Array<string>;
+  users: Array<User>;
 }
 interface ChatCommunicationData {
   room_id: string;
@@ -37,6 +44,7 @@ interface ChatCommunicationData {
   content?: string;
   message_id?: number;
 }
+
 export {
   CustomRequest,
   CacheUser,
@@ -44,4 +52,5 @@ export {
   TempRoom,
   CacheRoomList,
   ChatCommunicationData,
+  User,
 };

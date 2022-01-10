@@ -126,7 +126,7 @@ const participantValidation: ParticipantValidation = {
     let transaction: any = await db.sequelize.transaction();
     let user: any = await db.User.findOne({ where: { email } });
     let send: any = null;
-    await db.Participant.delete(
+    await db.Participant.destroy(
       {
         where: [{ room_id }, { user_email: email }],
       },
@@ -134,11 +134,11 @@ const participantValidation: ParticipantValidation = {
     );
     //임시계정일 경우 삭제
     if (user.dataValues.role === 'TEMP')
-      await db.User.delete({ where: { email } }, { transaction });
+      await db.User.destroy({ where: { email } }, { transaction });
 
     let participants = await db.Participant.findAll({ where: { room_id } });
     if (participants.length === 0) {
-      let room = await db.Participant.delete(
+      let room = await db.Participant.destroy(
         { where: { id: room_id } },
         { transaction },
       );

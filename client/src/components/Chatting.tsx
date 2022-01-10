@@ -200,10 +200,11 @@ interface ChattingProps {
 
 interface MessageType {
   id: number;
-  user: { email: string; nick_name: string; profile_img: string };
+  user: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
   content: string;
   isUpdate: string;
   writeDate: string;
+  isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
 }
 
 const ChattingRoom = ({
