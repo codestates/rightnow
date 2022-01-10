@@ -6,10 +6,6 @@ import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
 
-const Container = styled.div`
-  height: 80%;
-`;
-
 const ChattingContainer = styled.div``;
 
 const Chatting = styled.div`
@@ -33,6 +29,23 @@ const Chatting = styled.div`
 
   &::-webkit-scrollbar-track {
     padding: 1rem;
+  }
+`;
+
+const Container = styled.div`
+  height: 80%;
+
+  @media screen and (max-width: 1200px) {
+    & {
+    }
+  }
+  @media screen and (max-width: 992px) {
+    & {
+    }
+  }
+  @media screen and (max-width: 768px) {
+    & {
+    }
   }
 `;
 
@@ -84,8 +97,15 @@ const NavItem = styled.label<{ back: any }>`
   }};
   transition: all 0.3s ease-in-out;
 
+  display: ${(props) => (props.htmlFor === 'member' ? 'none' : '')};
+
   &:hover {
     cursor: pointer;
+  }
+  @media screen and (max-width: 768px) {
+    & {
+      display: block;
+    }
   }
 `;
 
@@ -249,7 +269,7 @@ const ChattingRoom = ({
             name="menu"
             defaultChecked={menu === 'talk'}
           />
-          <NavItem className="hover:shadow-inner" htmlFor="talk" back="brown">
+          <NavItem htmlFor="talk" back="brown">
             대화
           </NavItem>
           <Radio
@@ -260,12 +280,11 @@ const ChattingRoom = ({
             name="menu"
             defaultChecked={menu === 'map'}
           />
-          <NavItem
-            className="hover:shadow-inner shadow"
-            htmlFor="map"
-            back="yellow"
-          >
+          <NavItem htmlFor="map" back="yellow">
             모임위치
+          </NavItem>
+          <NavItem htmlFor="member" back="yellow">
+            대화 상대
           </NavItem>
           <Radio
             type="radio"
@@ -275,7 +294,7 @@ const ChattingRoom = ({
             name="menu"
             defaultChecked={menu === 'quit'}
           />
-          <NavItem className="hover:shadow-inner" htmlFor="quit" back="orange">
+          <NavItem htmlFor="quit" back="orange">
             나가기
           </NavItem>
         </RoomNav>
