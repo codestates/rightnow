@@ -756,9 +756,11 @@ chatNamespace.on('connection', (socket: any) => {
   */
   socket.on('join_room', async (data: ChatCommunicationData): Promise<void> => {
     try {
+      console.log('joinroom');
       // 미리 접속되어있던 클라이언트를 나가게 변경
       for (const [key, value] of attendUsers) {
         console.log(value);
+        console.log(attendUsers.get(key));
         if (value.email === data.email) {
           console.log('access');
           await chatNamespace.to(key).emit('reject', {
