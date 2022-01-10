@@ -51,12 +51,13 @@ const MemberContainer = styled.div`
   padding: 1rem 1.3rem;
   border-radius: 0.5rem;
   width: 30%;
-  height: 38.3rem;
+  height: 100%;
 `;
 
 const ChatBox = styled.div`
   width: 70%;
   margin-right: 1rem;
+  height: 100%;
 `;
 
 const Container = styled.div`
@@ -79,7 +80,7 @@ const Container = styled.div`
 const ChatContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
-  height: 48rem;
+  height: 95%;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
   @media screen and (max-width: 1200px) {
@@ -112,11 +113,12 @@ const RoomDetail = styled.div`
 
 const ContentContainer = styled.div`
   display: flex;
+  height: 90%;
 `;
 
 const GroupTitle = styled.div`
   font-size: 1.5rem;
-  background: ${(props) => props.theme.color.main};
+  background: ${(props) => props.theme.color.sub.title};
   color: black;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.3rem;
@@ -233,6 +235,7 @@ const Room = () => {
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<User[]>([]);
+
   const navigate = useNavigate();
   useEffect(() => {
     const roomData = async () => {
@@ -369,6 +372,9 @@ const Room = () => {
     });
 
     socket.emit('join_room', { room_id, email });
+    return () => {
+      socket.close();
+    };
   }, []);
   /**
    * 채팅 입력창 메시지 상태 관리
@@ -395,7 +401,9 @@ const Room = () => {
   };
 
   // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임
-  const handleInsertMessage = () => {
+  const handleInsertMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('보내기');
     if (!text || text === '') {
       return;
     }
@@ -403,7 +411,7 @@ const Room = () => {
   };
 
   //todo message update 이벤트 추가
-  const updateMessage = () => {
+  const updateMessage = (content: string, message_id: number) => {
     socket.emit('msg_update', {
       /* 
       room_id,
@@ -427,6 +435,8 @@ const Room = () => {
                 text={text}
                 handleText={handleText}
                 handleQuit={handleQuit}
+                handleInsertMessage={handleInsertMessage}
+                updateMessage={updateMessage}
               />
             </ChatBox>
             <MemberContainer className="drop-shadow">
