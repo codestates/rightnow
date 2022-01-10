@@ -268,7 +268,7 @@ const Room = () => {
 
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://52.78.25.230:4000/chat', {
+    socket = io('http://localhost:4000/chat', {
       withCredentials: true,
     });
     socket.on('reject', (data: any) => {
@@ -395,8 +395,8 @@ const Room = () => {
   /**
    * 모임 나가기
    */
-  const handleQuit = () => {
-    socket.emit('leave_meeting', { room_id, email });
+  const handleQuit = async () => {
+    await socket.emit('leave_meeting', { room_id, email });
     navigate('/search'); // 모임 검색 페이지로 이동
   };
 
