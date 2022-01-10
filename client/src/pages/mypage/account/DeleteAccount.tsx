@@ -2,7 +2,6 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../config/hooks';
 import { showModal } from '../../../reducers/componetSlice';
 import Modal from '../../../components/Modal';
-import Alert from '../../../components/Alert';
 
 const DeleteAccount = () => {
   const dispatch = useAppDispatch();
@@ -64,7 +63,7 @@ const DeleteAccount = () => {
         />
         <button
           className={`w-36 h-10 rounded-md ${
-            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white'
+            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white hover:bg-pink-700'
           }`}
           disabled={isDisable}
           onClick={buttonHandler}
@@ -73,7 +72,6 @@ const DeleteAccount = () => {
         </button>
       </div>
       <Modal password={password} />
-      <Alert />
     </>
   );
 };

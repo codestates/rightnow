@@ -44,8 +44,8 @@ const MypageLayout = () => {
                 <div
                   className={`text-sm cursor-pointer ${i !== 0 && 'ml-4'} ${
                     selectedId === id
-                      ? 'text-gray-600 font-semibold'
-                      : 'text-gray-300'
+                      ? 'text-sub font-semibold'
+                      : 'text-gray-300 hover:text-sub'
                   }`}
                   onClick={() => {
                     setSelectedId(id);

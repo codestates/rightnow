@@ -11,10 +11,8 @@ import AuthContainer from '../../components/layout/AuthContainer';
 import { isValidEmail } from '../../utils/regex';
 import userApi from '../../api/userApi';
 import { useAppDispatch } from '../../config/hooks';
-import { showAlert } from '../../reducers/componetSlice';
 import { useNavigate } from 'react-router-dom';
 import { updateAccessToken } from '../../reducers/userSlice';
-import Alert from '../../components/Alert';
 
 interface IUserInfo {
   email: string;
@@ -76,10 +74,6 @@ const Login = () => {
     const callback = (code: number, data: string) => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
-        router('/room');
-        setTimeout(() => {
-          dispatch(showAlert('login'));
-        }, 50);
       } else {
         setLoginError(data);
       }
@@ -133,7 +127,7 @@ const Login = () => {
           <div className="mt-6">
             <button
               className={`w-96 h-12 rounded-md ${
-                isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white'
+                isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-gray-50 hover:bg-pink-700'
               }`}
               onClick={requestLogin}
               disabled={isDisable}
@@ -164,7 +158,7 @@ const Login = () => {
             <Link to="/auth/join">
               <button
                 className={
-                  'w-96 h-12 rounded-md border-1 border-main text-main'
+                  'w-96 h-12 rounded-md border-1 border-main text-main hover:bg-gray-100'
                 }
               >
                 회원가입
@@ -173,7 +167,6 @@ const Login = () => {
           </div>
         </>
       </AuthContainer>
-      <Alert />
     </>
   );
 };

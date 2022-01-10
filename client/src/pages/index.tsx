@@ -36,6 +36,36 @@ const RendingPage = () => {
     const position = window.scrollY;
     setScrollPosition(position);
 
+    console.log(window.scrollY + window.innerHeight);
+    if (window.scrollY + window.innerHeight > 850) {
+      document.getElementById('left-slide-2')?.classList.add('left-slide-2');
+      document.getElementById('right-slide-1')?.classList.add('right-slide-1');
+    }
+
+    if (window.scrollY + window.innerHeight > 1550) {
+      document.getElementById('bounce-5')?.classList.add('bounce-1');
+      document.getElementById('bounce-6')?.classList.add('bounce-1');
+    }
+
+    if (window.scrollY + window.innerHeight > 2230) {
+      document.getElementById('bounce-7')?.classList.add('bounce-1');
+      document.getElementById('bounce-8')?.classList.add('bounce-1');
+    }
+
+    if (window.scrollY + window.innerHeight > 2960) {
+      document.getElementById('bounce-9')?.classList.add('bounce-1');
+      document.getElementById('bounce-10')?.classList.add('bounce-1');
+    }
+
+    if (window.scrollY + window.innerHeight > 3200) {
+      document.getElementById('team')?.classList.add('bounce-1');
+      document.getElementById('bounce-12')?.classList.add('bounce-2');
+      document.getElementById('bounce-13')?.classList.add('bounce-3');
+      document.getElementById('bounce-14')?.classList.add('bounce-4');
+      document.getElementById('bounce-15')?.classList.add('bounce-5');
+      document.getElementById('bounce-16')?.classList.add('bounce-6');
+    }
+
     // 스크롤이 바닥까지 내려갔는지 확인
     if (
       Math.ceil(window.scrollY) + window.innerHeight >=
@@ -49,9 +79,12 @@ const RendingPage = () => {
 
   useEffect((): (() => void) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-
+    window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('load', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+      window.addEventListener('load', handleScroll);
       handleScroll();
     };
   }, []);
@@ -102,7 +135,7 @@ const RendingPage = () => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            <Logo width={(location.pathname !== '/' || scrollPosition) && 70} />
+            <Logo width={scrollPosition === 0 ? 90 : 70} />
             <span className="ml-2">rightnow</span>
           </div>
           <div className=" flex items-center space-x-1">
@@ -156,13 +189,13 @@ const RendingPage = () => {
           </div>
         </div>
       </header>
-      <div
+      {/* <div
         id="preloader"
         className={`${loadingOpacity} ${loadingZIndex}`}
         style={{ transition: '0.3s' }}
       >
         <div id="loading" />
-      </div>
+      </div> */}
       <div className="pt-60 flex justify-center" id={'header'}>
         <div className=" w-278 flex justify-between">
           <div
@@ -193,21 +226,29 @@ const RendingPage = () => {
               </div>
             </div>
           </div>
-          <img src={phone} alt="phone" />
+          <img
+            src={phone}
+            alt="phone"
+            className="block relative left-slide-1"
+          />
         </div>
       </div>
       <div className="h-167.5 bg-gray-100 flex justify-center relative">
         <div className=" absolute top-0 left-0 bg-sub h-6 w-full" />
         <div className=" w-278 py-30 flex text-sub">
           <div
-            className="text-4xl w-1/4 space-y-1 font-semibold"
+            className="text-4xl w-1/4 space-y-1 font-semibold opacity-0 -left-40"
+            id={'left-slide-2'}
             style={{ letterSpacing: -1.5 }}
           >
             <p className="text-main">HEY THERE!</p>
             <p>WELCOME TO</p>
             <p>OUR SITE</p>
           </div>
-          <div className="w-3/4 space-y-4">
+          <div
+            className="w-3/4 space-y-4 opacity-0 left-64"
+            id={'right-slide-1'}
+          >
             <p className=" text-3xl">
               Start Bootstrap has everything you need to get your
             </p>
@@ -255,12 +296,16 @@ const RendingPage = () => {
         <div className=" absolute top-0 left-0 bg-sub h-6 w-full" />
         <div className=" w-278 pt-30 text-sub space-y-10">
           <div
-            className="text-center text-3xl font-semibold"
+            className="text-center text-3xl font-semibold opacity-0"
             style={{ letterSpacing: -1.5 }}
+            id={'bounce-5'}
           >
             <span className=" text-main">How it</span> works
           </div>
-          <div className=" indent-5 px-16 text-center">
+          <div
+            className=" indent-5 px-16 text-center opacity-0"
+            id={'bounce-6'}
+          >
             Display your mobile apps awesome features with icon lists and an
             image carousel of each page. Lorem ipsum dolor sit amet,
             consectetuer adipiscing elit, sed diam nonummy nibh euismod
@@ -274,12 +319,16 @@ const RendingPage = () => {
         <div className=" absolute top-0 left-0 bg-sub h-6 w-full" />
         <div className=" w-278 pt-30 text-sub space-y-10">
           <div
-            className="text-center text-3xl font-semibold"
+            className="text-center text-3xl font-semibold opacity-0"
             style={{ letterSpacing: -1.5 }}
+            id={'bounce-7'}
           >
             <span className=" text-main">Screen</span> Shots
           </div>
-          <div className=" indent-5 px-16 text-center">
+          <div
+            className=" indent-5 px-16 text-center opacity-0"
+            id={'bounce-8'}
+          >
             Display your mobile apps awesome features with icon lists and an
             image carousel of each page. Lorem ipsum dolor sit amet,
             consectetuer adipiscing elit, sed diam nonummy nibh euismod
@@ -292,12 +341,16 @@ const RendingPage = () => {
       <div className=" h-222 bg-sub flex justify-center relative">
         <div className=" w-278 pt-30 space-y-10 text-gray-100">
           <div
-            className="text-center text-3xl font-semibold"
+            className="text-center text-3xl font-semibold opacity-0"
             style={{ letterSpacing: -1.5 }}
+            id={'bounce-9'}
           >
             <span className=" text-main">Contact</span> Us
           </div>
-          <div className=" indent-5 px-16 text-center">
+          <div
+            className=" indent-5 px-16 text-center opacity-0"
+            id={'bounce-10'}
+          >
             Display your mobile apps awesome features with icon lists and an
             image carousel of each page. Lorem ipsum dolor sit amet,
             consectetuer adipiscing elit, sed diam nonummy nibh euismod
@@ -305,28 +358,31 @@ const RendingPage = () => {
             enim ad minim veniam, quis nostrud exerci tation.
           </div>
           <div className="flex">
-            <div id={'team'} />
+            <div id={'team'} className="opacity-0" />
             <div className="w-full pl-4 space-y-5">
-              <div className=" text-4xl font-semibold text-main">
+              <div
+                className=" text-4xl font-semibold text-main opacity-0"
+                id={'bounce-12'}
+              >
                 Code Bakery
               </div>
               <div className=" space-y-10">
-                <div>
+                <div id={'bounce-13'} className='opacity-0'>
                   Name : 정수비 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div>
+                <div id={'bounce-14'} className='opacity-0'>
                   Name : 김도연 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div>
+                <div id={'bounce-15'} className='opacity-0'>
                   Name : 박남수 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div>
+                <div id={'bounce-16'} className='opacity-0'>
                   Name : 장세진 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
@@ -359,7 +415,6 @@ const RendingPage = () => {
           </div>
         </div>
       </div>
-      <Alert />
     </>
   );
 };

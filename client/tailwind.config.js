@@ -40,8 +40,8 @@ module.exports = {
             "4xl": "2rem",
         },
         colors: {
-            main: "#FC1681",
-            subMain: "#ffffef",
+            main: "tomato",
+            subMain: "#fc1657",
             sub: "#1C1C1B"
         },
         minHeight: {

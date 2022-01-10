@@ -49,7 +49,7 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
                   adminInfo.toJSON(),
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15m',
+                    expiresIn: '11s',
                   },
                 );
                 let reportedUserInfo: any = await db['Message'].findAll({
@@ -97,7 +97,7 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15m',
+                    expiresIn: '11s',
                   },
                 );
                 if (type === 'update') {

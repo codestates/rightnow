@@ -37,8 +37,7 @@ export default function userApi(
           }
         })
         .catch((err) => {
-          console.log(err.response);
-          if (err.response.status === 404) {
+          if (err.response.status === 409) {
             callback(err.response.status, '등록된 이메일 입니다.');
           }
         });
@@ -53,10 +52,9 @@ export default function userApi(
           }
         })
         .catch((err) => {
-          console.log(err.response);
-          // if (err.response.status === 404) {
-          //   callback(err.response.status, '등록된 이메일 입니다.');
-          // }
+          if (err.response.status === 404) {
+            callback(err.response.status, '등록된 이메일 없습니다.');
+          }
         });
       break;
     // 회원정보 불러오기 요청
@@ -74,7 +72,8 @@ export default function userApi(
           }
         })
         .catch((err) => {
-          console.log(err);
+          // callback(err.response.status, err.response);
+          console.log(err.response)
         });
       break;
     // 회원가입 요청

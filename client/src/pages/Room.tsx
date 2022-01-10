@@ -240,7 +240,6 @@ const Room = () => {
         </ContentContainer>
       </ChatContainer>
     </Container>
-    <Alert />
   </>
   );
 };
