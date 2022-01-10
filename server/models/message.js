@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       models.Message.belongsTo(models.User, {
         foreignKey: 'user_email',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       });
       models.Message.hasMany(models.Report_message, {
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'Message',
       timestamps: false,
-    }
+    },
   );
   return Message;
 };

@@ -1,17 +1,17 @@
-import React from "react";
-// import Image from "next/image";
+import React from 'react';
+import logo from '../images/rightnow_logo.png';
 
-const Logo = () => {
-    return (
-        <>
-            {/* <Image
-                src="/logo.jpg"
-                alt="formBakery Logo"
-                width={35}
-                height={45}
-            /> */}
-        </>
-    );
+interface IProps {
+  width?: number;
+}
+
+const Logo = ({ width }: IProps) => {
+  const logoWidth = width ? width : 90;
+  return (
+    <>
+      <img className='transition-all' src={logo} alt="rightnow logo" width={logoWidth} />
+    </>
+  );
 };
 
 export default Logo;

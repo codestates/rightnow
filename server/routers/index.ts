@@ -4,6 +4,7 @@ import messageRouter from './message';
 import participantRouter from './participant';
 import roomRouter from './room';
 import userRouter from './user';
+import friendRouter from './friend';
 import socketRouter from './socket';
 export {
   adminRouter,
@@ -13,4 +14,5 @@ export {
   roomRouter,
   userRouter,
   socketRouter,
+  friendRouter,
 };

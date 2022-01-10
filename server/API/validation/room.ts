@@ -1,28 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../../type/type';
+import axios from 'axios';
 const db: any = require('../../models/index');
 const bcrypt: any = require('bcrypt');
-
+import { Op } from 'sequelize';
+const dotenv: any = require('dotenv');
+dotenv.config();
 interface RoomValidation {
   createRoom(data: any): Promise<any>;
   closeRoom(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
-  notifyUpdate(
+  getRoomInfo(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
   updateRoom(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
   searchRoom(data: any): Promise<string>;
+  getLocation(lat: number, lon: number): Promise<string>;
+  getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }
-
 const roomValidation: RoomValidation = {
   /*
     모임 룸 생성 - req body 데이터 받아서 생성
@@ -35,43 +43,9 @@ const roomValidation: RoomValidation = {
       where: { id: data.category_id },
     });
     data.allow_num = category.dataValues.user_num;
+    console.log(data);
     let room = await db.Room.create(data);
     return room.dataValues;
-    // const transaction: any = await db.sequelize.transaction();
-    // let body: any = req.body;
-    // if (
-    //   !body.id ||
-    //   !body.title ||
-    //   !body.allow_num ||
-    //   !body.category_id ||
-    //   !body.lon ||
-    //   !body.lat
-    // ) {
-    //   res.status(400).send({
-    //     message: 'required data not received',
-    //   });
-    //   return;
-    // }
-    // let room = await db.Room.findOne({ where: { id: body.id } });
-    // if (room) {
-    //   res.status(200).send({
-    //     message: 'room id aleady exists',
-    //   });
-    //   return;
-    // }
-    // if (body.is_private === 'Y')
-    //   body.password = await bcrypt.hashSync(body.password, 10);
-    // await db.Room.create(body, { transaction });
-    // await db.Participant.create(
-    //   {
-    //     room_id: body.id,
-    //     user_email: body.user_email,
-    //     role: 'HOST',
-    //   },
-    //   { transaction }
-    // );
-    // await transaction.commit();
-    // next();
   },
 
   /*
@@ -80,49 +54,49 @@ const roomValidation: RoomValidation = {
   async closeRoom(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    // let id: string = req.body.room_id;
-    // let find: any = await db.Room.findOne({
-    //   attributes: {
-    //     exclude: [
-    //       /*'UserId', 'CategoryId'*/
-    //     ],
-    //   },
-    //   where: { id },
-    // });
-    // if (!find) {
-    //   res.status(409).send({
-    //     message: 'roomId not exist',
-    //   });
-    //   return;
-    // }
-    // await db.Room.update({ is_close: 'Y' }, { where: { id } });
-    // next();
-  },
+    next: NextFunction,
+  ): Promise<void> {},
   /*
-    모임 공지 생성
+    모임룸 정보
   */
-  async notifyUpdate(
+  async getRoomInfo(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
-    // let body = req.body;
-    // if (!body.notify || body.notify === '') {
-    //   req.sendData = { message: 'notification not received', status: 400 };
-    //   next();
-    //   return;
-    // }
-    // let find = await db.Room.findOne({ where: { id: body.id } });
-    // if (!find) {
-    //   req.sendData = { message: 'room not exist', status: 401 };
-    //   next();
-    //   return;
-    // }
-    // await db.Room.update({ notify: body.notify }, { where: { id: body.id } });
-    // req.sendData = { message: 'ok', status: 200 };
-    // next();
+    let id = req.body.room_id;
+    try {
+      let room = await db.Room.findOne({
+        include: [
+          {
+            model: db.Participant,
+            include: {
+              model: db.User,
+              attributes: {
+                exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
+              },
+            },
+          },
+          {
+            model: db.Message,
+          },
+        ],
+        order: [[db.Message, 'write_date', 'ASC']],
+        where: { id },
+      });
+      if (room === null)
+        req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
+      else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
+      next();
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'get Room Info: invalid access',
+        status: 200,
+        data: e,
+      };
+      next();
+    }
   },
   /*
     모임 업데이트
@@ -130,27 +104,8 @@ const roomValidation: RoomValidation = {
   async updateRoom(
     req: CustomRequest,
     res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    // let body: any = req.body;
-    // let id: string = body.id;
-    // let count: any = await db.Participant.findOne({
-    //   attributes: [[db.sequelize.fn('COUNT', 'id'), 'num_count']],
-    //   group: ['room_id'],
-    //   where: { room_id: body.id },
-    // });
-    // if (count && count.dataValues.num_count > body.allow_num) {
-    //   req.sendData = { message: 'number range exit', status: 409 };
-    //   next();
-    //   return;
-    // }
-    // if (body.is_private === 'Y')
-    //   body.password = await bcrypt.hashSync(body.password, 10);
-    // delete body.id;
-    // await db.Room.update(body, { where: { id } });
-    // req.sendData = { message: 'ok', status: 200 };
-    // next();
-  },
+    next: NextFunction,
+  ): Promise<void> {},
 
   /*
     데이터 형식
@@ -171,28 +126,109 @@ const roomValidation: RoomValidation = {
         {
           location: data.location,
         },
+        {
+          close_date: { [Op.gt]: new Date() },
+        },
+      ],
+      include: [
+        {
+          model: db.Participant,
+          attributes: { include: ['id'] },
+        },
       ],
     });
 
     //받아온 rooms 를 반복적으로 돌며 서칭
     for (let room of rooms) {
       let roomNum = room.dataValues.allow_num;
-      let findNum = await db.Participant.findOne({
-        attributes: [[db.sequelize.fn('COUNT', 'id'), 'num_count']],
-        group: ['room_id'],
-        where: {
-          room_id: room.dataValues.id,
-        },
-      });
+      // let findNum = await db.Participant.findOne({
+      //   attributes: [[db.sequelize.fn('COUNT', 'id'), 'num_count']],
+      //   group: ['room_id'],
+      //   where: {
+      //     room_id: room.dataValues.id,
+      //   },
+      // });
+      let findNum = room.dataValues.Participants.length;
+      console.log('roomNum: ' + roomNum);
+      console.log('findNum: ' + findNum);
       if (
         data.type === 'ALONE'
-          ? roomNum - findNum.dataValues.num_count >= 1
-          : roomNum - findNum.dataValues.num_count >= data.email_list.length + 1
+          ? roomNum - findNum >= 1
+          : roomNum - findNum >= data.email_list.length + 1
       )
         return room.dataValues.id;
     }
 
     return 'fail';
+  },
+  // lat:y lon:x
+  async getLocation(lat: number, lon: number): Promise<string> {
+    let location: string = '';
+    let url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lon}&y=${lat}`;
+    let auth = `KakaoAK ${process.env.KAKAO_AUTH || ''}`;
+    await axios
+      .get(url, {
+        headers: { Authorization: auth },
+      })
+      .then((result: any) => {
+        let data = result.data;
+        location = data.documents[0].address_name;
+      })
+      .catch((err) => {
+        location = 'out of range';
+      });
+
+    return location;
+  },
+
+  async getPastMeet(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    let body: any = req.body;
+    let send: any = null;
+    try {
+      let pastRooms = await db.Room.findAll({
+        where: [
+          {
+            [`$Participants.user_email$`]: body.email,
+          },
+          {
+            close_date: {
+              [Op.lt]: new Date(),
+            },
+          },
+        ],
+        include: { model: db.Participant },
+      });
+
+      for (let i = 0; i < pastRooms.length; i++) {
+        let participants = await db.Participant.findAll({
+          where: { room_id: pastRooms[i].dataValues.id },
+        });
+        pastRooms[i].dataValues.Participants = participants;
+      }
+      if (pastRooms.length === 0) {
+        send = {
+          status: 200,
+          message: 'N/A',
+        };
+      } else {
+        send = {
+          status: 200,
+          message: 'ok',
+          data: pastRooms,
+        };
+      }
+      req.sendData = send;
+      next();
+    } catch (e) {
+      res.status(400).send({
+        message: 'invalid access',
+        code: e,
+      });
+    }
   },
 };
 

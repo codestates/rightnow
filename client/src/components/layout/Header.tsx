@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
-// import Image from "next/image";
-// import Link from "next/link";
 import Logo from '../Logo';
 import Modal from '../Modal';
-import { useNavigate, Link } from 'react-router-dom';
-// import { logout, setAlert, setModal } from "../../reducers/store/user";
-// import { useRouter } from "next/router";
+import { useAppSelector, useAppDispatch } from '../../config/hooks';
+import { userIsLogin, userNickname, logout } from '../../reducers/userSlice';
+import { Link } from 'react-router-dom';
+import { showModal } from '../../reducers/componetSlice';
+import profile from '../../images/profile.png';
 
 const Header = () => {
-  const navigate = useNavigate();
-  // const router = useRouter();
+  const dispatch = useAppDispatch();
   // 로그인 유무
-  // const isLogin = useSelector(({ user }: any) => user.login);
-  const isLogin = false;
+  const isLogin = useAppSelector(userIsLogin);
   // 닉네임
-  // const nickname = useSelector(({ user }: any) => user.userInfo.nickname);
-  const nickname = 'sejin';
+  const nickname = useAppSelector(userNickname);
   // 유저아이콘 클릭 시 모달의 보임 유무 state 관리
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const toggleModal = (): void => {
@@ -24,31 +21,29 @@ const Header = () => {
 
   // 로그아웃 클릭시 모달 활성화
   const buttonHandler = (): void => {
-    toggleModal();
-    // dispatch(setModal(true));
-  };
-
-  // 로그아웃 요청
-  const requestLogout = (): void => {
-    // dispatch(logout());
-    // router.push("/auth/login");
-    setTimeout(() => {
-      // dispatch(setAlert(true));
-    }, 50);
+    // toggleModal();
+    dispatch(showModal('logout'));
   };
 
   return (
     <>
-      <header className="bg-white h-16 flex shadow-md justify-center space-x-96 fixed w-full z-10">
-        <Link to={'/'} className="flex items-center">
+      <header
+        className="bg-white h-16 flex shadow-md justify-center space-x-96 fixed w-full z-20"
+        onClick={() => {
+          if (isVisible) {
+            toggleModal();
+          }
+        }}
+      >
+        <Link to={isLogin ? '/room' : '/'} className="flex items-center">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Logo />
-            <p className="text-main font-serif font-semibold text-3xl underline whitespace-nowrap w-auto ">
-              moyeora
+            <p className="text-slate-700 font-sans font-bold text-4xl whitespace-nowrap w-auto ">
+              rightnow
             </p>
           </div>
         </Link>
-        <div className="flex items-center relative w-72 justify-end pr-8">
+        <div className="flex items-center relative w-72 justify-end pr-8 z-30">
           {!isLogin && (
             <Link to="/auth/login">
               <button className="border-1 border-main rounded-md text-main text-md px-2 py-1 w-auto whitespace-nowrap ">
@@ -74,35 +69,32 @@ const Header = () => {
               className={`h-11.5 w-11.5 rounded-full flex justify-center items-center  cursor-pointer hover:bg-slate-200 ${
                 isVisible ? 'bg-slate-200' : 'bg-white'
               }`}
-              onClick={(): void => {
-                if (isLogin) {
-                  toggleModal();
-                } else {
-                  // router.push("/auth/login");
-                }
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleModal();
               }}
             >
-              {/* <Image
-                                src="/profile.png"
-                                alt="user"
-                                width={40}
-                                height={40}
-                                className="rounded-full"
-                            /> */}
+              <img
+                src={profile}
+                alt="user profile"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
             </div>
           )}
           {isVisible && (
-            <div className=" bg-white absolute z-10 right-8 top-14.5 w-32 py-2 border-1 rounded-md text-xs text-slate-500 shadow-md">
-              {/* <Link href={"/mypage/myForm"} passHref> */}
-              <p className="hover:bg-gray-100 cursor-pointer px-2 py-2 font">
-                내 설문지
-              </p>
-              {/* </Link> */}
-              {/* <Link href={"/mypage/account/profile"} passHref> */}
-              <p className="hover:bg-gray-100 cursor-pointer px-2 py-2">
-                계정관리
-              </p>
-              {/* </Link> */}
+            <div className=" bg-white absolute right-8 top-14.5 w-32 py-2 border-1 rounded-md text-xs text-slate-500 shadow-md">
+              <Link to={'/mypage/friends/list'}>
+                <p className="hover:bg-gray-100 cursor-pointer px-2 py-2 font">
+                  친구관리
+                </p>
+              </Link>
+              <Link to={'/mypage/account/profile'}>
+                <p className="hover:bg-gray-100 cursor-pointer px-2 py-2">
+                  계정관리
+                </p>
+              </Link>
               <div className="flex justify-center mt-2 mb-1">
                 <div className=" inline-flex w-28 h-1 border-t-1" />
               </div>
@@ -118,15 +110,11 @@ const Header = () => {
       </header>
       {isVisible && (
         <div
-          className="bg-transparent absolute top-0 left-0 w-screen h-screen z-0"
+          className="bg-transparent fixed top-0 left-0 w-screen h-screen z-10"
           onClick={toggleModal}
         ></div>
       )}
-      <Modal
-        title={'로그아웃'}
-        subTitle={'정말로 로그아웃 하시겠습니까?'}
-        onClick={requestLogout}
-      />
+      <Modal />
     </>
   );
 };

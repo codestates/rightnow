@@ -17,12 +17,13 @@ module.exports = {
     },
   },
   test: {
-    username: process.env.DB_HOST || 'root',
-    password: process.env.DB_HOST || '0000',
+    username: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '0000',
     database: process.env.DB_HOST || 'database_test',
     host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'mysql',
     timezone: '+09:00',
+    port: process.env.DB_PORT || 3306,
     dialectOptions: {
       charset: 'utf8mb4',
       dateStrings: true,
@@ -34,6 +35,7 @@ module.exports = {
     password: process.env.PASSWORD || '0000',
     database: process.env.DB_DATABASE || 'database_production',
     host: process.env.DB_HOST || '127.0.0.1',
+    port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
     timezone: '+09:00',
     dialectOptions: {
@@ -50,5 +52,6 @@ module.exports = {
       user: process.env.MAIL_EMAIL,
       pass: process.env.MAIL_PASSWORD,
     },
+    tls: { rejectUnauthorized: false },
   },
 };
