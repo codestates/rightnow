@@ -27,11 +27,20 @@ const LoadingContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const RoomTitle = styled.div`
   font-size: 1.5rem;
   margin-bottom: 0.7rem;
+
+  @media screen and (max-width: 768px) {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Loading = styled.div`
@@ -45,6 +54,10 @@ const Loading = styled.div`
   gap: 1rem;
   grid-auto-rows: 3rem;
   margin-bottom: 1rem;
+  @media screen and (max-width: 768px) {
+    width: 13rem;
+    min-height: 7rem;
+  }
 `;
 
 const Join = styled.div`
@@ -58,6 +71,10 @@ const Item = styled.div<{ type: string }>`
   background: ${(props) =>
     props.type === 'empty' ? 'gray' : props.theme.color.main};
   border-radius: 1.5rem;
+  @media screen and (max-width: 768px) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 `;
 
 const ButtonContainer = styled.div``;
