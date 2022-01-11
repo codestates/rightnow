@@ -228,7 +228,6 @@ const ChattingRoom = ({
   handleInsertMessage,
   updateMessage,
 }: ChattingProps) => {
-  const dispatch = useAppDispatch();
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
   const [isShow, setIsShow] = useState<boolean>(false);
@@ -363,8 +362,8 @@ const ChattingRoom = ({
               onChange={handleText}
               value={text}
               placeholder="메세지 보내기"
+              autoFocus
             />
-            {/* <button type="submit">전송</button> */}
           </ChattingForm>
         </>
       ) : menu === 'map' ? (
