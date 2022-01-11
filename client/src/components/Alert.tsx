@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { alert, showAlert } from '../reducers/componetSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { deleteAccessToken } from '../reducers/userSlice';
 
 const Alert = () => {
   const dispatch = useAppDispatch();
@@ -45,6 +46,14 @@ const Alert = () => {
         setTitle('계정삭제');
         setSubTitle('라잇나우 계정을 완전히 삭제하였습니다.');
         break;
+      case 'invalidRefreshToken':
+        setTitle('토큰만료');
+        setSubTitle('토큰이 만료되었습니다. 다시 로그인 해주세요.');
+        break;
+      case 'temperedToken':
+        setTitle('토큰오류');
+        setSubTitle('토큰과 일치하는 유저가 없습니다. 다시 로그인 해주세요.');
+        break;
       case 'signoutWrongPassword':
         setTitle('계정삭제');
         setSubTitle('현재 비밀번호가 일치하지 않습니다.');
@@ -76,6 +85,10 @@ const Alert = () => {
 
   const closeAlert = (): void => {
     dispatch(showAlert(''));
+    // 토큰만료일 경우 확인을 누르면 로그아웃시킴
+    if (alertType === 'invalidRefreshToken') {
+      dispatch(deleteAccessToken());
+    }
   };
 
   return (
@@ -98,7 +111,7 @@ const Alert = () => {
           <div className="text-sm mt-2 relative top-0">{subTitle}</div>
           <div className="text-right space-x-2 absolute bottom-4 right-6">
             <button
-              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-pink-700`}
+              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={closeAlert}
             >
               확인

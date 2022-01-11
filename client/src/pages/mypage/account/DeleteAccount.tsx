@@ -63,7 +63,7 @@ const DeleteAccount = () => {
         />
         <button
           className={`w-36 h-10 rounded-md ${
-            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white hover:bg-pink-700'
+            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white hover:bg-orange-700'
           }`}
           disabled={isDisable}
           onClick={buttonHandler}

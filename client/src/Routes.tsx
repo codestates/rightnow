@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes as Switch, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Route,
+  Routes as Switch,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import RendingPage from './pages/index';
 import Room from './pages/Room';
 import userApi from './api/userApi';
@@ -10,12 +15,20 @@ import {
   IUserInfo,
   userIsLogin,
   logout,
+  updateAccessToken,
+  deleteAccessToken,
 } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
 import Search from './pages/Search';
 import { showAlert, updateUrl, url } from './reducers/componetSlice';
 import Alert from './components/Alert';
+import Load from './pages/Load';
+
+interface IData {
+  userInfo: IUserInfo;
+  accessToken?: string;
+}
 
 function Routes() {
   const router = useNavigate();
@@ -24,32 +37,39 @@ function Routes() {
   const accessToken = useAppSelector(userAccessToken);
   const isLogin = useAppSelector(userIsLogin);
   const prevPage = useAppSelector(url);
-  // useEffect(() => {
-  //   if (accessToken) {
-  //     const callback = (code: number, data: IUserInfo) => {
-  //       if (code === 200) {
-  //         console.log('아직 accessToken이 살아있음')
-  //         console.log(data)
-  //       }
-  //     };
-  //     userApi('getUserInfo', undefined, callback, accessToken);
-  //   }
-  // }, [location]);
+  useEffect(() => {
+    if (accessToken) {
+      const callback = (code: number, data: IData) => {
+        if (code === 200) {
+          if (data.accessToken) {
+            dispatch(updateAccessToken(data.accessToken));
+          }
+        } else if (code === 400) {
+          dispatch(showAlert('invalidRefreshToken'));
+        } else if (code === 404) {
+          dispatch(updateUrl('temperedToken'));
+          dispatch(deleteAccessToken());
+        }
+      };
+      userApi('getUserInfo', undefined, callback, accessToken);
+    }
+  }, [location]);
 
   // accessToken이 새롭게 받아질 때 마다 유저의 정보를 갱신시켜준다.
   const [first, setFirst] = useState<boolean>(true);
   useEffect(() => {
     if (!first) {
       if (accessToken) {
-        const callback = (code: number, data: IUserInfo) => {
+        const callback = (code: number, data: IData) => {
           if (code === 200) {
-            dispatch(getUserInfo(data));
+            dispatch(getUserInfo(data.userInfo));
           }
         };
         userApi('getUserInfo', undefined, callback, accessToken);
       } else {
         router('/');
         dispatch(logout());
+        userApi('logout');
       }
     }
   }, [accessToken]);
@@ -63,6 +83,9 @@ function Routes() {
       } else {
         if (prevPage === 'deleteAccount') {
           dispatch(showAlert('signout'));
+          dispatch(updateUrl(''));
+        } else if (prevPage === 'temperedToken') {
+          dispatch(showAlert('temperedToken'));
           dispatch(updateUrl(''));
         } else {
           dispatch(showAlert('logout'));
@@ -80,6 +103,7 @@ function Routes() {
         <Route path="/mypage/*" element={<MypageLayout />} />
         <Route path="/room" element={<Room />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/load" element={<Load />} />
       </Switch>
       <Alert />
     </>

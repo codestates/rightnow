@@ -264,7 +264,7 @@ const ResetPassword = () => {
               className={`w-96 h-12 rounded-md ${
                 isDisable.auth
                   ? 'bg-slate-100 text-slate-300'
-                  : 'bg-main text-white hover:bg-pink-700'
+                  : 'bg-main text-white hover:bg-orange-700'
               }`}
               disabled={isDisable.auth}
               onClick={requestEmailAuth}
@@ -342,7 +342,7 @@ const ResetPassword = () => {
                       ? 'bg-slate-100 text-slate-300'
                       : isDisable.resetPassword
                       ? 'bg-slate-100 text-slate-300'
-                      : 'bg-main text-white hover:bg-pink-700'
+                      : 'bg-main text-white hover:bg-orange-700'
                   }`}
                   disabled={time.current < 0 ? true : isDisable.resetPassword}
                   onClick={requestForgetPassword}

@@ -1,9 +1,4 @@
-import React, {
-  ChangeEvent,
-  useEffect,
-  useState,
-  KeyboardEvent,
-} from 'react';
+import React, { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import { useAppSelector, useAppDispatch } from '../../../config/hooks';
@@ -79,16 +74,20 @@ const Proflie = () => {
     if (e.target.files) {
       const uploadFile = e.target.files[0];
       const formData = new FormData();
-      formData.append('files', uploadFile);
+      formData.append('file', uploadFile);
 
-      await axios({
-        method: 'put',
-        url: '/api/files/images',
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      axios
+        .put(`http://localhost/user/upload/image/${email}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
     }
   };
 

@@ -90,7 +90,7 @@ const Modal = ({ password }: IProps) => {
               취소
             </button>
             <button
-              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-pink-700`}
+              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={onClickHandler}
             >
               확인

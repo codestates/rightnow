@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
-axios.defaults.withCredentials = true
+axios.defaults.withCredentials = true;
 
 export default function userApi(
   name: string,
   body?: object,
   callback?: any,
   accessToken?: any,
+  email?: string,
 ) {
   switch (name) {
     // 로그인 요청
@@ -68,12 +69,11 @@ export default function userApi(
         })
         .then((res) => {
           if (res.status === 200) {
-            callback(res.status, res.data.data.userInfo);
+            callback(res.status, res.data.data);
           }
         })
         .catch((err) => {
-          // callback(err.response.status, err.response);
-          console.log(err.response)
+          callback(err.response.status);
         });
       break;
     // 회원가입 요청
@@ -160,9 +160,31 @@ export default function userApi(
           }
         });
       break;
-    case 'update':
+    case 'logout':
+      axios
+        .post(`http://${endpoint}/user/logout`)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       break;
     case 'uploadProfileImage':
+      // axios({
+      //   method: "put",
+      //   url: "myurl",
+      //   data: bodyFormData,
+      //   headers: { "Content-Type": "multipart/form-data" },
+      // })
+      //   .then(function (response) {
+      //     //handle success
+      //     console.log(response);
+      //   })
+      //   .catch(function (response) {
+      //     //handle error
+      //     console.log(response);
+      //   });
       break;
     case 'emailAuth':
       break;

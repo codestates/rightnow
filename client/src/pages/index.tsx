@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Alert from '../components/Alert';
+import { useAppSelector } from '../config/hooks';
 import Logo from '../components/Logo';
 import phone from '../images/phones.png';
-import team from '../images/team.jpg';
+import 'react-alice-carousel/lib/alice-carousel.css';
+import Slider from '../components/Slider';
+import { userIsLogin } from '../reducers/userSlice';
 
 interface IList {
   id: string;
@@ -11,6 +13,27 @@ interface IList {
 }
 
 const RendingPage = () => {
+  const isLogin = useAppSelector(userIsLogin);
+  // 스크린샷 더미데이터
+  const images = [
+    {
+      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
+      alt: 'default',
+    },
+    {
+      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
+      alt: 'default',
+    },
+    {
+      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
+      alt: 'default',
+    },
+    {
+      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
+      alt: 'default',
+    },
+  ];
+
   const location = useLocation();
   const router = useNavigate();
   const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
@@ -36,7 +59,6 @@ const RendingPage = () => {
     const position = window.scrollY;
     setScrollPosition(position);
 
-    console.log(window.scrollY + window.innerHeight);
     if (window.scrollY + window.innerHeight > 850) {
       document.getElementById('left-slide-2')?.classList.add('left-slide-2');
       document.getElementById('right-slide-1')?.classList.add('right-slide-1');
@@ -50,6 +72,10 @@ const RendingPage = () => {
     if (window.scrollY + window.innerHeight > 2230) {
       document.getElementById('bounce-7')?.classList.add('bounce-1');
       document.getElementById('bounce-8')?.classList.add('bounce-1');
+    }
+
+    if (window.scrollY + window.innerHeight > 2570) {
+      document.getElementById('slider')?.classList.add('slide');
     }
 
     if (window.scrollY + window.innerHeight > 2960) {
@@ -77,18 +103,15 @@ const RendingPage = () => {
     }
   };
 
-  useEffect((): (() => void) => {
+  useEffect(() => {
+    handleScroll()
+  }, [])
+
+  useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
-    window.addEventListener('load', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.addEventListener('resize', handleScroll);
-      window.addEventListener('load', handleScroll);
-      handleScroll();
-    };
   }, []);
-
+  
   const firstContentY: number = 604;
   const contentDy: number = 670;
 
@@ -172,7 +195,10 @@ const RendingPage = () => {
                   </div>
                 );
               })}
-            <Link to="/auth/login" className="flex items-center">
+            <Link
+              to={isLogin ? '/room' : '/auth/login'}
+              className="flex items-center"
+            >
               <button
                 className="rounded-lg text-gray-100 whitespace-nowrap bg-main group relative"
                 style={{ width: 86, height: 43 }}
@@ -182,7 +208,7 @@ const RendingPage = () => {
                   style={{ transition: '0.3s' }}
                 />
                 <span className=" absolute top-3 left-4.5 font-semibold text-gray-100 transition-all group-hover:text-main">
-                  Sign in
+                  {isLogin ? 'Chat in' : 'Sign in'}
                 </span>
               </button>
             </Link>
@@ -211,7 +237,11 @@ const RendingPage = () => {
             <div
               className=" flex bg-main w-60 h-16 rounded-2xl relative group cursor-pointer bounce-4"
               onClick={() => {
-                router('/auth/login');
+                if (isLogin) {
+                  router('/room');
+                } else {
+                  router('/auth/login');
+                }
               }}
             >
               <div
@@ -335,6 +365,9 @@ const RendingPage = () => {
             tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi
             enim ad minim veniam, quis nostrud exerci tation.
           </div>
+          <div className="relative opacity-0 -left-40" id={'slider'}>
+            <Slider images={images} />
+          </div>
         </div>
         <div className=" absolute bottom-0 left-0 bg-sub h-6 w-full" />
       </div>
@@ -367,22 +400,22 @@ const RendingPage = () => {
                 Code Bakery
               </div>
               <div className=" space-y-10">
-                <div id={'bounce-13'} className='opacity-0'>
+                <div id={'bounce-13'} className="opacity-0">
                   Name : 정수비 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div id={'bounce-14'} className='opacity-0'>
+                <div id={'bounce-14'} className="opacity-0">
                   Name : 김도연 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div id={'bounce-15'} className='opacity-0'>
+                <div id={'bounce-15'} className="opacity-0">
                   Name : 박남수 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
                 </div>
-                <div id={'bounce-16'} className='opacity-0'>
+                <div id={'bounce-16'} className="opacity-0">
                   Name : 장세진 <br />
                   Tel : 010-7794-4584 <br />
                   E-mail : jangsj95@naver.com
