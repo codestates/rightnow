@@ -8,6 +8,7 @@ import Header from '../components/layout/Header';
 import { userEmail } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
+import defaultImg from '../images/profile.png';
 
 function dateToString(
   date: Date,
@@ -375,8 +376,7 @@ const Room = () => {
   };
 
   // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
-  const handleInsertMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleInsertMessage = () => {
     console.log('보내기');
     if (!text || text === '') {
       return;
@@ -421,7 +421,9 @@ const Room = () => {
                     return (
                       <Member key={member.email}>
                         <ImageContainer>
-                          <ProfileImg url={member.profile_image} />
+                          <ProfileImg
+                            url={member.profile_image || defaultImg}
+                          />
                         </ImageContainer>
                         <ProfileName>{member.nick_name}</ProfileName>
                       </Member>
