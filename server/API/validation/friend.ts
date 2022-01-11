@@ -215,7 +215,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.query;
+    const { email } = req.params;
     const userInfo: any = await db['User'].findOne({
       where: { email: email },
     });
@@ -242,7 +242,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.query;
+    const { email } = req.params;
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });
@@ -251,10 +251,10 @@ const friendValidation: FriendValidation = {
       next();
       return;
     }
-    let FriendList1: any = await db['Friend'].findAll({
+    let FriendList1: string[] = await db['Friend'].findAll({
       where: { req_user: email },
     });
-    let FriendList2: any = await db['Friend'].findAll({
+    let FriendList2: string[] = await db['Friend'].findAll({
       where: { res_user: email },
     });
     FriendList1 = FriendList1.filter((el: any) => {

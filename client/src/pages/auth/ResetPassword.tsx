@@ -144,8 +144,8 @@ const ResetPassword = () => {
       setShowAuth(false);
       setIsDisable({
         ...isDisable,
-        email: false
-      })
+        email: false,
+      });
     }
   }, [sec]);
 
@@ -159,7 +159,7 @@ const ResetPassword = () => {
     setShowAuth(false);
     setEmailError('');
     setAuthError('');
-    setAuth('')
+    setAuth('');
     setPassword({
       resetPassword: '',
       reResetPassword: '',
@@ -176,7 +176,7 @@ const ResetPassword = () => {
     const callback = (code: number, data: string) => {
       if (code === 200) {
         // 가입 된 메일의 경우
-        console.log(data)
+        console.log(data);
         setAuthNumber(String(data));
         setShowAuth(true);
         setIsDisable({
@@ -185,10 +185,10 @@ const ResetPassword = () => {
           email: true,
         });
         authRef.current?.focus();
-      } else if (code === 401) {
+      } else {
         // 가입 된 메일이 아닌 경우
         clearInterval(timerId.current);
-        setEmailError('등록된 계정이 없습니다.');
+        setEmailError(data);
         setIsDisable({
           ...isDisable,
           auth: false,
@@ -264,7 +264,7 @@ const ResetPassword = () => {
               className={`w-96 h-12 rounded-md ${
                 isDisable.auth
                   ? 'bg-slate-100 text-slate-300'
-                  : 'bg-main text-white'
+                  : 'bg-main text-white hover:bg-orange-700'
               }`}
               disabled={isDisable.auth}
               onClick={requestEmailAuth}
@@ -342,7 +342,7 @@ const ResetPassword = () => {
                       ? 'bg-slate-100 text-slate-300'
                       : isDisable.resetPassword
                       ? 'bg-slate-100 text-slate-300'
-                      : 'bg-main text-white'
+                      : 'bg-main text-white hover:bg-orange-700'
                   }`}
                   disabled={time.current < 0 ? true : isDisable.resetPassword}
                   onClick={requestForgetPassword}

@@ -3,6 +3,7 @@ import { Route, Routes as Switch } from 'react-router-dom';
 import LeftPannel from '../../../components/layout/LeftPannel';
 import List from './List';
 import Add from './Add';
+import Request from './Request';
 
 interface IOption {
   id: string;
@@ -16,6 +17,7 @@ const FriendsLayout = () => {
       label: '친구 목록',
     },
     { id: 'add', label: '친구 추가' },
+    { id: 'request', label: '친구 요청' },
   ];
 
   return (
@@ -25,6 +27,7 @@ const FriendsLayout = () => {
         <Switch>
           <Route path="/list" element={<List />} />
           <Route path="/add" element={<Add />} />
+          <Route path="/request" element={<Request />} />
         </Switch>
       </div>
     </>
