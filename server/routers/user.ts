@@ -20,6 +20,9 @@ const storage: any = multer.diskStorage({
     const regex: any = /^[a-z|A-Z|0-9|]+$/;
     let dot =
       file.originalname.split('.')[file.originalname.split('.').length - 1];
+    if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
+      return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    }
     let name = file.originalname;
     if (!regex.test(name)) {
       name = Math.random().toString(36).substring(0, 8) + '.' + dot;
