@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, response, Response } from 'express';
 import { CustomRequest } from '../../type/type';
 import { Op } from 'sequelize';
 import axios from 'axios';
@@ -13,6 +13,11 @@ interface Participant {
 }
 
 interface ParticipantValidation {
+  checkParticipantAPI(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
   checkParticipant(
     email: string,
     type: string,
@@ -35,6 +40,50 @@ interface ParticipantValidation {
 }
 
 const participantValidation: ParticipantValidation = {
+  async checkParticipantAPI(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    let { email } = req.body;
+    let find = null;
+    try {
+      find = await db.Participant.findOne({
+        include: {
+          model: db.Room,
+          attributes: { include: ['id', 'close_date'] },
+        },
+        where: [
+          { user_email: email },
+          {
+            [`$Room.close_date$`]: {
+              [Op.gt]: new Date(),
+            },
+          },
+        ],
+      });
+    } catch (e) {
+      res.status(400).send({
+        message: 'database err',
+      });
+    }
+    if (find) {
+      req.sendData = {
+        message: 'ok',
+        data: {
+          room_id: find.dataValues.room_id,
+        },
+        code: 200,
+      };
+    } else {
+      req.sendData = {
+        message: 'not exist',
+        data: 'N/A',
+        code: 200,
+      };
+    }
+    next();
+  },
   /*
     데이터 형식
         email : 본인의 이메일 
@@ -126,7 +175,7 @@ const participantValidation: ParticipantValidation = {
     let transaction: any = await db.sequelize.transaction();
     let user: any = await db.User.findOne({ where: { email } });
     let send: any = null;
-    await db.Participant.delete(
+    await db.Participant.destroy(
       {
         where: [{ room_id }, { user_email: email }],
       },
@@ -134,11 +183,11 @@ const participantValidation: ParticipantValidation = {
     );
     //임시계정일 경우 삭제
     if (user.dataValues.role === 'TEMP')
-      await db.User.delete({ where: { email } }, { transaction });
+      await db.User.destroy({ where: { email } }, { transaction });
 
     let participants = await db.Participant.findAll({ where: { room_id } });
     if (participants.length === 0) {
-      let room = await db.Participant.delete(
+      let room = await db.Participant.destroy(
         { where: { id: room_id } },
         { transaction },
       );

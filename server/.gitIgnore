@@ -5,3 +5,4 @@ localhost*
 *package-lock.json
 *.pem
 image
+seeders

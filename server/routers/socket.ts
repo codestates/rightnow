@@ -2,7 +2,15 @@ import express, { Request, Response, Router, NextFunction } from 'express';
 import participantValidation from '../API/validation/participant';
 import roomValidation from '../API/validation/room';
 import messageValidation from '../API/validation/message';
-import { CacheUser, Participant, TempRoom, CacheRoomList } from '../type/type';
+import {
+  CacheUser,
+  Participant,
+  TempRoom,
+  CacheRoomList,
+  ChatCommunicationData,
+  User,
+} from '../type/type';
+import myDate from '../method/myDate';
 const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
 const http: any = require('http').createServer(socketRouter);
@@ -54,9 +62,8 @@ searchNamespace.on('connection', (socket: any) => {
   console.log(socket.id + ' conntect');
 
   /*
-    현재 검색중인 친구 찾기
     data ={
-      email_list: Array<string>
+      email
     }
   */
   socket.on('searching_check', async (data: any): Promise<void> => {
@@ -149,7 +156,7 @@ searchNamespace.on('connection', (socket: any) => {
           'GROUP',
           leaveList.map((item: any) => item.email),
         );
-        if (canEnter !== 'no exist') {
+        if (canEnter.message !== 'no exist') {
           await canEnter.list.forEach((item: any) => {
             leaveList.splice(
               leaveList.indexOf(
@@ -684,16 +691,17 @@ searchNamespace.on('connection', (socket: any) => {
           tempRooms.splice(tempRooms.indexOf(myRoom), 1);
         else searchNamespace.to(findUser.uuid).emit('waiting', myRoom);
       }
-      findUsers.delete(data.email);
-      //그룹일 경우 - 유저들 전부 삭제 - 완료 ! 테스트 완료
       if (findUser.type === 'GROUP') {
         for (let email of data.email_list) {
           findUsers.delete(email);
-          searchNamespace
-            .to(email)
-            .emit('cancel', { is_master: false, uuid: findUser.uuid });
+          let uuid = findUser.uuid ? findUser.uuid : '';
+          searchNamespace.to(email).emit('cancel', { is_master: false, uuid });
         }
       }
+
+      findUsers.delete(data.email);
+      //그룹일 경우 - 유저들 전부 삭제 - 완료 ! 테스트 완료
+
       searchNamespace.to(data.email).emit('cancel', { is_master: true });
       socket.leave(data.email);
     } catch (e) {
@@ -704,14 +712,38 @@ searchNamespace.on('connection', (socket: any) => {
   });
 });
 
-// interface CacheRoomList {
-//   users: Array<string>;
-// }
 let roomList: Map<string, CacheRoomList | any> = new Map();
+let attendUsers: Map<string, any> = new Map();
 //  todo chatting room - 작업 완료 ! 테스트 필요
 chatNamespace.on('connection', (socket: any) => {
   console.log(socket.adapter.rooms);
-  socket.on('disconnect', (data: any): any => {
+
+  //채팅방 나가기
+  socket.on('disconnect', async (data: any): Promise<any> => {
+    try {
+      let user: any = attendUsers.get(socket.id);
+      if (user) {
+        console.log(user);
+        let myRoom = roomList.get(user.room_id);
+        let findUser = myRoom.users.find(
+          (item: any) => user.email === item.email,
+        );
+        if (findUser) myRoom.users.splice(myRoom.users.indexOf(findUser), 1);
+        if (myRoom.users.length > 0) {
+          roomList.set(user.room_id, myRoom);
+          socket.leave(user.room_id);
+          chatNamespace.to(user.room_id).emit('leave_room', {
+            message: `${findUser.nick_name}(${findUser.email}) 님이 채팅방을 나갔습니다..`,
+            users: myRoom.users,
+          });
+        } else roomList.delete(user.room_id);
+        attendUsers.delete(socket.id);
+        console.log(myRoom);
+        console.log(roomList);
+      }
+    } catch (e) {
+      console.log(e);
+    }
     console.log(socket.id + 'disconnect');
   });
 
@@ -722,28 +754,50 @@ chatNamespace.on('connection', (socket: any) => {
       email
     }
   */
-  socket.on('join_room', async (data: any): Promise<void> => {
+  socket.on('join_room', async (data: ChatCommunicationData): Promise<void> => {
     try {
+      console.log('joinroom');
+      // 미리 접속되어있던 클라이언트를 나가게 변경
+      for (const [key, value] of attendUsers) {
+        console.log(value);
+        console.log(attendUsers.get(key));
+        if (value.email === data.email) {
+          console.log('access');
+          await chatNamespace.to(key).emit('reject', {
+            message: 'another client access',
+          });
+        }
+        attendUsers.delete(key);
+      }
+      let user = await db.User.findOne({
+        attributes: ['email', 'nick_name', 'profile_image', 'role'],
+        where: { email: data.email },
+      });
+      user = user.dataValues;
+      user.enterDate = myDate.dateToString(new Date(), '-', true);
       socket.join(data.room_id);
+      attendUsers.set(socket.id, { email: data.email, room_id: data.room_id });
       //현재 접속중인 유저 저장
       let myRoom = roomList.get(data.room_id);
+
       if (!myRoom) {
         roomList.set(data.room_id, {
-          users: [data.email],
+          users: [user],
         });
+        myRoom = roomList.get(data.room_id);
       } else if (
         myRoom &&
-        !myRoom.users.find((item: string): boolean => item === data.email)
+        !myRoom.users.find(
+          (item: User | any): boolean => item.email === data.email,
+        )
       ) {
-        myRoom.users = [...myRoom.users, data.email];
+        myRoom.users = [...myRoom.users, user];
         roomList.set(data.room_id, myRoom);
+        chatNamespace.to(data.room_id).emit('alarm_enter', {
+          message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
+          users: myRoom.users,
+        });
       }
-      let user = await db.User.findOne({ where: { email: data.email } });
-      user = user.dataValues;
-      chatNamespace.to(data.room_id).emit('enter', {
-        message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
-        users: myRoom.users,
-      });
     } catch (e) {
       console.log('join catch');
       console.log(e);
@@ -760,15 +814,15 @@ chatNamespace.on('connection', (socket: any) => {
       content
     }
   */
-  socket.on('msg_insert', async (data: any) => {
+  socket.on('msg_insert', async (data: ChatCommunicationData | any) => {
     try {
       let user = await db.User.findOne({ where: { email: data.email } });
+      user = user.dataValues;
       let message = await messageValidation.insertMessage(
         data.room_id,
         data.content,
         user.email,
       );
-      user = user.dataValues;
       chatNamespace.to(data.room_id).emit('msg_insert', {
         message: `${data.content}`,
         sender: user,
@@ -791,18 +845,18 @@ chatNamespace.on('connection', (socket: any) => {
     }
     
   */
-  socket.on('msg_update', async (data: any) => {
+  socket.on('msg_update', async (data: ChatCommunicationData | any) => {
     try {
       let user = await db.User.findOne({ where: { email: data.email } });
       let message = await messageValidation.updateMessage(
         data.message_id,
         data.content,
       );
-      user = user.dataValues;
       chatNamespace.to(data.room_id).emit('msg_update', {
         message: `${data.content}`,
         sender: user,
-        message_id: message.id,
+        message_id: data.message_id,
+        writeDate: message.write_date,
       });
     } catch (e) {
       console.log(e);
@@ -819,18 +873,23 @@ chatNamespace.on('connection', (socket: any) => {
       room_id
     }
   */
-  socket.on('leave_room', async (data: any) => {
+  // 사용안함 - disconnect 로 통합
+  socket.on('leave_room', async (data: ChatCommunicationData) => {
     try {
       let user = await db.User.findOne({ where: { email: data.email } });
       user = user.dataValues;
 
       //현재 룸 캐시에서 삭제
       let myRoom = roomList.get(data.room_id);
-      myRoom.users.splice(myRoom.users.indexOf(data.email), 1);
+      let findUser = myRoom.users.find(
+        (item: any) => data.email === item.email,
+      );
+      if (findUser) {
+        myRoom.users.splice(myRoom.users.indexOf(findUser), 1);
+      }
       roomList.set(data.room_id, myRoom);
-
       socket.leave(data.room_id);
-      chatNamespace.to(data.room_id).emit('leave', {
+      chatNamespace.to(data.room_id).emit('leave_room', {
         message: `${user.nick_name}(${user.email}) 님이 채팅방을 나갔습니다..`,
         users: myRoom.users,
       });
@@ -848,28 +907,35 @@ chatNamespace.on('connection', (socket: any) => {
       room_id
     }
   */
-  socket.on('leave_meeting', async (data: any) => {
+  socket.on('leave_meeting', async (data: ChatCommunicationData) => {
     //현재 룸 캐시에서 삭제
-    // let myRoom = roomList.get(data.room_id);
-    // myRoom.splice(myRoom.indexOf(data.email), 1);
-    // roomList.set(data.room_id, myRoom);
+    let myRoom = roomList.get(data.room_id);
+    let findUser = myRoom.users.find((item: any) => data.email === item.email);
 
+    let user = await db.User.findOne({ where: { email: data.email } });
+    user = user.dataValues;
     //db에서 삭제
-    let deleteMe: any = participantValidation.leaveRoom(
+    let deleteMe: any = await participantValidation.leaveRoom(
       data.email,
       data.room_id,
     );
+    attendUsers.delete(socket.id);
+    socket.leave(data.room_id);
+    if (findUser) myRoom.users.splice(myRoom.users.indexOf(findUser), 1);
 
-    //socket.leave(data.room_id);
+    if (myRoom.users.length > 0) {
+      roomList.set(data.room_id, myRoom);
+      chatNamespace.to(data.room_id).emit('leave_meeting', {
+        email: data.email,
+        users: myRoom.users,
+        message: `${user.nick_name}(${user.email}) 님이 모임을 나갔습니다..`,
+      });
+    } else roomList.delete(data.room_id);
 
     //본인이 나갔다는 사실을 방의 인원들에게 알림
     if (deleteMe.message !== 'room delete') {
-      chatNamespace
-        .to(data.room_id)
-        .emit('leave_meeting', { email: data.email });
+      // ...
     }
-    //leave room 으로 이동
-    chatNamespace.to(socket.id).emit('leave_room', data);
   });
 });
 

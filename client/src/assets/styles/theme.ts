@@ -12,6 +12,7 @@ const theme: DefaultTheme = {
       pink: '#FFA494',
       orange: '#E86A35',
       yellow: '#FF913B',
+      title: '#FF4C4B',
     },
     gray: '#C4C4C4',
     font: '#282822',

@@ -31,7 +31,8 @@ const messageValidation: MessageValidation = {
       { content, is_update: 'Y' },
       { where: { id } },
     );
-    return update.dataValues;
+    let getMessage = await db.Message.findOne({ where: { id } });
+    return getMessage.dataValues;
   },
 };
 

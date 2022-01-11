@@ -6,6 +6,8 @@ import roomRouter from './room';
 import userRouter from './user';
 import friendRouter from './friend';
 import socketRouter from './socket';
+import oauthRouter from './oauth';
+
 export {
   adminRouter,
   categoryRouter,
@@ -15,4 +17,5 @@ export {
   userRouter,
   socketRouter,
   friendRouter,
+  oauthRouter,
 };

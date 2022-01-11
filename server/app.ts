@@ -9,6 +9,7 @@ import {
   userRouter,
   socketRouter,
   friendRouter,
+  oauthRouter,
 } from './routers/index';
 
 const cookieParser: any = require('cookie-parser');
@@ -31,6 +32,7 @@ app.use('/participant', participantRouter);
 app.use('/room', roomRouter);
 app.use('/user', userRouter);
 app.use('/friend', friendRouter);
+app.use('/oauth', oauthRouter);
 
 app.use(socketRouter);
 app.get('/', (req: Request, res: Response): void => {

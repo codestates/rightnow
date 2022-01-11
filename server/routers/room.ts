@@ -9,8 +9,11 @@ roomRouter.post(
   roomValidation.createRoom,
   roomController.createRoom,
 );
+
 roomRouter.post('/delete', roomValidation.closeRoom, roomController.closeRoom);
+
 roomRouter.post('/get', roomValidation.getRoomInfo, roomController.getRoomInfo);
+
 roomRouter.post(
   '/get/past',
   roomValidation.getPastMeet,

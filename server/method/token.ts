@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { access } from 'fs';
-import { CustomRequest } from '../../type/type';
+import { CustomRequest } from '../type/type';
 
 const dotenv: any = require('dotenv');
 dotenv.config();
 
-const db: any = require('../../models/index');
+const db: any = require('../models/index');
 const jwt: any = require('jsonwebtoken');
 
 interface AccessTokenRequestValidation {

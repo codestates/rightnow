@@ -7,8 +7,9 @@ dotenv.config();
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
 const bcrypt: any = require('bcrypt');
+const { disconnectKakao } = require('../../method/oauth');
 
-import accessTokenRequestValidation from './accessTokenRequest';
+import accessTokenRequestValidation from '../../method/token';
 
 interface UserValidation {
   login(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
@@ -300,30 +301,48 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, password } = req.body;
+    const { email, social_login } = req.body;
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });
-
-    bcrypt.compare(
-      password,
-      userInfo.password,
-      function (err: any, resp: any): void {
-        if (resp === false) {
-          req.sendData = { message: 'incorrect password' };
-          next();
-        } else if (resp === true) {
-          db['User'].destroy({
-            where: { email: userInfo.email },
-          });
-          req.sendData = { message: 'ok' };
-          next();
-        } else {
-          req.sendData = { message: 'err' };
-          next();
-        }
-      },
-    );
+    if (social_login === 'kakao') {
+      const kakaoId = await disconnectKakao(db['User'].auth_code);
+      if (kakaoId) {
+        db['User'].destroy({
+          where: { email: userInfo.email },
+        });
+        req.sendData = { message: 'ok' };
+      } else {
+        req.sendData = { message: 'err' };
+      }
+    } else if (social_login === 'google') {
+      db['User'].destroy({
+        where: { email: userInfo.email },
+      });
+      req.sendData = { message: 'ok' };
+      next();
+    } else if (social_login === 'original') {
+      const { email, password } = req.body;
+      bcrypt.compare(
+        password,
+        userInfo.password,
+        function (err: any, resp: any): void {
+          if (resp === false) {
+            req.sendData = { message: 'incorrect password' };
+            next();
+          } else if (resp === true) {
+            db['User'].destroy({
+              where: { email: userInfo.email },
+            });
+            req.sendData = { message: 'ok' };
+            next();
+          } else {
+            req.sendData = { message: 'err' };
+            next();
+          }
+        },
+      );
+    }
   },
 
   /*
@@ -361,7 +380,7 @@ const userValidation: UserValidation = {
     if (type === 'signup') {
       title = 'RightNow 회원가입 인증번호 입니다.';
     } else if (type === 'forgetPassword') {
-      title = 'Form Bakery 비밀번호 재설정 인증번호 입니다.';
+      title = 'RightNow 비밀번호 재설정 인증번호 입니다.';
     }
 
     let html: any = `
@@ -620,14 +639,6 @@ const userValidation: UserValidation = {
       next();
     }
   },
-
-  /*
-  카카오 소셜로그인
-  */
-
-  /*
-  구글 소셜로그인
-  */
 };
 
 export default userValidation;

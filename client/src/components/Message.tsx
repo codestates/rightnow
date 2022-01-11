@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEventHandler, useState } from 'react';
 import styled from 'styled-components';
 
 const MenuContent = styled.div`
@@ -19,9 +19,20 @@ const Report = styled.div`
   position: absolute;
   width: 2rem;
   &:hover {
+    text-decoration: underline;
     ${MenuContent} {
       display: flex;
     }
+  }
+`;
+
+const Edit = styled.div`
+  margin-left: auto;
+  position: absolute;
+  left: -2rem;
+  width: 2rem;
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -31,12 +42,18 @@ const Container = styled.div`
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);
-    ${Report}::after {
-      content: '신고';
+    ${Report}::after, ${Edit}::after {
       font-size: 0.8rem;
-      color: ${(props) => props.theme.color.sub.red};
       weight: 600;
       cursor: pointer;
+    }
+    ${Report}::after {
+      color: ${(props) => props.theme.color.sub.red};
+      content: '신고';
+    }
+    ${Edit}::after {
+      color: ${(props) => props.theme.color.font};
+      content: '수정';
     }
   }
 `;
@@ -86,37 +103,78 @@ const MenuContainer = styled.div`
   right: 2rem;
   height: 1rem;
   width: 1rem;
+  display: flex;
 `;
+
+const EditForm = styled.form``;
+
+const EditInput = styled.input``;
 
 interface IMessage {
   messageData: {
     id: number;
-    user: { email: string; nick_name: string; profile_img: string };
+    User: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
     content: string;
-    isUpdate: string;
-    writeDate: string;
+    is_update: string;
+    write_date: string;
+    isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
   };
   handleModal: any;
+  updateMessage: any;
 }
 
-const Message = ({ messageData, handleModal }: IMessage) => {
-  const { id, user, content, isUpdate, writeDate } = messageData;
+const Message = ({ messageData, handleModal, updateMessage }: IMessage) => {
+  const { id, User, content, is_update, write_date, isAlarm } = messageData;
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [newContent, setNewContent] = useState<string>(content);
+  /**
+   * 수정 중인 메시지 상태 관리
+   * @param e
+   */
+  const handleNewContent = (e: React.SyntheticEvent) => {
+    const { value } = e.target as HTMLInputElement;
+    setNewContent(value);
+  };
+
+  const handleUpdate = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    updateMessage(newContent, id);
+  };
+
+  /**
+   * 메시지 & 메시지 수정 상태 관리
+   */
+  const handleEdit = () => {
+    setNewContent(content);
+    setIsEdit(!isEdit);
+  };
 
   return (
     <Container key={id}>
       <ImageContainer>
-        <MImage url={user.profile_img} />
+        <MImage url={User.profile_image} />
       </ImageContainer>
       <MainContent>
         <Title>
-          <Name>{user.nick_name}</Name>
-          <Date>{writeDate}</Date>
-          <Edited>{isUpdate === 'N' ? '' : '(수정됨)'}</Edited>
-          <MenuContainer>
-            <Report onClick={() => handleModal(user.nick_name, id)} />
-          </MenuContainer>
+          <Name>{isAlarm ? '' : User.nick_name}</Name>
+          <Date>{write_date}</Date>
+          <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
+          {isAlarm ? (
+            ''
+          ) : (
+            <MenuContainer>
+              <Edit onClick={handleEdit} />
+              <Report onClick={() => handleModal(User.nick_name, id)} />
+            </MenuContainer>
+          )}
         </Title>
-        <Content>{content}</Content>
+        {isEdit ? (
+          <EditForm onSubmit={handleUpdate}>
+            <EditInput value={newContent} onChange={handleNewContent} />
+          </EditForm>
+        ) : (
+          <Content>{content}</Content>
+        )}
       </MainContent>
     </Container>
   );

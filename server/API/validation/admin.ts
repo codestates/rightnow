@@ -9,7 +9,7 @@ const cron: any = require('node-cron');
 
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
-import accessTokenRequestValidation from './accessTokenRequest';
+import accessTokenRequestValidation from '../../method/token';
 
 const now: any = function (): void {
   return moment().format();

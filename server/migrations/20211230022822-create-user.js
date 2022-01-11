@@ -22,6 +22,14 @@ module.exports = {
         defaultValue: 'USER',
         type: Sequelize.STRING,
       },
+      social_login: {
+        defaultValue: 'original',
+        type: Sequelize.STRING,
+      },
+      auth_code: {
+        defaultValue: '',
+        type: Sequelize.STRING,
+      },
       is_block: {
         type: Sequelize.STRING,
       },
