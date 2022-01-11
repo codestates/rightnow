@@ -25,6 +25,7 @@ import { showAlert } from '../reducers/componetSlice';
 import Header from '../components/layout/Header';
 import Alert from '../components/Alert';
 import { friendAPI } from '../api/friendApi';
+import { CategoryType, FriendType } from '../type';
 
 const Container = styled.div`
   display: flex;
@@ -279,20 +280,6 @@ const CancelBtn = styled.button`
     opacity: 0.85;
   }
 `;
-
-interface CategoryType {
-  id: number;
-  name: string;
-  user_num: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface FriendType {
-  profile_img: string;
-  nick_name: string;
-  email: string;
-}
 
 const initCategory = {
   id: -1,
