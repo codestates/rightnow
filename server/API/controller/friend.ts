@@ -8,7 +8,6 @@ interface FriendController {
   reqFriend(req: CustomRequest, res: Response): Promise<void>;
   resFriend(req: CustomRequest, res: Response): Promise<void>;
   deleteFriend(req: CustomRequest, res: Response): Promise<void>;
-  searchFriend(req: CustomRequest, res: Response): Promise<void>;
   requestList(req: CustomRequest, res: Response): Promise<void>;
   friendList(req: CustomRequest, res: Response): Promise<void>;
 }
@@ -62,31 +61,13 @@ const friendController: FriendController = {
   },
 
   /*
-  친구 검색
-  */
-  async searchFriend(req: CustomRequest, res: Response): Promise<void> {
-    if (req.sendData.message === 'ok') {
-      res.status(200).send({
-        data: {
-          userInfo: req.sendData.data.userInfo,
-        },
-        message: 'ok',
-      });
-    } else if (req.sendData.message === 'no exists email') {
-      res.status(404).send({ message: 'no exists email' });
-    } else {
-      res.status(500).send({ message: 'err' });
-    }
-  },
-
-  /*
   요청이 온 친구 신청 목록 보기 
   */
   async requestList(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
       res.status(200).send({
         data: {
-          RequestFriend: req.sendData.data.RequestFriend,
+          RequestFriendList: req.sendData.data.RequestFriendList,
         },
         message: 'ok',
       });
