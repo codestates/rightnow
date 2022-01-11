@@ -10,11 +10,21 @@ module.exports = {
       },
       req_user: {
         type: Sequelize.STRING,
-        references: { model: 'Users', key: 'email' },
+        references: {
+          model: 'Users',
+          key: 'email',
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       res_user: {
         type: Sequelize.STRING,
-        references: { model: 'Users', key: 'email' },
+        references: {
+          model: 'Users',
+          key: 'email',
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       is_accept: {
         defaultValue: 'N',

@@ -305,6 +305,11 @@ const userValidation: UserValidation = {
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });
+    if (!userInfo) {
+      req.sendData = { message: 'no exists userInfo' };
+      next();
+      return;
+    }
     if (social_login === 'kakao') {
       const kakaoId = await disconnectKakao(db['User'].auth_code);
       if (kakaoId) {
@@ -322,7 +327,7 @@ const userValidation: UserValidation = {
       req.sendData = { message: 'ok' };
       next();
     } else if (social_login === 'original') {
-      const { email, password } = req.body;
+      const { password } = req.body;
       bcrypt.compare(
         password,
         userInfo.password,

@@ -11,13 +11,15 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       models.Friend.belongsTo(models.User, {
         foreignKey: 'req_user',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+        foreignKeyConstraint: true,
       });
       models.Friend.belongsTo(models.User, {
         foreignKey: 'res_user',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+        foreignKeyConstraint: true,
       });
     }
   }
@@ -30,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Friend',
-    }
+    },
   );
   return Friend;
 };
