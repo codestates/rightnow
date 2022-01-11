@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../../type/type';
+import { Op } from 'sequelize';
 
 const dotenv: any = require('dotenv');
 dotenv.config();
@@ -202,14 +203,11 @@ const friendValidation: FriendValidation = {
     RequestFriend = RequestFriend.map((el: any) => {
       return el.req_user;
     });
-    let RequestFriendList: any = [];
-    for (let i = 0; i < RequestFriend.length; i++) {
-      const userInfo = await db['User'].findOne({
-        where: { email: RequestFriend[i] },
-      });
-      delete userInfo.dataValues.password;
-      RequestFriendList = [...RequestFriendList, userInfo];
-    }
+    const RequestFriendList = await db['User'].findAll({
+      where: { email: { [Op.in]: RequestFriend } },
+      attributes: { exclude: ['password'] },
+      order: [['nick_name', 'ASC']],
+    });
     req.sendData = {
       data: { RequestFriendList: RequestFriendList },
       message: 'ok',
@@ -253,14 +251,11 @@ const friendValidation: FriendValidation = {
       return el.req_user;
     });
     const FriendList3: string[] = [...FriendList1, ...FriendList2];
-    let FriendList: any = [];
-    for (let i = 0; i < FriendList3.length; i++) {
-      const userInfo = await db['User'].findOne({
-        where: { email: FriendList3[i] },
-      });
-      delete userInfo.dataValues.password;
-      FriendList = [...FriendList, userInfo];
-    }
+    const FriendList = await db['User'].findAll({
+      where: { email: { [Op.in]: FriendList3 } },
+      attributes: { exclude: ['password'] },
+      order: [['nick_name', 'ASC']],
+    });
     req.sendData = { data: { FriendList: FriendList }, message: 'ok' };
     next();
   },

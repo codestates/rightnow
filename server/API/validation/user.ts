@@ -312,14 +312,16 @@ const userValidation: UserValidation = {
       return;
     }
     if (social_login === 'kakao') {
-      const kakaoId = await disconnectKakao(db['User'].auth_code);
+      const kakaoId = await disconnectKakao(userInfo.auth_code);
       if (kakaoId) {
         db['User'].destroy({
           where: { email: userInfo.email },
         });
         req.sendData = { message: 'ok' };
+        next();
       } else {
         req.sendData = { message: 'err' };
+        next();
       }
     } else if (social_login === 'google') {
       db['User'].destroy({

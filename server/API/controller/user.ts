@@ -87,6 +87,7 @@ const userController: UserController = {
     if (req.sendData.message === 'incorrect password') {
       res.status(404).send({ message: 'incorrect password' });
     } else if (req.sendData.message === 'ok') {
+      res.clearCookie('refreshToken');
       res.status(200).send({ message: 'ok' });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
