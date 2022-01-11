@@ -35,13 +35,15 @@ module.exports = (sequelize, DataTypes) => {
       // });
       models.User.hasMany(models.Friend, {
         foreignKey: 'req_user',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+        hooks: true,
       });
       models.User.hasMany(models.Friend, {
         foreignKey: 'res_user',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+        hooks: true,
       });
     }
   }

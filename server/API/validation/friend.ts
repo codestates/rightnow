@@ -251,10 +251,10 @@ const friendValidation: FriendValidation = {
       next();
       return;
     }
-    let FriendList1: any = await db['Friend'].findAll({
+    let FriendList1: string[] = await db['Friend'].findAll({
       where: { req_user: email },
     });
-    let FriendList2: any = await db['Friend'].findAll({
+    let FriendList2: string[] = await db['Friend'].findAll({
       where: { res_user: email },
     });
     FriendList1 = FriendList1.filter((el: any) => {

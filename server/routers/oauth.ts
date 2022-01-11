@@ -4,7 +4,7 @@ import oauthValidation from '../API/validation/oauth';
 
 const oauthRouter: Router = express.Router();
 
-oauthRouter.post(
+oauthRouter.get(
   '/callback/kakao',
   oauthValidation.kakaoLogin,
   oauthController.kakaoLogin,
