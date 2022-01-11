@@ -60,7 +60,6 @@ userRouter.put(
 );
 userRouter.post(
   '/report',
-  upload.single('file'),
   userValidation.reportUser,
   userController.reportUser,
 );

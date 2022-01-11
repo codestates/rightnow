@@ -9,7 +9,6 @@ import { useAppSelector, useAppDispatch } from '../../../config/hooks';
 import { userEmail } from '../../../reducers/userSlice';
 import userApi from '../../../api/userApi';
 import { showAlert } from '../../../reducers/componetSlice';
-import Alert from '../../../components/Alert';
 
 interface IPassword {
   password: string;
@@ -178,7 +177,7 @@ const ChangePassword = () => {
       <div className="text-right mt-20">
         <button
           className={`w-36 h-10 rounded-md ${
-            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white'
+            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white hover:bg-orange-700'
           }`}
           disabled={isDisable}
           onClick={requestUpdatePassword}
@@ -186,7 +185,6 @@ const ChangePassword = () => {
           저장
         </button>
       </div>
-      <Alert />
     </>
   );
 };
