@@ -2,6 +2,7 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -236,23 +237,25 @@ const ChattingRoom = ({
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView();
-  }, []);
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log('보낼때');
     scrollToBottom();
   }, [talkContents]);
 
   const scrollToBottom = () => {
-    scrollRef.current?.scrollIntoView({
-      behavior: 'smooth',
-    });
+    if (editMode) {
+      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      scrollRef.current?.scrollIntoView();
+    }
   };
 
   const handleMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleInsertMessage();
+    setEditMode(true);
   };
 
   const handleMenu = (e: any) => {
