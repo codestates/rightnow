@@ -20,11 +20,6 @@ friendRouter.delete(
   friendController.deleteFriend,
 );
 friendRouter.post(
-  '/search',
-  friendValidation.searchFriend,
-  friendController.searchFriend,
-);
-friendRouter.post(
   '/request/list/:email',
   friendValidation.requestList,
   friendController.requestList,

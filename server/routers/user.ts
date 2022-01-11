@@ -1,4 +1,5 @@
 import express, { Request, Response, Router, NextFunction } from 'express';
+import { nextTick } from 'process';
 import userController from '../API/controller/user';
 import userValidation from '../API/validation/user';
 
@@ -16,7 +17,7 @@ const storage: any = multer.diskStorage({
   destination: (req: any, file: any, cb: any): void => {
     cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
   },
-  filename: (req: any, file: any, cb: any): void => {
+  filename: (req: any, file: any, cb: any): any => {
     const regex: any = /^[a-z|A-Z|0-9|]+$/;
     let dot =
       file.originalname.split('.')[file.originalname.split('.').length - 1];
