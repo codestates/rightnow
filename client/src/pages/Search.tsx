@@ -2,9 +2,8 @@ import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { categoryAPI } from '../api/categoryApi';
-import Dropdown from '../components/Dropdown';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { userEmail } from '../reducers/userSlice';
+import { userEmail, userRole } from '../reducers/userSlice';
 import ModalTemp from '../components/ModalTemp';
 import MatchingModal from '../components/MatchingModal';
 import {
@@ -25,8 +24,7 @@ import { useNavigate } from 'react-router';
 import { showAlert } from '../reducers/componetSlice';
 import Header from '../components/layout/Header';
 import Alert from '../components/Alert';
-import { KeyboardReturnOutlined } from '@material-ui/icons';
-import { findAllByAltText } from '@testing-library/react';
+import { friendAPI } from '../api/friendApi';
 
 const Container = styled.div`
   display: flex;
@@ -47,7 +45,7 @@ const Container = styled.div`
 const SearchContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
-  height: 85%;
+  height: 95%;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
 
@@ -310,6 +308,7 @@ const Search = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
+  const role = useAppSelector(userRole); // 사용자 상태 (회원 / 비회원)
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
   const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭중 모달 상태
@@ -334,92 +333,16 @@ const Search = () => {
    * 친구 목록 가져오기
    */
   useEffect(() => {
-    setVisibleFriend([
-      {
-        nick_name: 'lee',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'skatn@naver.com',
-      },
-      {
-        nick_name: '김코딩',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com',
-      },
-      {
-        nick_name: '김코딩2',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com2',
-      },
-      {
-        nick_name: '김코딩3',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com3',
-      },
-      {
-        nick_name: '김코딩4',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com4',
-      },
-      {
-        nick_name: '김코딩5',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com5',
-      },
-      {
-        nick_name: '김코딩6',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com6',
-      },
-      {
-        nick_name: '김코딩7',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com7',
-      },
-      {
-        nick_name: '김코딩8',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com8',
-      },
-      {
-        nick_name: '김코딩9',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com9',
-      },
-      {
-        nick_name: '김코딩10',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com10',
-      },
-      {
-        nick_name: '김코딩11',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com11',
-      },
-      {
-        nick_name: '김코딩12',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com12',
-      },
-      {
-        nick_name: '김코딩13',
-        profile_img:
-          'https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE',
-        email: 'test@gmail.com13',
-      },
-    ]);
+    const friendsData = async () => {
+      const {
+        data: {
+          data: { FriendList },
+        },
+      } = await friendAPI.list(email);
+      console.log(FriendList);
+      setFriendList(FriendList);
+    };
+    friendsData();
   }, []);
 
   /**
@@ -759,38 +682,30 @@ const Search = () => {
             <FrindContainer>
               <FriendLabel>친구와 함께하기</FriendLabel>
               <FriendList>
-                {visibleFriend.map((friend: FriendType) => {
-                  // friendList -> visibleFriend 로 변경
-                  if (selectedFriend.includes(friend.email)) {
-                    return (
-                      <Friend
-                        title={friend.email}
-                        onClick={handleJoin}
-                        key={friend.email}
-                        checked={true}
-                      >
-                        <FriendImg>
-                          <Image src={friend.profile_img} />
-                        </FriendImg>
-                        <FriendNick>{friend.nick_name}</FriendNick>
-                      </Friend>
-                    );
-                  } else {
-                    return (
-                      <Friend
-                        title={friend.email}
-                        onClick={handleJoin}
-                        key={friend.email}
-                        checked={false}
-                      >
-                        <FriendImg>
-                          <Image src={friend.profile_img} />
-                        </FriendImg>
-                        <FriendNick>{friend.nick_name}</FriendNick>
-                      </Friend>
-                    );
-                  }
-                })}
+                {role === 'USER' ? (
+                  visibleFriend.length > 0 ? (
+                    visibleFriend.map((friend: FriendType) => {
+                      // friendList -> visibleFriend 로 변경
+                      return (
+                        <Friend
+                          title={friend.email}
+                          onClick={handleJoin}
+                          key={friend.email}
+                          checked={selectedFriend.includes(friend.email)}
+                        >
+                          <FriendImg>
+                            <Image src={friend.profile_img} />
+                          </FriendImg>
+                          <FriendNick>{friend.nick_name}</FriendNick>
+                        </Friend>
+                      );
+                    })
+                  ) : (
+                    <div>같이 할 수 있는 친구가 없습니다.</div>
+                  )
+                ) : (
+                  <div>친구와 함께 하려면 회원가입을 해주세요</div>
+                )}
               </FriendList>
             </FrindContainer>
             <ButtonContainer>
