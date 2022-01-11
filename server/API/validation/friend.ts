@@ -215,7 +215,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.body;
+    const { email } = req.query;
     const userInfo: any = await db['User'].findOne({
       where: { email: email },
     });
@@ -242,7 +242,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.body;
+    const { email } = req.query;
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });

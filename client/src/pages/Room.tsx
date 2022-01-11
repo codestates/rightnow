@@ -51,12 +51,13 @@ const MemberContainer = styled.div`
   padding: 1rem 1.3rem;
   border-radius: 0.5rem;
   width: 30%;
-  height: 38.3rem;
+  height: 100%;
 `;
 
 const ChatBox = styled.div`
   width: 70%;
   margin-right: 1rem;
+  height: 100%;
 `;
 
 const Container = styled.div`
@@ -79,7 +80,7 @@ const Container = styled.div`
 const ChatContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
-  height: 48rem;
+  height: 95%;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
   @media screen and (max-width: 1200px) {
@@ -112,11 +113,12 @@ const RoomDetail = styled.div`
 
 const ContentContainer = styled.div`
   display: flex;
+  height: 90%;
 `;
 
 const GroupTitle = styled.div`
   font-size: 1.5rem;
-  background: ${(props) => props.theme.color.main};
+  background: ${(props) => props.theme.color.sub.title};
   color: black;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.3rem;
@@ -199,14 +201,14 @@ interface User {
 
 interface MessageType {
   id: number;
-  user: {
+  User: {
     email: string;
     nick_name: string;
     profile_image: string; // fix - profile_img -> profile_image
   };
   content: string;
-  isUpdate: string;
-  writeDate: string;
+  is_update: string;
+  write_date: string;
   isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
 }
 
@@ -233,6 +235,7 @@ const Room = () => {
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<User[]>([]);
+
   const navigate = useNavigate();
   useEffect(() => {
     const roomData = async () => {
@@ -285,10 +288,10 @@ const Room = () => {
       setAttendMembers(data.users);
       let message: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 들어온 인원 알림
@@ -299,33 +302,35 @@ const Room = () => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: false,
       };
       //전달받은 메세지 추가
       setTalkContents((item: Array<MessageType>) => [...item, getMessage]);
+      console.log(talkContents);
     });
     socket.on('msg_update', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'Y',
-        writeDate: data.writeDate,
+        is_update: 'Y',
+        write_date: data.writeDate,
         isAlarm: false,
       };
+
       //전달받은 메세지 변경
       setTalkContents((item: Array<MessageType>): any => {
         return item.map((message: MessageType) => {
@@ -337,10 +342,10 @@ const Room = () => {
       let { users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -352,10 +357,10 @@ const Room = () => {
       let { email, users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -369,6 +374,9 @@ const Room = () => {
     });
 
     socket.emit('join_room', { room_id, email });
+    return () => {
+      socket.close();
+    };
   }, []);
   /**
    * 채팅 입력창 메시지 상태 관리
@@ -389,27 +397,29 @@ const Room = () => {
   /**
    * 모임 나가기
    */
-  const handleQuit = () => {
-    socket.emit('leave_meeting', { room_id, email });
+  const handleQuit = async () => {
+    await socket.emit('leave_meeting', { room_id, email });
     navigate('/search'); // 모임 검색 페이지로 이동
   };
 
-  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임
-  const handleInsertMessage = () => {
+  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
+  const handleInsertMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('보내기');
     if (!text || text === '') {
       return;
     }
     socket.emit('msg_insert', { email, room_id, content: text });
+    setText('');
   };
 
-  //todo message update 이벤트 추가
-  const updateMessage = () => {
+  //todo message update 이벤트 추가 - 수정 후 엔터
+  const updateMessage = (content: string, message_id: number) => {
     socket.emit('msg_update', {
-      /* 
       room_id,
       email,
       content,
-      message_id*/
+      message_id,
     });
   };
   return (
@@ -427,6 +437,8 @@ const Room = () => {
                 text={text}
                 handleText={handleText}
                 handleQuit={handleQuit}
+                handleInsertMessage={handleInsertMessage}
+                updateMessage={updateMessage}
               />
             </ChatBox>
             <MemberContainer className="drop-shadow">

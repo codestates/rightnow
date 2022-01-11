@@ -1,4 +1,9 @@
-import React, { ChangeEventHandler, MouseEventHandler, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  FormEventHandler,
+  MouseEventHandler,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { useAppSelector } from '../config/hooks';
@@ -6,11 +11,13 @@ import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
 
-const ChattingContainer = styled.div``;
+const ChattingContainer = styled.div`
+  height: 100%;
+`;
 
 const Chatting = styled.div`
   width: 100%;
-  height: 32rem;
+  height: 100%;
   background-color: white;
   border-radius: 0.3rem;
   overflow-y: scroll;
@@ -33,7 +40,7 @@ const Chatting = styled.div`
 `;
 
 const Container = styled.div`
-  height: 80%;
+  height: 100%;
 
   @media screen and (max-width: 1200px) {
     & {
@@ -136,7 +143,7 @@ const Content = styled.div`
 
 const MenuContainer = styled.div`
   background: white;
-  height: 45.2rem;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -191,19 +198,25 @@ const WarningMessage = styled.div`
   align-items: center;
 `;
 
+const ChattingForm = styled.form`
+  margin-top: 1rem;
+`;
+
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
   talkContents: MessageType[];
   handleQuit: MouseEventHandler<HTMLButtonElement>;
+  handleInsertMessage: FormEventHandler<HTMLFormElement>;
+  updateMessage: any;
 }
 
 interface MessageType {
   id: number;
-  user: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
+  User: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
   content: string;
-  isUpdate: string;
-  writeDate: string;
+  is_update: string;
+  write_date: string;
   isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
 }
 
@@ -212,6 +225,8 @@ const ChattingRoom = ({
   text,
   handleText,
   handleQuit,
+  handleInsertMessage,
+  updateMessage,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
@@ -310,6 +325,7 @@ const ChattingRoom = ({
                     key={idx}
                     messageData={messageData}
                     handleModal={handleModal}
+                    updateMessage={updateMessage}
                   ></Message>
                 ))
               ) : (
@@ -317,12 +333,15 @@ const ChattingRoom = ({
               )}
             </Chatting>
           </ChattingContainer>
-          <ChattingInput
-            className="drop-shadow focus:drop-shadow-lg"
-            onChange={handleText}
-            value={text}
-            placeholder="메세지 보내기"
-          />
+          <ChattingForm onSubmit={handleInsertMessage}>
+            <ChattingInput
+              className="drop-shadow focus:drop-shadow-lg"
+              onChange={handleText}
+              value={text}
+              placeholder="메세지 보내기"
+            />
+            {/* <button type="submit">전송</button> */}
+          </ChattingForm>
         </>
       ) : menu === 'map' ? (
         <MenuContainer className="drop-shadow">

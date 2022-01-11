@@ -275,34 +275,6 @@ searchNamespace.on('connection', (socket: any) => {
         return;
       }
     }
-    console.log(data.location);
-    // let location = await roomValidation.getLocation(data.lat, data.lon);
-    //  ... 여기에 카카오로 데이터 가져와서 location에 저장하는 로직 추가 - 사용안함
-    // 범위가 벗어난 경우(한국이 아닌 경우) reject
-    // if (location === 'out of range') {
-    //   searchNamespace.to(data.email).emit('reject_match', {
-    //     message: location,
-    //   });
-    //   return;
-    // }
-    //data.location = location;
-
-    // 이미 모임 searching 중인 경우
-    //상태 wait -> user_enter 으로 emit search -> search_room으로 emit
-    // let find = findUsers.get(data.email);
-    // console.log(find);
-    // if (find) {
-    //   if (find.status === 'wait') {
-    //     let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
-    //     socket.join(find.uuid);
-    //     searchNamespace.to(find.uuid).emit('waiting', findRoom);
-    //   }
-    //   if (find.status === 'search') {
-    //     searchNamespace.to(data.email).emit('search_room', find);
-    //   }
-    //   return;
-    // }
-
     //위 조건이 모두 일치하면 searching 으로 넘어감 - 5초마다 searching
     data.count = 0;
     if (data.type === 'ALONE') {
@@ -756,19 +728,18 @@ chatNamespace.on('connection', (socket: any) => {
   */
   socket.on('join_room', async (data: ChatCommunicationData): Promise<void> => {
     try {
+      console.log('joinroom');
+      // 미리 접속되어있던 클라이언트를 나가게 변경
       for (const [key, value] of attendUsers) {
         console.log(value);
+        console.log(attendUsers.get(key));
         if (value.email === data.email) {
           console.log('access');
-          await chatNamespace.to(socket.id).emit('reject', {
+          await chatNamespace.to(key).emit('reject', {
             message: 'another client access',
           });
-          // await chatNamespace.to(socket.id).emit('reject', {
-          //   message: 'wait sec',
-          //   mili: 2000,
-          // });
-          return;
         }
+        attendUsers.delete(key);
       }
       let user = await db.User.findOne({
         attributes: ['email', 'nick_name', 'profile_image', 'role'],
@@ -794,11 +765,11 @@ chatNamespace.on('connection', (socket: any) => {
       ) {
         myRoom.users = [...myRoom.users, user];
         roomList.set(data.room_id, myRoom);
+        chatNamespace.to(data.room_id).emit('alarm_enter', {
+          message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
+          users: myRoom.users,
+        });
       }
-      chatNamespace.to(data.room_id).emit('alarm_enter', {
-        message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
-        users: myRoom.users,
-      });
     } catch (e) {
       console.log('join catch');
       console.log(e);
@@ -824,7 +795,6 @@ chatNamespace.on('connection', (socket: any) => {
         data.content,
         user.email,
       );
-      message = message.dataValues;
       chatNamespace.to(data.room_id).emit('msg_insert', {
         message: `${data.content}`,
         sender: user,
@@ -854,7 +824,6 @@ chatNamespace.on('connection', (socket: any) => {
         data.message_id,
         data.content,
       );
-      user = user.dataValues;
       chatNamespace.to(data.room_id).emit('msg_update', {
         message: `${data.content}`,
         sender: user,

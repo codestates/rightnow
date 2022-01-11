@@ -22,6 +22,9 @@ const ModalBody = styled.div`
   transform: translateX(-50%) translateY(-50%);
   white-space: pre-line;
   line-height: 1.5rem;
+  @media screen and (max-width: 768px) {
+    width: 80%;
+  }
 `;
 
 interface ModalProps {
