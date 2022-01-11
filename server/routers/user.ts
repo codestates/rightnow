@@ -17,7 +17,14 @@ const storage: any = multer.diskStorage({
     cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
   },
   filename: (req: any, file: any, cb: any): void => {
-    cb(null, method.randomString(8, file.originalname)); //파일 이름 설정
+    const regex: any = /^[a-z|A-Z|0-9|]+$/;
+    let dot =
+      file.originalname.split('.')[file.originalname.split('.').length - 1];
+    let name = file.originalname;
+    if (!regex.test(name)) {
+      name = Math.random().toString(36).substring(0, 8) + '.' + dot;
+    }
+    cb(null, method.randomString(8, name)); //파일 이름 설정
   },
 });
 
