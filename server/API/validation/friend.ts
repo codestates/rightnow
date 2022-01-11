@@ -24,11 +24,6 @@ interface FriendValidation {
     res: Response,
     next: NextFunction,
   ): Promise<any>;
-  searchFriend(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any>;
   requestList(
     req: CustomRequest,
     res: Response,
@@ -182,32 +177,6 @@ const friendValidation: FriendValidation = {
   },
 
   /*
-  친구 검색
-  */
-  async searchFriend(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any> {
-    const { email } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-    delete userInfo.dataValues.password;
-    if (userInfo) {
-      req.sendData = {
-        data: { userInfo: userInfo },
-        message: 'ok',
-      };
-    } else {
-      req.sendData = {
-        message: 'no exists email',
-      };
-    }
-    next();
-  },
-
-  /*
   요청이 온  친구 신청 목록 보기 
   */
   async requestList(
@@ -230,7 +199,21 @@ const friendValidation: FriendValidation = {
     RequestFriend = RequestFriend.filter((el: any) => {
       return el.dataValues.is_accept === 'N';
     });
-    req.sendData = { data: { RequestFriend: RequestFriend }, message: 'ok' };
+    RequestFriend = RequestFriend.map((el: any) => {
+      return el.req_user;
+    });
+    let RequestFriendList: any = [];
+    for (let i = 0; i < RequestFriend.length; i++) {
+      const userInfo = await db['User'].findOne({
+        where: { email: RequestFriend[i] },
+      });
+      delete userInfo.dataValues.password;
+      RequestFriendList = [...RequestFriendList, userInfo];
+    }
+    req.sendData = {
+      data: { RequestFriendList: RequestFriendList },
+      message: 'ok',
+    };
     next();
   },
 
@@ -263,7 +246,21 @@ const friendValidation: FriendValidation = {
     FriendList2 = FriendList2.filter((el: any) => {
       return el.dataValues.is_accept === 'Y';
     });
-    const FriendList: any = [...FriendList1, ...FriendList2];
+    FriendList1 = FriendList1.map((el: any) => {
+      return el.res_user;
+    });
+    FriendList2 = FriendList2.map((el: any) => {
+      return el.req_user;
+    });
+    const FriendList3: string[] = [...FriendList1, ...FriendList2];
+    let FriendList: any = [];
+    for (let i = 0; i < FriendList3.length; i++) {
+      const userInfo = await db['User'].findOne({
+        where: { email: FriendList3[i] },
+      });
+      delete userInfo.dataValues.password;
+      FriendList = [...FriendList, userInfo];
+    }
     req.sendData = { data: { FriendList: FriendList }, message: 'ok' };
     next();
   },
