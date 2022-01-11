@@ -7,11 +7,11 @@ const userRouter: Router = express.Router();
 const multer: any = require('multer');
 const method: any = require('../method/custom');
 
-const DIR_NAME: any = __dirname
-  .split('/')
-  .slice(0, __dirname.split('/').length - 1)
-  .join('/');
-
+// const DIR_NAME: any = __dirname
+//   .split('/')
+//   .slice(0, __dirname.split('/').length - 1)
+//   .join('/');
+const DIR_NAME = __dirname + '/..';
 const storage: any = multer.diskStorage({
   destination: (req: any, file: any, cb: any): void => {
     cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
