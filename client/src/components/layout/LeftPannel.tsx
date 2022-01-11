@@ -39,10 +39,9 @@ const LeftPannel = ({ options, type }: IProps) => {
           >
             <div
               className={`pl-2 py-2 rounded-md cursor-pointer  ${
-                id === selectedId
-                  ? 'text-black font-semibold'
-                  : // ? 'bg-main text-black font-semibold'
-                    'hover:bg-gray-200'
+                id === selectedId && id === 'deleteAccount'
+                  ? 'text-red-500 font-semibold' : id === selectedId ? 'text-sub font-semibold'
+                  : id === 'deleteAccount' ? 'text-red-500 hover:bg-gray-100 hover:font-semibold' :'text-sub hover:bg-gray-100 hover:font-semibold'
               }`}
               onClick={() => {
                 setSelectedId(id);
@@ -54,7 +53,7 @@ const LeftPannel = ({ options, type }: IProps) => {
         );
       })}
       <div
-        className={`rounded-md cursor-pointer absolute left-0 w-full h-8 -z-10 transition-all bg-main`}
+        className={`rounded-md cursor-pointer absolute left-0 w-full h-8 -z-10 transition-all ${selectedId === 'deleteAccount' ? "bg-gray-100": "bg-main"}`}
         style={{
           top:
             selectedId === 'profile' || selectedId === 'list'
