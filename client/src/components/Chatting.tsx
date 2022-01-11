@@ -240,7 +240,6 @@ const ChattingRoom = ({
   const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log('보낼때');
     scrollToBottom();
   }, [talkContents]);
 
