@@ -64,11 +64,13 @@ export const userSlice = createSlice({
   },
 });
 
-export const { updateAccessToken, getUserInfo, logout, updateNickname } = userSlice.actions;
+export const { updateAccessToken, getUserInfo, logout, updateNickname } =
+  userSlice.actions;
 export const userEmail = (state: RootState) => state.user.userInfo.email;
 export const userIsLogin = (state: RootState) => state.user.isLogin;
 export const userNickname = (state: RootState) => state.user.userInfo.nick_name;
 export const userInformation = (state: RootState) => state.user;
 export const userAccessToken = (state: RootState) => state.user.accessToken;
+export const userRole = (state: RootState) => state.user.userInfo.role;
 
 export default userSlice.reducer;
