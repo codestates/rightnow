@@ -40,6 +40,9 @@ export const userSlice = createSlice({
     updateAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
     },
+    deleteAccessToken: (state) => {
+      state.accessToken = '';
+    },
     getUserInfo: (state, action: PayloadAction<IUserInfo>) => {
       state.userInfo = action.payload;
       state.isLogin = true;
@@ -56,7 +59,6 @@ export const userSlice = createSlice({
         updatedAt: '',
       };
       state.isLogin = false;
-      state.accessToken = '';
     },
     updateNickname: (state, action: PayloadAction<string>) => {
       state.userInfo.nick_name = action.payload;
@@ -64,7 +66,7 @@ export const userSlice = createSlice({
   },
 });
 
-export const { updateAccessToken, getUserInfo, logout, updateNickname } = userSlice.actions;
+export const { updateAccessToken, deleteAccessToken, getUserInfo, logout, updateNickname } = userSlice.actions;
 export const userEmail = (state: RootState) => state.user.userInfo.email;
 export const userIsLogin = (state: RootState) => state.user.isLogin;
 export const userNickname = (state: RootState) => state.user.userInfo.nick_name;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { alert, showAlert } from '../reducers/componetSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { deleteAccessToken } from '../reducers/userSlice';
 
 const Alert = () => {
   const dispatch = useAppDispatch();
@@ -43,7 +44,15 @@ const Alert = () => {
         break;
       case 'signout':
         setTitle('계정삭제');
-        setSubTitle('라잇나우 계정을 삭제하였습니다.');
+        setSubTitle('라잇나우 계정을 완전히 삭제하였습니다.');
+        break;
+      case 'invalidRefreshToken':
+        setTitle('토큰만료');
+        setSubTitle('토큰이 만료되었습니다. 다시 로그인 해주세요.');
+        break;
+      case 'temperedToken':
+        setTitle('토큰오류');
+        setSubTitle('토큰과 일치하는 유저가 없습니다. 다시 로그인 해주세요.');
         break;
       case 'signoutWrongPassword':
         setTitle('계정삭제');
@@ -76,17 +85,22 @@ const Alert = () => {
 
   const closeAlert = (): void => {
     dispatch(showAlert(''));
+    // 토큰만료일 경우 확인을 누르면 로그아웃시킴
+    if (alertType === 'invalidRefreshToken') {
+      dispatch(deleteAccessToken());
+    }
   };
+
   return (
     <>
       <div
-        className={`w-full absolute top-0 left-0 white bg-opacity-100 flex justify-center items-start ${
+        className={`w-full absolute top-0 left-0 bg-opacity-100 flex justify-center items-start ${
           alertType ? 'z-20 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         onClick={closeAlert}
       >
         <div
-          className={`w-96 h-32 rounded-md bg-white p-6 relative border-1 shadow-md transition-all ${
+          className={`w-96 h-32 rounded-md bg-white px-6 py-4 relative border-1 shadow-md transition-all ${
             alertType ? 'top-10 opacity-100' : 'top-0 opacity-0'
           }`}
           onClick={(e) => {
@@ -94,10 +108,10 @@ const Alert = () => {
           }}
         >
           <div className="text-lg font-bold">{title}</div>
-          <div className="text-sm mt-4">{subTitle}</div>
-          <div className="mt-8 text-right space-x-2 absolute bottom-6 right-6">
+          <div className="text-sm mt-2 relative top-0">{subTitle}</div>
+          <div className="text-right space-x-2 absolute bottom-4 right-6">
             <button
-              className={`w-20 h-8 rounded-md bg-main text-white text-sm`}
+              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={closeAlert}
             >
               확인
