@@ -8,7 +8,6 @@ const userRouter: Router = express.Router();
 const multer: any = require('multer');
 const method: any = require('../method/custom');
 
-
 // function uploadImage(req: Request, res: Response, next: NextFunction): any {
 //   const DIR_NAME = __dirname + '/..';
 //   const storage: any = multer.diskStorage({
