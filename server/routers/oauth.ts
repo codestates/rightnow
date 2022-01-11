@@ -9,7 +9,7 @@ oauthRouter.get(
   oauthValidation.kakaoLogin,
   oauthController.kakaoLogin,
 );
-oauthRouter.post(
+oauthRouter.get(
   '/callback/google',
   oauthValidation.googleLogin,
   oauthController.googleLogin,
