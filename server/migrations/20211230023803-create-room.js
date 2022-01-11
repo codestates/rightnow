@@ -30,6 +30,8 @@ module.exports = {
       category_id: {
         type: Sequelize.INTEGER,
         references: { model: 'Categories', key: 'id' },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       location: {
         type: Sequelize.STRING,

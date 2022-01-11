@@ -96,10 +96,8 @@ searchNamespace.on('connection', (socket: any) => {
       return;
     }
     let find = findUsers.get(data.email);
-    console.log(find);
     socket.join(data.email);
     if (find) {
-      console.log('reject' + socket.id);
       if (find.status === 'wait') {
         let findRoom = tempRooms.find((item) => item.uuid === find.uuid);
         socket.join(find.uuid);
@@ -135,16 +133,15 @@ searchNamespace.on('connection', (socket: any) => {
   socket.on('searching_friend', async (data: any): Promise<void> => {
     let findList: Array<string> = [];
     let leaveList: Array<any> = [...data.email_list];
+
     //현재 matching 진행중인 친구 확인
     await data.email_list.forEach((item: any) => {
+      let findIdx = leaveList.indexOf(
+        leaveList.find((user: any) => user.email === item.email),
+      );
       if (findUsers.get(item.email)) {
         findList.push(item.email);
-        leaveList.splice(
-          leaveList.indexOf(
-            leaveList.find((user: any) => user.email === item.email),
-          ),
-          1,
-        );
+        leaveList.splice(findIdx, 1);
       }
     });
 
@@ -158,12 +155,10 @@ searchNamespace.on('connection', (socket: any) => {
         );
         if (canEnter.message !== 'no exist') {
           await canEnter.list.forEach((item: any) => {
-            leaveList.splice(
-              leaveList.indexOf(
-                leaveList.find((user: any) => user.email === item),
-              ),
-              1,
+            let findIdx = leaveList.indexOf(
+              leaveList.find((user: any) => user.email === item),
             );
+            leaveList.splice(findIdx, 1);
           });
         }
       } catch (e) {
@@ -212,7 +207,7 @@ searchNamespace.on('connection', (socket: any) => {
       // }
       //socket.join(data.email);
     }
-    console.log(socket.adapter.rooms);
+
     // 이미 어떠한 방에 들어가 있는 경우
     let canEnter: any = true;
     try {
@@ -277,19 +272,15 @@ searchNamespace.on('connection', (socket: any) => {
     }
     //위 조건이 모두 일치하면 searching 으로 넘어감 - 5초마다 searching
     data.count = 0;
-    if (data.type === 'ALONE') {
-      findUsers.set(data.email, {
-        ...data,
-        status: 'search',
-      });
-    }
+
+    findUsers.set(data.email, {
+      ...data,
+      status: 'search',
+      is_master: true,
+    });
+
     //그룹일 경우 그룹 모든 인원 findUsers에 추가
     if (data.type === 'GROUP') {
-      findUsers.set(data.email, {
-        ...data,
-        status: 'search',
-        is_master: true,
-      });
       for (let email of data.email_list) {
         findUsers.set(email, {
           ...data,
@@ -298,8 +289,6 @@ searchNamespace.on('connection', (socket: any) => {
       }
     }
     console.log('insert findUsers' + findUsers.get(data.email));
-    console.log(findUsers);
-    //searchNamespace.to(socket.id).emit('search_room', data);
     searchNamespace.to(data.email).emit('search_room', data);
   });
   // 방 찾는 로직
@@ -400,23 +389,17 @@ searchNamespace.on('connection', (socket: any) => {
         data.type === 'ALONE'
           ? item.allow_num > item.participants.length
           : item.allow_num > item.participants.length + data.email_list.length;
-      console.log(allow_num);
       return (
         item.category_id === data.category_id &&
         item.location === data.location &&
         allow_num
       );
     });
-    console.log(data.email + ' find');
-    console.log(data);
-    console.log(findRoom);
     // 조건에 맞는 임시 룸이 있을 경우 임시 룸에 참가
     if (findRoom) {
       console.log('temp room find');
 
       if (data.count > SEARCH_COUNT) return;
-      clearTimeout(searchings.get(data.email));
-      searchings.delete(data.email);
       let me: Participant = {
         email: data.email,
         lon: data.lon,
@@ -441,7 +424,7 @@ searchNamespace.on('connection', (socket: any) => {
         uuid: findRoom.uuid,
         status: 'wait',
       });
-      // todo Group일 경우 그룹에도 추가 - 완료 ! 테스트 필요
+      // Group일 경우 그룹에도 추가 - 완료 ! 테스트 완료
       if (data.type === 'GROUP') {
         for (let user of data.email_list) {
           findUsers.set(user, {

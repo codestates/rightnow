@@ -11,10 +11,14 @@ module.exports = {
       user_email: {
         type: Sequelize.STRING,
         references: { model: 'Users', key: 'email' },
+        onDelete: 'NO ACTION',
+        onUpdate: 'cascade',
       },
       room_id: {
         type: Sequelize.UUID,
         references: { model: 'Rooms', key: 'id' },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       content: {
         type: Sequelize.STRING,
