@@ -1,12 +1,13 @@
 import React, {
   ChangeEventHandler,
-  FormEventHandler,
   MouseEventHandler,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
-import { useAppSelector } from '../config/hooks';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
@@ -14,6 +15,7 @@ import { MessageType } from '../type';
 
 const ChattingContainer = styled.div`
   height: 100%;
+  overflow-y: hidden;
 `;
 
 const Chatting = styled.div`
@@ -23,7 +25,7 @@ const Chatting = styled.div`
   border-radius: 0.3rem;
   overflow-y: scroll;
   overflow-x: hidden;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   padding-top: 0.3rem;
 
   &::-webkit-scrollbar {
@@ -203,12 +205,17 @@ const ChattingForm = styled.form`
   margin-top: 1rem;
 `;
 
+const AlwaysScrollToBottom = styled.span`
+  height: 0rem;
+  width: 0rem;
+`;
+
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
   talkContents: MessageType[];
   handleQuit: MouseEventHandler<HTMLButtonElement>;
-  handleInsertMessage: FormEventHandler<HTMLFormElement>;
+  handleInsertMessage: any;
   updateMessage: any;
 }
 
@@ -220,11 +227,33 @@ const ChattingRoom = ({
   handleInsertMessage,
   updateMessage,
 }: ChattingProps) => {
+  const dispatch = useAppDispatch();
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
   const [isShow, setIsShow] = useState<boolean>(false);
   const [reportNick, setReportNick] = useState<string>('');
   const [reportMessage, setReportMessage] = useState<number>(-1);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView();
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [talkContents]);
+
+  const scrollToBottom = () => {
+    scrollRef.current?.scrollIntoView({
+      behavior: 'smooth',
+    });
+  };
+
+  const handleMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleInsertMessage();
+  };
 
   const handleMenu = (e: any) => {
     setMenu(e.target.value);
@@ -323,9 +352,10 @@ const ChattingRoom = ({
               ) : (
                 <div>아직 메시지가 없습니다. 대회를 시작해보세요!</div>
               )}
+              <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
           </ChattingContainer>
-          <ChattingForm onSubmit={handleInsertMessage}>
+          <ChattingForm onSubmit={handleMessage}>
             <ChattingInput
               className="drop-shadow focus:drop-shadow-lg"
               onChange={handleText}
