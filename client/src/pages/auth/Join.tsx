@@ -287,23 +287,8 @@ const Join = () => {
           <div className="flex justify-center items-center space-x-2">
             <Logo />
           </div>
-          <div className="mt-8">
-            <p className="mb-4 text-gray-600">소셜 계정으로 회원가입</p>
-            {/* <Image
-            className="cursor-pointer"
-            src="/github.png"
-            alt="formBakery Logo"
-            width={40}
-            height={40}
-            onClick={() => {
-              alert("github 연동");
-            }}
-          /> */}
-          </div>
-          <div className="inline-flex border-t-1 w-96 h-0.5 mt-4" />
-          <p className="mt-2 text-gray-600">이메일로 가입</p>
-          <p className="inline-flex mt-4 w-96 text-gray-600 text-sm">
-            기본 정보
+          <p className="inline-flex mt-6 w-96 text-gray-600 text-sm">
+            기본 정보 (이메일로 가입)
           </p>
           <div className="mt-2">
             <input

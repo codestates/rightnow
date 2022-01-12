@@ -27,7 +27,7 @@ const AccountLayout = () => {
   return (
     <>
       <LeftPannel options={options} type={'account'} />
-      <div className="w-5/6 text-left pl-4">
+      <div className="w-5/6 text-left pl-4 pb-6">
         {role === 'TEMP' ? (
           <div className="mt-2 font-semibold text-sub">
             회원가입을 통해 만든 계정으로 이용 할 수 있습니다.

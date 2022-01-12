@@ -86,7 +86,7 @@ const MypageLayout = () => {
   return (
     <>
       <Header />
-      <header className="mt-1 text-center bg-white h-10 shadow-md fixed top-16 w-screen">
+      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-10">
         <div className="inline-flex w-222 h-full items-center relative">
           {headerOption.map((v, i) => {
             const { id, label } = v;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import defaultprofile from '../../../images/profile.png';
+import defaultProfile from '../../../images/profile.png';
 import { useAppDispatch, useAppSelector } from '../../../config/hooks';
 import { userEmail } from '../../../reducers/userSlice';
 import friendsApi from '../../../api/friendsApi';
@@ -82,8 +82,10 @@ const List = () => {
                 style={{
                   backgroundImage: `url(${
                     profile_image === null
-                      ? defaultprofile
-                      : imageEndpoint + profile_image
+                      ? defaultProfile
+                      : profile_image.indexOf('kakaocdn') === -1
+                      ? imageEndpoint + profile_image
+                      : profile_image
                   })`,
                   backgroundSize: 'cover',
                 }}

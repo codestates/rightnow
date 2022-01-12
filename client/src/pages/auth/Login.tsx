@@ -150,9 +150,9 @@ const Login = () => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
       } else if (code === 400) {
-        setTempLoginError('등록되지 않은 임시계정 입니다.')
+        setTempLoginError('등록되지 않은 임시계정 입니다.');
       } else if (code === 401) {
-        setTempLoginError(data)
+        setTempLoginError(data);
       }
     };
     userApi('login', body, callback);
@@ -230,11 +230,17 @@ const Login = () => {
               <div className="mt-8">
                 <p className="mb-4 text-gray-600">소셜 계정으로 로그인</p>
               </div>
-              <div className="mt-6 relative">
+              <div className="relative">
                 <button
                   className={
                     'w-96 h-12 rounded-md bg-kakao text-kakaoText font-semibold'
                   }
+                  onClick={() => {
+                    window.open(
+                      `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}&response_type=code`,
+                      '_self',
+                    );
+                  }}
                 >
                   카카오로 로그인
                 </button>
@@ -245,11 +251,17 @@ const Login = () => {
                   className=" absolute top-3 left-5"
                 />
               </div>
-              <div className="mt-6 relative">
+              <div className="mt-2 relative">
                 <button
                   className={
                     'w-96 h-12 rounded-md border-1 bg-white text-black font-semibold'
                   }
+                  onClick={() => {
+                    window.open(
+                      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.REACT_APP_GOOGLE_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_GOOGLE_REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email`,
+                      '_self',
+                    );
+                  }}
                 >
                   구글로 로그인
                 </button>
@@ -288,7 +300,7 @@ const Login = () => {
                     사용된 아이디와 비밀번호는 하나의 모임에서만 사용할 수
                     있습니다.
                   </li>
-                  <li>모임을 나갈 경우 해당 게정은 삭제됩니다.</li>
+                  <li>모임을 나갈 경우 해당 계정은 삭제됩니다.</li>
                   <li>
                     이전에 나가기를 하지 않은 일회용 아이디가 있다면 모임이
                     닫히기 전까지는 해당 일회용 계정을 사용할 수 있습니다.

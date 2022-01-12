@@ -36,7 +36,7 @@ const Header = () => {
   return (
     <>
       <header
-        className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-20"
+        className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-20 top-0"
         onClick={() => {
           if (isVisible) {
             toggleModal();
@@ -85,7 +85,11 @@ const Header = () => {
                 className={'h-10 w-10 rounded-full'}
                 style={{
                   backgroundImage: `url(${
-                    profile === null ? defaultProfile : imageEndpoint + profile
+                    profile === null
+                      ? defaultProfile
+                      : profile.indexOf('kakaocdn') === -1
+                      ? imageEndpoint + profile
+                      : profile
                   })`,
                   backgroundSize: 'cover',
                 }}

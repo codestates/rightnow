@@ -164,27 +164,33 @@ export default function userApi(
       axios
         .post(`http://${endpoint}/user/logout`)
         .then((res) => {
+          // console.log(res);
+        })
+        .catch((err) => {
+          // console.log(err);
+        });
+      break;
+    case 'kakaoLogin':
+      axios
+        .post(`http://${endpoint}/oauth/callback/kakao`, body)
+        .then((res) => {
+          if (res.status === 201) {
+            callback(res.status, res.data.data.accessToken)
+          }
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+      break;
+    case 'googleLogin':
+      axios
+        .post(`http://${endpoint}/oauth/callback/google`, body)
+        .then((res) => {
           console.log(res);
         })
         .catch((err) => {
-          console.log(err);
+          console.log(err.response);
         });
-      break;
-    case 'uploadProfileImage':
-      // axios({
-      //   method: "put",
-      //   url: "myurl",
-      //   data: bodyFormData,
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // })
-      //   .then(function (response) {
-      //     //handle success
-      //     console.log(response);
-      //   })
-      //   .catch(function (response) {
-      //     //handle error
-      //     console.log(response);
-      //   });
       break;
   }
 }
