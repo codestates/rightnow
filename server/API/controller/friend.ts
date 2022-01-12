@@ -28,7 +28,7 @@ const friendController: FriendController = {
     } else if (req.sendData.message === 'no exists user') {
       res.status(404).send({ message: 'no exists user' });
     } else if (req.sendData.message === 'dont have to request yourself') {
-      res.status(404).send({ message: 'dont have to request yourself' });
+      res.status(409).send({ message: 'dont have to request yourself' });
     }
   },
 
