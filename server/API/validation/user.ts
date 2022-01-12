@@ -677,7 +677,7 @@ const userValidation: UserValidation = {
     //     cb(null, method.randomString(8, name)); //파일 이름 설정
     //   },
     // });
-
+    //s3 추가 !!
     const storage: any = multerS3({
       s3: s3,
       bucket: 'rightnow-image',
