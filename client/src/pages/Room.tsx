@@ -6,10 +6,11 @@ import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
 import MemberList from '../components/MemberList';
-import { userEmail } from '../reducers/userSlice';
+import { userEmail, userIsLogin } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import { setParticipant } from '../reducers/roomSlice';
+import LoginConfirm from '../components/LoginConfirm';
 
 function dateToString(
   date: Date,
@@ -147,8 +148,13 @@ interface StateType {
 const Room = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
+  const isLogin = useAppSelector(userIsLogin);
   const state = location.state as StateType;
-  const { room_id } = state;
+  let room_id: string;
+  if (state) {
+    room_id = state.room_id;
+  }
   const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
@@ -157,7 +163,6 @@ const Room = () => {
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
 
-  const navigate = useNavigate();
   useEffect(() => {
     const roomData = async () => {
       const {
@@ -185,8 +190,10 @@ const Room = () => {
         }
       });
     };
-    roomData();
-  }, [room_id]);
+    if (room_id) {
+      roomData();
+    }
+  }, []);
 
   useEffect(() => {
     const io = require('socket.io-client');
@@ -354,29 +361,33 @@ const Room = () => {
   return (
     <>
       <Header />
-      <Container>
-        <ChatContainer>
-          <RoomDetail>
-            <GroupTitle>{roomTitle()}</GroupTitle>
-          </RoomDetail>
-          <ContentContainer>
-            <ChatBox>
-              <ChatContent
-                talkContents={talkContents}
-                text={text}
-                handleText={handleText}
-                handleQuit={handleQuit}
-                handleInsertMessage={handleInsertMessage}
-                updateMessage={updateMessage}
-              />
-            </ChatBox>
-            <MemberContainer className="drop-shadow">
-              <SubTitle>대화 상대</SubTitle>
-              <MemberList />
-            </MemberContainer>
-          </ContentContainer>
-        </ChatContainer>
-      </Container>
+      {isLogin ? (
+        <Container>
+          <ChatContainer>
+            <RoomDetail>
+              <GroupTitle>{roomTitle()}</GroupTitle>
+            </RoomDetail>
+            <ContentContainer>
+              <ChatBox>
+                <ChatContent
+                  talkContents={talkContents}
+                  text={text}
+                  handleText={handleText}
+                  handleQuit={handleQuit}
+                  handleInsertMessage={handleInsertMessage}
+                  updateMessage={updateMessage}
+                />
+              </ChatBox>
+              <MemberContainer className="drop-shadow">
+                <SubTitle>대화 상대</SubTitle>
+                <MemberList />
+              </MemberContainer>
+            </ContentContainer>
+          </ChatContainer>
+        </Container>
+      ) : (
+        <LoginConfirm />
+      )}
     </>
   );
 };

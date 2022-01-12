@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../config/hooks';
 import Logo from '../components/Logo';
 import phone from '../images/phones.png';
-import 'react-alice-carousel/lib/alice-carousel.css';
 import Slider from '../components/Slider';
 import { userIsLogin } from '../reducers/userSlice';
 
