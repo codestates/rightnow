@@ -106,6 +106,7 @@ interface MessageProps {
 
 const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   const email = useAppSelector(userEmail);
+  console.log(messageData);
   const { id, User, content, is_update, write_date, isAlarm } = messageData;
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(content);
@@ -141,7 +142,13 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
       <MainContent>
         <Title>
           <Name>
-            {User ? (isAlarm ? '' : User.nick_name) : '(삭제된 유저)'}
+            {User
+              ? isAlarm
+                ? ''
+                : User.email === email
+                ? '나'
+                : User.nick_name
+              : '(삭제된 유저)'}
           </Name>
           <Date>{write_date}</Date>
           <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
