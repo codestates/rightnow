@@ -1,30 +1,106 @@
-import React from 'react';
-import defaultImage from '../../../images/profile.png';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { IconButton } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import defaultprofile from '../../../images/profile.png';
+import { useAppDispatch, useAppSelector } from '../../../config/hooks';
+import { userEmail } from '../../../reducers/userSlice';
+import friendsApi from '../../../api/friendsApi';
+import { showAlert } from '../../../reducers/componetSlice';
 
+interface IFriendInfo {
+  email: string;
+  nick_name: string;
+  profile_image: string;
+}
+
+interface IData {
+  email: string;
+  nick_name: string;
+  profile_image: string;
+  role: string;
+  social_login: string;
+  auth_code: string;
+  is_block: string;
+  block_date: string;
+  createdAt: string;
+  updatedAt: string;
+}
 const List = () => {
+  const dispatch = useAppDispatch();
+  // 로그인 중인 유저의 이메일
+  const email = useAppSelector(userEmail);
+  // 친구목록
+  const [friendsList, setFriendsList] = useState<IFriendInfo[]>([]);
+
+  // 친구목록 불러오기
+  const requestFriendsList = () => {
+    const callback = (code: number, data: IData[]) => {
+      if (code === 200) {
+        const newData = data.map((obj, idx) => {
+          const { email, nick_name, profile_image } = obj;
+          return {
+            email,
+            nick_name,
+            profile_image,
+          };
+        });
+        setFriendsList(newData);
+      }
+    };
+    friendsApi('getFriendList', {}, callback, email);
+  };
+
+  // 페이지 랜더링 시 친구요청 목록 불러오기
+  useEffect((): void => {
+    requestFriendsList();
+  }, []);
+
+  const requestDeleteFriend = (friendEmail: string): void => {
+    const body = {
+      user_email: email,
+      friend_email: friendEmail,
+    };
+    const callback = (code: number, data: string) => {
+      requestFriendsList();
+      dispatch(showAlert(data));
+    };
+    friendsApi('deleteFriend', body, callback);
+  };
+
   return (
     <>
       <div className="text-lg font-semibold">친구 목록</div>
       <div className="w-135 mt-4">
-        <div className="flex relative items-center border-b-1 py-2">
-          <img
-            src={defaultImage}
-            alt="user-profile"
-            width={50}
-            className="rounded-full"
-          />
-          <div className="ml-5 text-sub font-semibold">장세진</div>
-          <div className="absolute right-0">
-            <IconButton size={'small'}>
-              <MoreVertIcon />
-            </IconButton>
-          </div>
-          <div className='absolute right-0 top-12 rounded-md bg-white shadow-md text-sm text-center py-2 border-1'>
-            <div className=' hover:bg-gray-100 px-4 py-2 cursor-pointer'>친구 삭제</div>
-          </div>
-        </div>
+        {friendsList.map((obj) => {
+          const { email, nick_name, profile_image } = obj;
+          return (
+            <div
+              className="flex relative items-center border-b-1 py-2 group"
+              key={email}
+            >
+              <div
+                className={'h-10 w-10 rounded-full'}
+                style={{
+                  backgroundImage: `url(${
+                    profile_image === null
+                      ? defaultprofile
+                      : `http://localhost/image/user/${profile_image}`
+                  })`,
+                  backgroundSize: 'cover',
+                }}
+              />
+              <div className="ml-5 text-sub font-semibold">{nick_name}</div>
+              <div className="absolute right-0">
+                <div
+                  className=" border-1 border-main py-1.5 px-4 text-sm text-main rounded-md text-center hover:bg-gray-100 cursor-pointer opacity-0 transition-all group-hover:opacity-100"
+                  onClick={() => {
+                    requestDeleteFriend(email);
+                  }}
+                >
+                  친구 삭제
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </>
   );

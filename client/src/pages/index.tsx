@@ -196,7 +196,7 @@ const RendingPage = () => {
                 );
               })}
             <Link
-              to={isLogin ? '/room' : '/auth/login'}
+              to={isLogin ? '/search' : '/auth/login'}
               className="flex items-center"
             >
               <button
@@ -238,7 +238,7 @@ const RendingPage = () => {
               className=" flex bg-main w-60 h-16 rounded-2xl relative group cursor-pointer bounce-4"
               onClick={() => {
                 if (isLogin) {
-                  router('/room');
+                  router('/search');
                 } else {
                   router('/auth/login');
                 }

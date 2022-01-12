@@ -6,6 +6,7 @@ import Join from './Join';
 import Login from './Login';
 import ResetPassword from './ResetPassword';
 import { userIsLogin } from '../../reducers/userSlice';
+import TempJoin from './TempJoin';
 
 const AuthLayout = () => {
   const isLogin = useAppSelector(userIsLogin);
@@ -13,7 +14,7 @@ const AuthLayout = () => {
 
   useEffect(() => {
     if (isLogin) {
-      router('/room');
+      router('/search')
     }
   }, []);
 
@@ -24,6 +25,7 @@ const AuthLayout = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
         <Route path="/resetPassword" element={<ResetPassword />} />
+        <Route path="/tempJoin" element={<TempJoin />} />
       </Switch>
     </>
   );
