@@ -39,7 +39,7 @@ const oauthValidation: OAuthValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const kakaoAccessToken: any = await getKakaoToken(req.body.code);
+      const kakaoAccessToken: any = await getKakaoToken(req.query.code);
       if (kakaoAccessToken) {
         const data: any = await getKakaoSubId(kakaoAccessToken);
         if (data) {
