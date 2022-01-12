@@ -677,6 +677,7 @@ const userValidation: UserValidation = {
     //     cb(null, method.randomString(8, name)); //파일 이름 설정
     //   },
     // });
+
     const storage: any = multerS3({
       s3: s3,
       bucket: 'rightnow-image',
@@ -688,7 +689,7 @@ const userValidation: UserValidation = {
         if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
           res
             .status(400)
-            .send({ message: 'Only .png, .jpg and .jpeg format allowed' });
+            .send({ message: 'Only .png, .jpg and .jpeg format allowed.' });
           return;
         }
         let name = file.originalname;
