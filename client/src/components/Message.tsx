@@ -132,28 +132,34 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
     setNewContent(content);
     setIsEdit(!isEdit);
   };
-
+  //유저 탈퇴할 경우 User 정보 불러올 수 없음 . 로직 약간 변경.
   return (
     <Container key={id}>
       <ImageContainer>
-        <MImage url={User.profile_image || defaultImg} />
+        <MImage url={User ? User.profile_image || defaultImg : defaultImg} />
       </ImageContainer>
       <MainContent>
         <Title>
-          <Name>{isAlarm ? '' : User.nick_name}</Name>
+          <Name>
+            {User ? (isAlarm ? '' : User.nick_name) : '(삭제된 유저)'}
+          </Name>
           <Date>{write_date}</Date>
           <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
           {isAlarm ? (
             ''
           ) : (
             <MenuContainer>
-              {email !== User.email ? null : (
-                <Edit onClick={handleEdit}>수정</Edit>
-              )}
-              {email !== User.email ? (
-                <Report onClick={() => handleModal(User.nick_name, id)}>
-                  신고
-                </Report>
+              {User ? (
+                email !== User.email ? null : (
+                  <Edit onClick={handleEdit}>수정</Edit>
+                )
+              ) : null}
+              {User ? (
+                email !== User.email ? (
+                  <Report onClick={() => handleModal(User.nick_name, id)}>
+                    신고
+                  </Report>
+                ) : null
               ) : null}
             </MenuContainer>
           )}

@@ -115,7 +115,7 @@ searchNamespace.on('connection', (socket: any) => {
           message: 'search',
           maxNum: category.dataValues.user_num,
         });
-        if (find.type === 'GROUP' && find.is_master) {
+        if (find.is_master) {
           find.count = 0;
           searchNamespace.to(data.email).emit('search_room', find);
         }
@@ -133,7 +133,6 @@ searchNamespace.on('connection', (socket: any) => {
   socket.on('searching_friend', async (data: any): Promise<void> => {
     let findList: Array<string> = [];
     let leaveList: Array<any> = [...data.email_list];
-
     //현재 matching 진행중인 친구 확인
     await data.email_list.forEach((item: any) => {
       let findIdx = leaveList.indexOf(
@@ -144,7 +143,6 @@ searchNamespace.on('connection', (socket: any) => {
         leaveList.splice(findIdx, 1);
       }
     });
-
     //이미 룸에 들어가 있는 친구 확인
     if (leaveList.length > 0) {
       try {
@@ -748,9 +746,10 @@ chatNamespace.on('connection', (socket: any) => {
       ) {
         myRoom.users = [...myRoom.users, user];
         roomList.set(data.room_id, myRoom);
-        chatNamespace.to(data.room_id).emit('alarm_enter', {
+        socket.broadcast.to(data.room_id).emit('alarm_enter', {
           message: `${user.nick_name}(${user.email}) 님이 입장하였습니다.`,
           users: myRoom.users,
+          user,
         });
       }
     } catch (e) {
@@ -864,32 +863,35 @@ chatNamespace.on('connection', (socket: any) => {
   */
   socket.on('leave_meeting', async (data: ChatCommunicationData) => {
     //현재 룸 캐시에서 삭제
-    let myRoom = roomList.get(data.room_id);
-    let findUser = myRoom.users.find((item: any) => data.email === item.email);
+    try {
+      let myRoom = roomList.get(data.room_id);
+      let findUser = myRoom.users.find(
+        (item: any) => data.email === item.email,
+      );
 
-    let user = await db.User.findOne({ where: { email: data.email } });
-    user = user.dataValues;
-    //db에서 삭제
-    let deleteMe: any = await participantValidation.leaveRoom(
-      data.email,
-      data.room_id,
-    );
-    attendUsers.delete(socket.id);
-    socket.leave(data.room_id);
-    if (findUser) myRoom.users.splice(myRoom.users.indexOf(findUser), 1);
+      let user = await db.User.findOne({ where: { email: data.email } });
+      user = user.dataValues;
+      //db에서 삭제
+      let deleteMe: any = await participantValidation.leaveRoom(
+        data.email,
+        data.room_id,
+      );
+      attendUsers.delete(socket.id);
+      socket.leave(data.room_id);
+      if (findUser) myRoom.users.splice(myRoom.users.indexOf(findUser), 1);
 
-    if (myRoom.users.length > 0) {
-      roomList.set(data.room_id, myRoom);
-      chatNamespace.to(data.room_id).emit('leave_meeting', {
-        email: data.email,
-        users: myRoom.users,
-        message: `${user.nick_name}(${user.email}) 님이 모임을 나갔습니다..`,
-      });
-    } else roomList.delete(data.room_id);
+      if (myRoom.users.length > 0) {
+        roomList.set(data.room_id, myRoom);
+        chatNamespace.to(data.room_id).emit('leave_meeting', {
+          email: data.email,
+          users: myRoom.users,
+          message: `${user.nick_name}(${user.email}) 님이 모임을 나갔습니다..`,
+        });
+      } else roomList.delete(data.room_id);
 
-    //본인이 나갔다는 사실을 방의 인원들에게 알림
-    if (deleteMe.message !== 'room delete') {
-      // ...
+      chatNamespace.to(socket.id).emit('out', '');
+    } catch (e) {
+      console.log(e);
     }
   });
 });
