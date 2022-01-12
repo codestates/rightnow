@@ -38,3 +38,22 @@ npx sequelize-cli db:migrate:undo:all
 ```
 npx sequelize db:seed:all
 ```
+
+## config 추가
+
+루트페이지에 aws-config.json 추가
+
+```
+{
+  "accessKeyId": "...",
+  "secretAccessKey": "...",
+  "region": "..."
+}
+
+```
+
+## Image 가져오기
+
+```
+https://rightnow-image.s3.ap-northeast-2.amazonaws.com/user/[image name]
+```

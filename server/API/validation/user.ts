@@ -4,6 +4,10 @@ import { CustomRequest } from '../../type/type';
 const dotenv: any = require('dotenv');
 dotenv.config();
 const multer: any = require('multer');
+const multerS3: any = require('multer-s3');
+const aws: any = require('aws-sdk');
+aws.config.loadFromPath(__dirname + '/../../aws-config.json');
+const s3 = new aws.S3();
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
 const bcrypt: any = require('bcrypt');
@@ -651,16 +655,37 @@ const userValidation: UserValidation = {
 
   uploadImage(req: Request, res: Response, next: NextFunction): any {
     const DIR_NAME = __dirname + '/../..';
-    const storage: any = multer.diskStorage({
-      destination: (req: any, file: any, cb: any): void => {
-        cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
-      },
-      filename: (req: any, file: any, cb: any): void => {
+    // const storage: any = multer.diskStorage({
+    //   destination: (req: any, file: any, cb: any): void => {
+    //     cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
+    //   },
+    //   filename: (req: any, file: any, cb: any): void => {
+    //     const regex: any = /^[a-z|A-Z|0-9|]+$/;
+    //     let dot =
+    //       file.originalname.split('.')[file.originalname.split('.').length - 1];
+    //     if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
+    //       // return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    //       res
+    //         .status(400)
+    //         .send({ message: 'Only .png, .jpg and .jpeg format allowed' });
+    //       return;
+    //     }
+    //     let name = file.originalname;
+    //     if (!regex.test(name)) {
+    //       name = Math.random().toString(36).substring(0, 8) + '.' + dot;
+    //     }
+    //     cb(null, method.randomString(8, name)); //파일 이름 설정
+    //   },
+    // });
+    const storage: any = multerS3({
+      s3: s3,
+      bucket: 'rightnow-image',
+      acl: 'public-read',
+      key: (req: any, file: any, cb: any) => {
         const regex: any = /^[a-z|A-Z|0-9|]+$/;
         let dot =
           file.originalname.split('.')[file.originalname.split('.').length - 1];
         if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
-          // return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
           res
             .status(400)
             .send({ message: 'Only .png, .jpg and .jpeg format allowed' });
@@ -670,12 +695,12 @@ const userValidation: UserValidation = {
         if (!regex.test(name)) {
           name = Math.random().toString(36).substring(0, 8) + '.' + dot;
         }
-        cb(null, method.randomString(8, name)); //파일 이름 설정
+        cb(null, 'user/' + method.randomString(8, name));
       },
     });
-
     let upload: any = multer({
       storage,
+      limits: { fileSize: 1000 * 1000 * 10 },
     });
     upload.single('file')(req, res, next);
   },
