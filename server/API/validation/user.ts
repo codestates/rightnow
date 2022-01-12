@@ -652,7 +652,9 @@ const userValidation: UserValidation = {
       next();
     }
   },
-
+  /*
+  이미지 s3에 업로드
+  */
   uploadImage(req: Request, res: Response, next: NextFunction): any {
     const DIR_NAME = __dirname + '/../..';
     // const storage: any = multer.diskStorage({
