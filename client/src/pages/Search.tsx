@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { categoryAPI } from '../api/categoryApi';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { userEmail, userRole } from '../reducers/userSlice';
+import { userEmail, userIsLogin, userRole } from '../reducers/userSlice';
 import ModalTemp from '../components/ModalTemp';
 import MatchingModal from '../components/MatchingModal';
 import {
@@ -25,6 +25,7 @@ import { showAlert } from '../reducers/componetSlice';
 import Header from '../components/layout/Header';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
+import LoginConfirm from '../components/LoginConfirm';
 
 const Container = styled.div`
   display: flex;
@@ -294,6 +295,7 @@ const Search = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
+  const isLogin = useAppSelector(userIsLogin);
   const role = useAppSelector(userRole); // 사용자 상태 (회원 / 비회원)
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
@@ -632,6 +634,7 @@ const Search = () => {
     <>
       <Header />
       <Container>
+        {isLogin ? null : <LoginConfirm />}
         {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
         {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
         {isSearching ? (
