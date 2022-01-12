@@ -598,6 +598,7 @@ const userValidation: UserValidation = {
     }
     const { email } = req.params;
     const { key } = req.file;
+
     db['User']
       .update(
         {
@@ -651,6 +652,7 @@ const userValidation: UserValidation = {
       next();
     }
   },
+
   /*
   이미지 s3에 업로드
   */
@@ -678,7 +680,7 @@ const userValidation: UserValidation = {
     //     cb(null, method.randomString(8, name)); //파일 이름 설정
     //   },
     // });
-    //s3 추가 !!
+
     const storage: any = multerS3({
       s3: s3,
       bucket: 'rightnow-image',
