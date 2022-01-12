@@ -12,9 +12,10 @@ export const roomAPI = {
   createRoom: () => {},
   deleteRoom: () => {},
   updateRoom: () => {},
-  getRoomInfo: (room_id: string) =>
+  getRoomInfo: (room_id: string, email: string) =>
     api.post(`room/get`, {
       room_id,
+      email,
     }),
   location: (lon: number, lat: number) =>
     api.get(`participant/location`, {

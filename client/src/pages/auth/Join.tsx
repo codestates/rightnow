@@ -386,7 +386,7 @@ const Join = () => {
                 className={`w-36 h-10 rounded-md ${
                   isDisable.authDisable
                     ? 'bg-slate-100 text-slate-300'
-                    : 'bg-main text-white'
+                    : 'bg-main text-white hover:bg-orange-700'
                 }`}
                 disabled={isDisable.authDisable}
                 onClick={reuqestEmailAuth}
@@ -426,7 +426,7 @@ const Join = () => {
                   className={`w-96 h-12 rounded-md ${
                     isDisable.singUpDisable
                       ? 'bg-slate-100 text-slate-300'
-                      : 'bg-main text-white'
+                      : 'bg-main text-white hover:bg-orange-700'
                   }`}
                   disabled={isDisable.singUpDisable}
                   onClick={requestSignup}

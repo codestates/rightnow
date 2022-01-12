@@ -6,3 +6,4 @@ localhost*
 *.pem
 image
 seeders
+*aws_config.json

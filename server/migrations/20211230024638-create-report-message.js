@@ -11,10 +11,14 @@ module.exports = {
       reporter: {
         type: Sequelize.STRING,
         references: { model: 'Users', key: 'email' },
+        onDelete: 'SET NULL',
+        onUpdate: 'cascade',
       },
       message_id: {
         type: Sequelize.INTEGER,
         references: { model: 'Messages', key: 'id' },
+        onDelete: 'SET NULL',
+        onUpdate: 'cascade',
       },
       report_date: {
         defaultValue: Sequelize.NOW,

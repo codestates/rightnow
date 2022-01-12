@@ -13,18 +13,18 @@ module.exports = {
         references: {
           model: 'Users',
           key: 'email',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE',
         },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       res_user: {
         type: Sequelize.STRING,
         references: {
           model: 'Users',
           key: 'email',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE',
         },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       is_accept: {
         defaultValue: 'N',

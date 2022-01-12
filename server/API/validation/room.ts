@@ -64,8 +64,14 @@ const roomValidation: RoomValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    let id = req.body.room_id;
+    let { room_id, email } = req.body;
     try {
+      let participant = await db.Participant.findOne({
+        where: {
+          user_email: email,
+          room_id,
+        },
+      });
       let room = await db.Room.findOne({
         include: [
           {
@@ -85,15 +91,31 @@ const roomValidation: RoomValidation = {
                 exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
               },
             },
+            where: {
+              write_date: {
+                [Op.gte]: participant.dataValues.enter_date,
+              },
+            },
+            required: false,
           },
         ],
         order: [[db.Message, 'write_date', 'ASC']],
-        where: { id },
+        where: { id: room_id },
       });
 
       if (room === null)
         req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
-      else req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
+      else {
+        room.dataValues.Messages = room.dataValues.Messages.map((item: any) => {
+          let temp = item.dataValues;
+          temp.write_date = temp.write_date
+            .split(':')
+            .slice(0, temp.write_date.split(':').length - 1)
+            .join(':');
+          return temp;
+        });
+        req.sendData = { data: room.dataValues, message: 'ok', status: 200 };
+      }
       next();
     } catch (e) {
       console.log(e);

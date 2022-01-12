@@ -22,6 +22,7 @@ app.use(
     origin: true,
   }),
 );
+app.use('/image/user', express.static('./image/user'));
 app.use(express.json());
 app.use(express.text());
 app.use(cookieParser());

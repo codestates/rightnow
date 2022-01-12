@@ -13,11 +13,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
       models.Participant.belongsTo(models.User, {
         foreignKey: 'user_email',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
     }
   }
@@ -38,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       lat: {
         type: DataTypes.FLOAT,
       },
-      enter_date: { type: DataTypes.DATE, defaultValue: new Date() },
+      enter_date: { type: DataTypes.DATE(6), defaultValue: new Date() },
     },
     {
       sequelize,

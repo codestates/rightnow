@@ -7,7 +7,8 @@ import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
 import { userEmail } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { setTimeout } from 'timers';
+import { MessageType, CategoryType, UserType } from '../type';
+import defaultImg from '../images/profile.png';
 
 function dateToString(
   date: Date,
@@ -191,37 +192,9 @@ const ChatContent = styled(Chatting)`
   width: 100%;
 `;
 let socket: any = null;
-interface User {
-  email: string;
-  nick_name: string;
-  profile_image: string;
-  enterDate: string;
-  role: string;
-}
-
-interface MessageType {
-  id: number;
-  User: {
-    email: string;
-    nick_name: string;
-    profile_image: string; // fix - profile_img -> profile_image
-  };
-  content: string;
-  is_update: string;
-  write_date: string;
-  isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
-}
 
 interface StateType {
   room_id: string;
-}
-
-interface CategoryType {
-  id: number;
-  name: string;
-  user_num: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 const Room = () => {
@@ -231,10 +204,10 @@ const Room = () => {
   const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
-  const [memberList, setMemberList] = useState<User[]>([]);
+  const [memberList, setMemberList] = useState<UserType[]>([]);
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
-  const [attendMembers, setAttendMembers] = useState<User[]>([]);
+  const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -243,7 +216,7 @@ const Room = () => {
         data: {
           data: { Messages, Participants, category_id, location },
         },
-      } = await roomAPI.getRoomInfo(room_id);
+      } = await roomAPI.getRoomInfo(room_id, email);
       setTalkContents(Messages);
       setRoomLocation(location);
 
@@ -296,7 +269,13 @@ const Room = () => {
       };
       // 들어온 인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, message]);
-      console.log(talkContents);
+      setMemberList((users: Array<UserType>) => {
+        let find = users.find(
+          (item: UserType) => item.email === data.user.email,
+        );
+        users = find ? users : [...users, data.user];
+        return users;
+      });
     });
     socket.on('msg_insert', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
@@ -368,11 +347,13 @@ const Room = () => {
       // 참가중인 멤버 업데이트
       setAttendMembers(users);
       // 멤버 목록에서 나간 유저 제외
-      setMemberList((item: Array<User>) => {
-        return item.filter((user: User) => user.email !== email);
+      setMemberList((item: Array<UserType>) => {
+        return item.filter((user: UserType) => user.email !== email);
       });
     });
-
+    socket.on('out', (data: any) => {
+      navigate('/');
+    });
     socket.emit('join_room', { room_id, email });
     return () => {
       socket.close();
@@ -399,12 +380,11 @@ const Room = () => {
    */
   const handleQuit = async () => {
     await socket.emit('leave_meeting', { room_id, email });
-    navigate('/search'); // 모임 검색 페이지로 이동
+    //navigate('/search'); // 모임 검색 페이지로 이동
   };
 
   // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
-  const handleInsertMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleInsertMessage = () => {
     console.log('보내기');
     if (!text || text === '') {
       return;
@@ -445,11 +425,13 @@ const Room = () => {
               <SubTitle>대화 상대</SubTitle>
               <MemberList>
                 {memberList && memberList.length > 0 ? (
-                  memberList.map((member: User) => {
+                  memberList.map((member: UserType) => {
                     return (
                       <Member key={member.email}>
                         <ImageContainer>
-                          <ProfileImg url={member.profile_image} />
+                          <ProfileImg
+                            url={member.profile_image || defaultImg}
+                          />
                         </ImageContainer>
                         <ProfileName>{member.nick_name}</ProfileName>
                       </Member>

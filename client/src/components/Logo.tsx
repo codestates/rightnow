@@ -6,7 +6,7 @@ interface IProps {
 }
 
 const Logo = ({ width }: IProps) => {
-  const logoWidth = width ? width : 90;
+  const logoWidth = width ? width : 70;
   return (
     <>
       <img className='transition-all' src={logo} alt="rightnow logo" width={logoWidth} />
