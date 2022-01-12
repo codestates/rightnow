@@ -597,12 +597,11 @@ const userValidation: UserValidation = {
       return;
     }
     const { email } = req.params;
-    const { filename } = req.file;
-
+    const { key } = req.file;
     db['User']
       .update(
         {
-          profile_image: filename,
+          profile_image: key,
         },
         {
           where: { email },
@@ -610,7 +609,7 @@ const userValidation: UserValidation = {
       )
       .then((result: any) => {
         if (result) {
-          req.sendData = { data: { profile_image: filename }, message: 'ok' };
+          req.sendData = { data: { profile_image: key }, message: 'ok' };
           next();
         } else {
           req.sendData = { message: 'err' };
