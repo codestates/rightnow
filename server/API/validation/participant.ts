@@ -187,7 +187,7 @@ const participantValidation: ParticipantValidation = {
 
     let participants = await db.Participant.findAll({ where: { room_id } });
     if (participants.length === 0) {
-      let room = await db.Participant.destroy(
+      let room = await db.Room.destroy(
         { where: { id: room_id } },
         { transaction },
       );

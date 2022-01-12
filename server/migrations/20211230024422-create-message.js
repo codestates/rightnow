@@ -11,7 +11,7 @@ module.exports = {
       user_email: {
         type: Sequelize.STRING,
         references: { model: 'Users', key: 'email' },
-        onDelete: 'NO ACTION',
+        onDelete: 'SET NULL',
         onUpdate: 'cascade',
       },
       room_id: {
@@ -33,7 +33,7 @@ module.exports = {
       },
       write_date: {
         defaultValue: Sequelize.NOW,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE(6),
       },
     });
   },

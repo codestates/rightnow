@@ -31,7 +31,7 @@ module.exports = {
       },
       enter_date: {
         defaultValue: Sequelize.NOW,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE(6),
       },
     });
   },

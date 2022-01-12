@@ -17,16 +17,19 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'category_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
       models.Room.hasMany(models.Message, {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
       models.Room.hasMany(models.Participant, {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
       // models.Room.hasMany(models.Report_room, {
       //   foreignKey: 'room_id',

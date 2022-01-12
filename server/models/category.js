@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'category_id',
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
+        hooks: true,
       });
     }
   }
@@ -26,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Category',
-    }
+    },
   );
   return Category;
 };

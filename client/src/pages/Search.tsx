@@ -487,6 +487,7 @@ const Search = () => {
     socket.on('searching_friend', (res: any) => {
       //검색중인 친구 목록
       let { leave_friends } = res;
+      console.log(leave_friends);
       setVisibleFriend([...leave_friends]);
     });
     // 필터링
@@ -511,12 +512,12 @@ const Search = () => {
 
   //같이 할 수 있는 친구목록 체크
   useEffect(() => {
-    if (socket !== null) {
+    if (socket !== null && friendList.length > 0) {
       socket.emit('searching_friend', {
         email_list: [...friendList],
       });
     }
-  }, [socket]);
+  }, [socket, friendList]);
   /**
    * 선택한 친구들이 정해진 인원보다 많은지 검사
    * 상황에 따라 메지시를 모여줌

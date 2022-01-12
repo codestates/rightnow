@@ -216,7 +216,7 @@ const Room = () => {
         data: {
           data: { Messages, Participants, category_id, location },
         },
-      } = await roomAPI.getRoomInfo(room_id);
+      } = await roomAPI.getRoomInfo(room_id, email);
       setTalkContents(Messages);
       setRoomLocation(location);
 
@@ -269,7 +269,13 @@ const Room = () => {
       };
       // 들어온 인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, message]);
-      console.log(talkContents);
+      setMemberList((users: Array<UserType>) => {
+        let find = users.find(
+          (item: UserType) => item.email === data.user.email,
+        );
+        users = find ? users : [...users, data.user];
+        return users;
+      });
     });
     socket.on('msg_insert', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
@@ -345,7 +351,9 @@ const Room = () => {
         return item.filter((user: UserType) => user.email !== email);
       });
     });
-
+    socket.on('out', (data: any) => {
+      navigate('/');
+    });
     socket.emit('join_room', { room_id, email });
     return () => {
       socket.close();
@@ -372,7 +380,7 @@ const Room = () => {
    */
   const handleQuit = async () => {
     await socket.emit('leave_meeting', { room_id, email });
-    navigate('/search'); // 모임 검색 페이지로 이동
+    //navigate('/search'); // 모임 검색 페이지로 이동
   };
 
   // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력

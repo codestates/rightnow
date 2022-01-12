@@ -17,16 +17,19 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_email',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
       models.User.hasMany(models.Message, {
         foreignKey: 'user_email',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
       models.User.hasMany(models.Report_message, {
         foreignKey: 'reporter',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
       // models.User.hasMany(models.Report_room, {
       //   foreignKey: 'reporter',
