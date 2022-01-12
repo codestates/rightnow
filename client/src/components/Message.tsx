@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { MessageType } from '../type';
 import defaultImg from '../images/profile.png';
 import { useAppSelector } from '../config/hooks';
@@ -11,11 +11,9 @@ const MenuContainer = styled.div`
   right: 0;
   margin-left: auto;
   display: none;
-  justify-content: flex-end;
 `;
 
 const ChatMenu = styled.div`
-  width: 2rem;
   font-size: 0.8rem;
   weight: 600;
   cursor: pointer;
@@ -29,7 +27,6 @@ const Report = styled(ChatMenu)`
 `;
 
 const Edit = styled(ChatMenu)`
-  left: -2rem;
   color: ${(props) => props.theme.color.font};
 `;
 
@@ -82,7 +79,18 @@ const Date = styled.div`
   font-size: 0.85rem;
 `;
 
-const Content = styled.div``;
+const bounce = keyframes`
+  0%, 100% {
+    opacity: 1;
+  } 28%, 30% {
+    opacity: 0;
+  }
+`;
+
+const Content = styled.div<{ edit: boolean }>`
+  animation: ${bounce} ${(props) => (props.edit ? '0' : '0.6')}s;
+  display: ${(props) => (props.edit ? 'none' : 'block')};
+`;
 
 const Edited = styled.div`
   margin-left: 0.5rem;
@@ -90,9 +98,12 @@ const Edited = styled.div`
   line-height: 0.7rem;
 `;
 
-const EditForm = styled.form``;
+const EditForm = styled.form<{ edit: boolean }>`
+  display: ${(props) => (props.edit ? 'block' : 'none')};
+`;
 
 const EditInput = styled.input`
+  word-break: break-word;
   &:focus {
     outline: none;
   }
@@ -106,7 +117,6 @@ interface MessageProps {
 
 const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   const email = useAppSelector(userEmail);
-  console.log(messageData);
   const { id, User, content, is_update, write_date, isAlarm } = messageData;
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(content);
@@ -122,8 +132,8 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   const handleUpdate = (e: React.SyntheticEvent) => {
     e.preventDefault();
     setNewContent(newContent);
-    setIsEdit(!isEdit);
     updateMessage(newContent, id);
+    setIsEdit(!isEdit);
   };
 
   /**
@@ -158,7 +168,9 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
             <MenuContainer>
               {User ? (
                 email !== User.email ? null : (
-                  <Edit onClick={handleEdit}>수정</Edit>
+                  <Edit onClick={handleEdit}>
+                    {isEdit ? '수정 취소' : '수정'}
+                  </Edit>
                 )
               ) : null}
               {User ? (
@@ -172,11 +184,22 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
           )}
         </Title>
         {isEdit ? (
-          <EditForm onSubmit={handleUpdate}>
-            <EditInput value={newContent} onChange={handleNewContent} />
+          <EditForm
+            onSubmit={handleUpdate}
+            className="transition-all"
+            edit={isEdit}
+          >
+            <EditInput
+              className="rounded bg-orange-200 p-1 w-full"
+              value={newContent}
+              onChange={handleNewContent}
+              autoFocus
+            />
           </EditForm>
         ) : (
-          <Content>{content}</Content>
+          <Content className="transition-all" edit={isEdit}>
+            {content}
+          </Content>
         )}
       </MainContent>
     </Container>
