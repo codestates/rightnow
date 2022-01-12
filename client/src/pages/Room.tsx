@@ -151,10 +151,8 @@ const Room = () => {
   const navigate = useNavigate();
   const isLogin = useAppSelector(userIsLogin);
   const state = location.state as StateType;
-  let room_id: string;
-  if (state) {
-    room_id = state.room_id;
-  }
+  let room_id = state.room_id;
+
   const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);

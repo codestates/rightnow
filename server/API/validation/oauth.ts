@@ -10,7 +10,6 @@ const bcrypt: any = require('bcrypt');
 const {
   getKakaoToken,
   getKakaoSubId,
-  disconnectKakao,
   getGoogleToken,
   getGoogleSubId,
 } = require('../../method/oauth');

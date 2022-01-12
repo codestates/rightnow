@@ -58,7 +58,8 @@ const ProfileName = styled.div`
 
 const MemberList = () => {
   const participant = useAppSelector(roomParticipant);
-  const memberList: Array<UserType> = participant.map((member) => member.User);
+  const memberList: Array<UserType> =
+    participant && participant.map((member) => member.User);
   return (
     <Container>
       {memberList && memberList.length > 0 ? (
