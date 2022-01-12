@@ -13,6 +13,7 @@ import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
 import { MessageType } from '../type';
+import Map from './Map';
 
 const ChattingContainer = styled.div`
   height: 100%;
@@ -368,7 +369,7 @@ const ChattingRoom = ({
         </>
       ) : menu === 'map' ? (
         <MenuContainer className="drop-shadow">
-          모임 위치(지도 표시)
+          <Map />
         </MenuContainer>
       ) : (
         <MenuContainer className="drop-shadow">
