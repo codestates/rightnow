@@ -23,7 +23,6 @@ import Loading from '../components/Loading';
 import { useNavigate } from 'react-router';
 import { showAlert } from '../reducers/componetSlice';
 import Header from '../components/layout/Header';
-import Alert from '../components/Alert';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
 
@@ -704,7 +703,6 @@ const Search = () => {
           </OptionContainer>
         </SearchContainer>
       </Container>
-      <Alert />
     </>
   );
 };
