@@ -606,7 +606,7 @@ const userValidation: UserValidation = {
       )
       .then((result: any) => {
         if (result) {
-          req.sendData = { message: 'ok' };
+          req.sendData = { data: { profile_image: filename }, message: 'ok' };
           next();
         } else {
           req.sendData = { message: 'err' };

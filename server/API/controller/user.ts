@@ -209,7 +209,12 @@ const userController: UserController = {
   */
   async uploadProfileImage(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
-      res.status(201).send({ message: 'ok' });
+      res
+        .status(201)
+        .send({
+          data: { profile_image: req.sendData.data.profile_image },
+          message: 'ok',
+        });
     } else if (req.sendData.message === 'no exists file') {
       res.status(404).send({ message: 'no exists file' });
     } else if (req.sendData.message === 'err') {
