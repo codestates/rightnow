@@ -36,17 +36,17 @@ const RendingPage = () => {
 
   const location = useLocation();
   const router = useNavigate();
-  const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
-  const [loadingZIndex, setLoadingZIndex] = useState<string>('z-30');
+  // const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
+  // const [loadingZIndex, setLoadingZIndex] = useState<string>('z-30');
 
-  useEffect((): void => {
-    setTimeout(() => {
-      setLoadingOpacity('opacity-0');
-    }, 1000);
-    setTimeout(() => {
-      setLoadingZIndex('-z-20');
-    }, 1500);
-  }, []);
+  // useEffect((): void => {
+  //   setTimeout(() => {
+  //     setLoadingOpacity('opacity-0');
+  //   }, 1000);
+  //   setTimeout(() => {
+  //     setLoadingZIndex('-z-20');
+  //   }, 1500);
+  // }, []);
 
   // 스크롤 위치
   const [scrollPosition, setScrollPosition] = useState<number>(0);
@@ -104,14 +104,18 @@ const RendingPage = () => {
   };
 
   useEffect(() => {
-    handleScroll()
-  }, [])
+    handleScroll();
+  }, []);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+    };
   }, []);
-  
+
   const firstContentY: number = 604;
   const contentDy: number = 670;
 

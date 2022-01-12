@@ -12,6 +12,8 @@ import { showModal } from '../../reducers/componetSlice';
 import defaultProfile from '../../images/profile.png';
 
 const Header = () => {
+  const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
+
   const dispatch = useAppDispatch();
   // 유저의 사진
   const profile = useAppSelector(userProfile);
@@ -83,9 +85,7 @@ const Header = () => {
                 className={'h-10 w-10 rounded-full'}
                 style={{
                   backgroundImage: `url(${
-                    profile === null
-                      ? defaultProfile
-                      : `http://localhost/image/user/${profile}`
+                    profile === null ? defaultProfile : imageEndpoint + profile
                   })`,
                   backgroundSize: 'cover',
                 }}

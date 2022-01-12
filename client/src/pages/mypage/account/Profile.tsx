@@ -22,6 +22,8 @@ interface IShowDropDown {
 }
 
 const Proflie = () => {
+  const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
+
   const dispatch = useAppDispatch();
 
   // 유저 프로파일 이미지
@@ -251,9 +253,7 @@ const Proflie = () => {
             className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden"
             style={{
               backgroundImage: `url(${
-                profile === null
-                  ? defaultProfile
-                  : `http://localhost/image/user/${profile}`
+                profile === null ? defaultProfile : imageEndpoint + profile
               })`,
               backgroundSize: 'cover',
             }}
