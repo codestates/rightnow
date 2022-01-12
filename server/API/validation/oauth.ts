@@ -110,7 +110,7 @@ const oauthValidation: OAuthValidation = {
 
   /*
   구글 소셜로그인
-  */ //
+  */
   async googleLogin(
     req: CustomRequest,
     res: Response,
