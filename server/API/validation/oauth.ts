@@ -40,7 +40,7 @@ const oauthValidation: OAuthValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const kakaoAccessToken: any = await getKakaoToken(req.query.code);
+      const kakaoAccessToken: any = await getKakaoToken(req.body.code);
       if (kakaoAccessToken) {
         const data: any = await getKakaoSubId(kakaoAccessToken);
         if (data) {
@@ -117,7 +117,7 @@ const oauthValidation: OAuthValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const googleAccessToken: string = await getGoogleToken(req.query.code);
+      const googleAccessToken: string = await getGoogleToken(req.body.code);
       if (googleAccessToken) {
         const data = await getGoogleSubId(googleAccessToken);
         console.log(data);
