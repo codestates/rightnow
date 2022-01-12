@@ -10,7 +10,6 @@ const bcrypt: any = require('bcrypt');
 const {
   getKakaoToken,
   getKakaoSubId,
-  disconnectKakao,
   getGoogleToken,
   getGoogleSubId,
 } = require('../../method/oauth');
@@ -120,7 +119,6 @@ const oauthValidation: OAuthValidation = {
       const googleAccessToken: string = await getGoogleToken(req.body.code);
       if (googleAccessToken) {
         const data = await getGoogleSubId(googleAccessToken);
-        console.log(data);
         if (data) {
           const email: string = data.email;
           const nick_name: string = data.email.split('@')[0];
