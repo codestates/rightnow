@@ -219,7 +219,8 @@ const Room = () => {
       } = await roomAPI.getRoomInfo(room_id, email);
       setTalkContents(Messages);
       setRoomLocation(location);
-
+      const data = await roomAPI.getRoomInfo(room_id, email);
+      console.log(data);
       const members = Participants.map((member: any) => {
         return member.User;
       });
