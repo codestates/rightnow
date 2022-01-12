@@ -23,6 +23,7 @@ const messageValidation: MessageValidation = {
       content,
       user_email,
       message_type,
+      write_date: new Date(),
     });
     return insert.dataValues;
   },
@@ -32,6 +33,10 @@ const messageValidation: MessageValidation = {
       { where: { id } },
     );
     let getMessage = await db.Message.findOne({ where: { id } });
+    getMessage.dataValues.write_date = getMessage.dataValues.write_date
+      .split(':')
+      .slice(0, getMessage.dataValues.write_date.split(':').length - 1)
+      .join(':');
     return getMessage.dataValues;
   },
 };

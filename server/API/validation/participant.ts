@@ -162,9 +162,16 @@ const participantValidation: ParticipantValidation = {
           room_id,
           lon: item.lon,
           lat: item.lat,
+          enter_date: new Date(),
         };
       });
-      inserts.push({ user_email: email, room_id, lon, lat });
+      inserts.push({
+        user_email: email,
+        room_id,
+        lon,
+        lat,
+        enter_date: new Date(),
+      });
       await db.Participant.bulkCreate(inserts);
     }
     let room = await db.Room.findOne({ where: { id: room_id } });
