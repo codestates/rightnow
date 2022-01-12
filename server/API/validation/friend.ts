@@ -47,6 +47,11 @@ const friendValidation: FriendValidation = {
     next: NextFunction,
   ): Promise<any> {
     const { req_user, res_user } = req.body;
+    if (req_user === res_user) {
+      req.sendData = { message: 'dont have to request yourself' };
+      next();
+      return;
+    }
     const reqFriend: any = await db['Friend'].findOne({
       where: { req_user, res_user },
     });
