@@ -119,7 +119,7 @@ const TempJoin = () => {
           <div className="flex justify-center items-center space-x-2">
             <Logo />
           </div>
-          <p className="inline-flex mt-4 w-96 text-gray-600 text-sm">
+          <p className="inline-flex mt-6 w-96 text-gray-600 text-sm">
             기본 정보
           </p>
           <div className="mt-2">

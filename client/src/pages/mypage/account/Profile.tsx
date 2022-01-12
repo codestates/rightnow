@@ -253,7 +253,11 @@ const Proflie = () => {
             className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden"
             style={{
               backgroundImage: `url(${
-                profile === null ? defaultProfile : imageEndpoint + profile
+                profile === null
+                  ? defaultProfile
+                  : profile.indexOf('kakaocdn') === -1
+                  ? imageEndpoint + profile
+                  : profile
               })`,
               backgroundSize: 'cover',
             }}

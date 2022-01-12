@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import defaultprofile from '../../../images/profile.png';
+import defaultProfile from '../../../images/profile.png';
 import friendsApi from '../../../api/friendsApi';
 import { useAppDispatch, useAppSelector } from '../../../config/hooks';
 import {
@@ -96,8 +96,10 @@ const Request = () => {
                 style={{
                   backgroundImage: `url(${
                     profile_image === null
-                      ? defaultprofile
-                      : imageEndpoint + profile_image
+                      ? defaultProfile
+                      : profile_image.indexOf('kakaocdn') === -1
+                      ? imageEndpoint + profile_image
+                      : profile_image
                   })`,
                   backgroundSize: 'cover',
                 }}
