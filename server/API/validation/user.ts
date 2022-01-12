@@ -689,7 +689,7 @@ const userValidation: UserValidation = {
         const regex: any = /^[a-z|A-Z|0-9|]+$/;
         let dot =
           file.originalname.split('.')[file.originalname.split('.').length - 1];
-        if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
+        if (dot !== 'png' && dot !== 'jpg' && dot !== 'jpeg') {
           res
             .status(400)
             .send({ message: 'Only .png, .jpg and .jpeg format allowed.' });
