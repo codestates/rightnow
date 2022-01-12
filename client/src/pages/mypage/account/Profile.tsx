@@ -4,11 +4,13 @@ import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import { useAppSelector, useAppDispatch } from '../../../config/hooks';
 import {
   updateNickname,
+  updateProfile,
   userAccessToken,
   userEmail,
   userNickname,
+  userProfile,
 } from '../../../reducers/userSlice';
-import profile from '../../../images/profile.png';
+import defaultProfile from '../../../images/profile.png';
 import axios from 'axios';
 import { IconButton } from '@material-ui/core';
 import userApi from '../../../api/userApi';
@@ -21,6 +23,9 @@ interface IShowDropDown {
 
 const Proflie = () => {
   const dispatch = useAppDispatch();
+
+  // 유저 프로파일 이미지
+  const profile = useAppSelector(userProfile);
   // 드롭다운 보임 유무
   const [showDropDown, setShowDropDown] = useState<IShowDropDown>({
     userInfo: false,
@@ -53,7 +58,10 @@ const Proflie = () => {
 
   // 회원정보 수정
   const changeNickname = (e: ChangeEvent<HTMLInputElement>) => {
-    setNickname(e.target.value);
+    if (e.target.value.indexOf(' ') !== -1) {
+      dispatch(showAlert('blank'));
+    }
+    setNickname(e.target.value.replace(/ /g, ''));
   };
 
   // 저장버튼 활성화 유무
@@ -83,7 +91,7 @@ const Proflie = () => {
           },
         })
         .then((res) => {
-          console.log(res);
+          dispatch(updateProfile(res.data.data.profile_image));
         })
         .catch((err) => {
           console.log(err.response);
@@ -173,7 +181,8 @@ const Proflie = () => {
               id="nickname"
               className="border-2 border-slate-200 block w-full h-10 rounded-md pl-2 outline-main text-sm"
               type={'text'}
-              placeholder="변경할 닉네임을 입력해주세요"
+              placeholder="변경할 닉네임을 8글자 이내로 입력해주세요"
+              maxLength={8}
               value={nickname}
               onChange={(e) => {
                 changeNickname(e);
@@ -238,15 +247,17 @@ const Proflie = () => {
               : 'p-0 h-0 opacity-0 border-0'
           }`}
         >
-          <div className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden">
-            <img
-              src={profile}
-              alt="userProfile"
-              width={224}
-              height={224}
-              className="rounded-full"
-            />
-          </div>
+          <div
+            className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden"
+            style={{
+              backgroundImage: `url(${
+                profile === null
+                  ? defaultProfile
+                  : `http://localhost/image/user/${profile}`
+              })`,
+              backgroundSize: 'cover',
+            }}
+          />
           <form className="text-right mt-5">
             <button
               className={`w-36 h-10 rounded-md border-2 border-slate-500 text-slate-500 text-sm font-semibold relative`}

@@ -34,6 +34,7 @@ const Modal = ({ password }: IProps) => {
       const body = {
         email: email,
         password: password,
+        social_login: 'original',
       };
       const callback = (code: number) => {
         if (code === 200) {

@@ -12,7 +12,7 @@ import Logo from '../../components/Logo';
 import userApi from '../../api/userApi';
 import { useAppDispatch } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
-import { showAlert } from '../../reducers/componetSlice';
+import { showAlert, updateUrl } from '../../reducers/componetSlice';
 
 interface IUserInfo {
   email: string;
@@ -58,30 +58,33 @@ const Join = () => {
 
   // input 상태 관리
   const stateHandler = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.value.indexOf(' ') !== -1) {
+      dispatch(showAlert('blank'));
+    }
     if (e.target.id === 'email') {
       setUserInfo({
         ...userInfo,
-        email: e.target.value,
+        email: e.target.value.replace(/ /g, ''),
       });
     } else if (e.target.id === 'nickname') {
       setUserInfo({
         ...userInfo,
-        nickname: e.target.value,
+        nickname: e.target.value.replace(/ /g, ''),
       });
     } else if (e.target.id === 'password') {
       setUserInfo({
         ...userInfo,
-        password: e.target.value,
+        password: e.target.value.replace(/ /g, ''),
       });
     } else if (e.target.id === 're-password') {
       setUserInfo({
         ...userInfo,
-        rePassword: e.target.value,
+        rePassword: e.target.value.replace(/ /g, ''),
       });
     } else if (e.target.id === 'auth') {
       setUserInfo({
         ...userInfo,
-        auth: e.target.value,
+        auth: e.target.value.replace(/ /g, ''),
       });
     }
   };
@@ -236,7 +239,11 @@ const Join = () => {
           });
         }
       };
-      userApi('emailAuthSignup', { email: userInfo.email, type: 'signup' }, callback);
+      userApi(
+        'emailAuthSignup',
+        { email: userInfo.email, type: 'signup' },
+        callback,
+      );
     }
   };
 
@@ -260,12 +267,9 @@ const Join = () => {
       };
       const callback = (code: number, data: string) => {
         if (code === 201) {
+          dispatch(updateUrl('signup'));
           dispatch(updateAccessToken(data));
           clearInterval(timerId.current);
-          navigate('/');
-          setTimeout(() => {
-            dispatch(showAlert('signup'));
-          }, 50);
         }
       };
       userApi('signup', body, callback);
@@ -305,7 +309,7 @@ const Join = () => {
             <input
               id="email"
               className="border-2 w-96 border-slate-200 h-12 rounded-md pl-2 outline-main"
-              type={'email'}
+              type={'text'}
               value={userInfo.email}
               onChange={(e) => {
                 stateHandler(e);
@@ -326,7 +330,8 @@ const Join = () => {
               onChange={(e) => {
                 stateHandler(e);
               }}
-              placeholder="닉네임을 입력해주세요"
+              placeholder="닉네임을 8글자 이내로 입력해주세요"
+              maxLength={8}
               onKeyDown={(e) => {
                 pressEnter(e);
               }}

@@ -17,6 +17,7 @@ import {
   logout,
   updateAccessToken,
   deleteAccessToken,
+  userEmail,
 } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
@@ -37,6 +38,8 @@ function Routes() {
   const accessToken = useAppSelector(userAccessToken);
   const isLogin = useAppSelector(userIsLogin);
   const prevPage = useAppSelector(url);
+  const email = useAppSelector(userEmail);
+
   useEffect(() => {
     if (accessToken) {
       const callback = (code: number, data: IData) => {
@@ -78,8 +81,16 @@ function Routes() {
   useEffect(() => {
     if (!first) {
       if (isLogin) {
-        router('/room');
-        dispatch(showAlert('login'));
+        router('/search');
+        if (prevPage === 'signup') {
+          dispatch(showAlert('signup'));
+          dispatch(updateUrl(''));
+        } else if (prevPage === 'tempSignup') {
+          dispatch(showAlert('tempSignup'));
+          dispatch(updateUrl(''));
+        } else {
+          dispatch(showAlert('login'));
+        }
       } else {
         if (prevPage === 'deleteAccount') {
           dispatch(showAlert('signout'));

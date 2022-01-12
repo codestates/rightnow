@@ -120,10 +120,15 @@ const Login = () => {
 
   // 로그인 에러
   const [loginError, setLoginError] = useState<string>('');
+  const [tempLoginError, setTempLoginError] = useState<string>('');
 
   // 로그인 요청
   const requestLogin = (): void => {
     setLoginError('');
+    const body = {
+      email: userInfo.email,
+      password: userInfo.password,
+    };
     const callback = (code: number, data: string) => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
@@ -131,11 +136,26 @@ const Login = () => {
         setLoginError(data);
       }
     };
-    userApi('login', userInfo, callback);
+    userApi('login', body, callback);
   };
   // 임시 로그인 요청
   const requestTempLogin = (): void => {
-    alert('임시 로그인 요청');
+    setTempLoginError('');
+    const body = {
+      type: 'TEMP',
+      nick_name: userInfo.tempId,
+      password: userInfo.tempPw,
+    };
+    const callback = (code: number, data: string) => {
+      if (code === 200) {
+        dispatch(updateAccessToken(data));
+      } else if (code === 400) {
+        setTempLoginError('등록되지 않은 임시계정 입니다.')
+      } else if (code === 401) {
+        setTempLoginError(data)
+      }
+    };
+    userApi('login', body, callback);
   };
 
   return (
@@ -307,6 +327,11 @@ const Login = () => {
                   ref={tempPwRef}
                 />
               </div>
+              {tempLoginError && (
+                <div className="text-sm text-red-400 w-96 inline-block text-left pl-2">
+                  {tempLoginError}
+                </div>
+              )}
               <div className="mt-6">
                 <button
                   className={`w-96 h-12 rounded-md ${
@@ -319,6 +344,18 @@ const Login = () => {
                 >
                   임시 로그인
                 </button>
+              </div>
+              <p className="mt-6 text-gray-600">임시 계정이 없으신가요?</p>
+              <div className="mt-6">
+                <Link to="/auth/tempJoin">
+                  <button
+                    className={
+                      'w-96 h-12 rounded-md border-1 border-main text-main hover:bg-gray-100'
+                    }
+                  >
+                    임시 계정 만들기
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

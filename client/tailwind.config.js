@@ -49,6 +49,9 @@ module.exports = {
             kakaoText: '#3B1E1E',
 
         },
+        minWidth: {
+            5: "20px"
+        },
         minHeight: {
             login: "calc(100vh - 72px)",
             forms: "calc(100vh - 10px)",

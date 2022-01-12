@@ -186,13 +186,5 @@ export default function userApi(
       //     console.log(response);
       //   });
       break;
-    case 'emailAuth':
-      break;
-    case 'reportUser':
-      break;
-    case 'reportRoom':
-      break;
-    case 'getUserAll':
-      break;
   }
 }
