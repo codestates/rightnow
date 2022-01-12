@@ -24,6 +24,7 @@ interface IData {
   updatedAt: string;
 }
 const List = () => {
+  const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
   const dispatch = useAppDispatch();
   // 로그인 중인 유저의 이메일
   const email = useAppSelector(userEmail);
@@ -82,7 +83,7 @@ const List = () => {
                   backgroundImage: `url(${
                     profile_image === null
                       ? defaultprofile
-                      : `http://localhost/image/user/${profile_image}`
+                      : imageEndpoint + profile_image
                   })`,
                   backgroundSize: 'cover',
                 }}

@@ -9,6 +9,7 @@ import { userEmail } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import defaultImg from '../images/profile.png';
+import { setParticipant } from '../reducers/roomSlice';
 
 function dateToString(
   date: Date,
@@ -198,6 +199,7 @@ interface StateType {
 }
 
 const Room = () => {
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const state = location.state as StateType;
   const { room_id } = state;
@@ -224,6 +226,7 @@ const Room = () => {
         return member.User;
       });
       setMemberList(members);
+      dispatch(setParticipant(Participants));
 
       const {
         data: {
