@@ -11,10 +11,14 @@ module.exports = {
       user_email: {
         type: Sequelize.STRING,
         references: { model: 'Users', key: 'email' },
+        onDelete: 'SET NULL',
+        onUpdate: 'cascade',
       },
       room_id: {
         type: Sequelize.UUID,
         references: { model: 'Rooms', key: 'id' },
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
       },
       content: {
         type: Sequelize.STRING,
@@ -29,7 +33,7 @@ module.exports = {
       },
       write_date: {
         defaultValue: Sequelize.NOW,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE(6),
       },
     });
   },

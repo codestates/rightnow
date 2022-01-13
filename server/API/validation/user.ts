@@ -3,12 +3,17 @@ import { CustomRequest } from '../../type/type';
 
 const dotenv: any = require('dotenv');
 dotenv.config();
-
+const multer: any = require('multer');
+const multerS3: any = require('multer-s3');
+const aws: any = require('aws-sdk');
+aws.config.loadFromPath(__dirname + '/../../aws-config.json');
+const s3 = new aws.S3();
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
 const bcrypt: any = require('bcrypt');
-
-import accessTokenRequestValidation from './accessTokenRequest';
+const { disconnectKakao } = require('../../method/oauth');
+const method: any = require('../../method/custom');
+import accessTokenRequestValidation from '../../method/token';
 
 interface UserValidation {
   login(req: CustomRequest, res: Response, next: NextFunction): Promise<any>;
@@ -45,6 +50,7 @@ interface UserValidation {
     res: Response,
     next: NextFunction,
   ): Promise<any>;
+  uploadImage(req: Request, res: Response, next: NextFunction): any;
 }
 
 const userValidation: UserValidation = {
@@ -300,30 +306,55 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, password } = req.body;
+    const { email, social_login } = req.body;
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });
-
-    bcrypt.compare(
-      password,
-      userInfo.password,
-      function (err: any, resp: any): void {
-        if (resp === false) {
-          req.sendData = { message: 'incorrect password' };
-          next();
-        } else if (resp === true) {
-          db['User'].destroy({
-            where: { email: userInfo.email },
-          });
-          req.sendData = { message: 'ok' };
-          next();
-        } else {
-          req.sendData = { message: 'err' };
-          next();
-        }
-      },
-    );
+    if (!userInfo) {
+      req.sendData = { message: 'no exists userInfo' };
+      next();
+      return;
+    }
+    if (social_login === 'kakao') {
+      const kakaoId = await disconnectKakao(userInfo.auth_code);
+      if (kakaoId) {
+        db['User'].destroy({
+          where: { email: userInfo.email },
+        });
+        req.sendData = { message: 'ok' };
+        next();
+      } else {
+        req.sendData = { message: 'err' };
+        next();
+      }
+    } else if (social_login === 'google') {
+      db['User'].destroy({
+        where: { email: userInfo.email },
+      });
+      req.sendData = { message: 'ok' };
+      next();
+    } else if (social_login === 'original') {
+      const { password } = req.body;
+      bcrypt.compare(
+        password,
+        userInfo.password,
+        function (err: any, resp: any): void {
+          if (resp === false) {
+            req.sendData = { message: 'incorrect password' };
+            next();
+          } else if (resp === true) {
+            db['User'].destroy({
+              where: { email: userInfo.email },
+            });
+            req.sendData = { message: 'ok' };
+            next();
+          } else {
+            req.sendData = { message: 'err' };
+            next();
+          }
+        },
+      );
+    }
   },
 
   /*
@@ -361,7 +392,7 @@ const userValidation: UserValidation = {
     if (type === 'signup') {
       title = 'RightNow 회원가입 인증번호 입니다.';
     } else if (type === 'forgetPassword') {
-      title = 'Form Bakery 비밀번호 재설정 인증번호 입니다.';
+      title = 'RightNow 비밀번호 재설정 인증번호 입니다.';
     }
 
     let html: any = `
@@ -566,11 +597,12 @@ const userValidation: UserValidation = {
       return;
     }
     const { email } = req.params;
-    const { filename } = req.file;
+    const { key } = req.file;
+
     db['User']
       .update(
         {
-          profile_image: filename,
+          profile_image: key,
         },
         {
           where: { email },
@@ -578,7 +610,7 @@ const userValidation: UserValidation = {
       )
       .then((result: any) => {
         if (result) {
-          req.sendData = { message: 'ok' };
+          req.sendData = { data: { profile_image: key }, message: 'ok' };
           next();
         } else {
           req.sendData = { message: 'err' };
@@ -622,12 +654,60 @@ const userValidation: UserValidation = {
   },
 
   /*
-  카카오 소셜로그인
+  이미지 s3에 업로드
   */
+  uploadImage(req: Request, res: Response, next: NextFunction): any {
+    const DIR_NAME = __dirname + '/../..';
+    // const storage: any = multer.diskStorage({
+    //   destination: (req: any, file: any, cb: any): void => {
+    //     cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
+    //   },
+    //   filename: (req: any, file: any, cb: any): void => {
+    //     const regex: any = /^[a-z|A-Z|0-9|]+$/;
+    //     let dot =
+    //       file.originalname.split('.')[file.originalname.split('.').length - 1];
+    //     if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
+    //       // return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    //       res
+    //         .status(400)
+    //         .send({ message: 'Only .png, .jpg and .jpeg format allowed' });
+    //       return;
+    //     }
+    //     let name = file.originalname;
+    //     if (!regex.test(name)) {
+    //       name = Math.random().toString(36).substring(0, 8) + '.' + dot;
+    //     }
+    //     cb(null, method.randomString(8, name)); //파일 이름 설정
+    //   },
+    // });
 
-  /*
-  구글 소셜로그인
-  */
+    const storage: any = multerS3({
+      s3: s3,
+      bucket: 'rightnow-image',
+      acl: 'public-read',
+      key: (req: any, file: any, cb: any) => {
+        const regex: any = /^[a-z|A-Z|0-9|]+$/;
+        let dot =
+          file.originalname.split('.')[file.originalname.split('.').length - 1];
+        if (dot !== 'png' && dot !== 'jpg' && dot !== 'jpeg') {
+          res
+            .status(400)
+            .send({ message: 'Only .png, .jpg and .jpeg format allowed.' });
+          return;
+        }
+        let name = file.originalname;
+        if (!regex.test(name)) {
+          name = Math.random().toString(36).substring(0, 8) + '.' + dot;
+        }
+        cb(null, 'user/' + method.randomString(8, name));
+      },
+    });
+    let upload: any = multer({
+      storage,
+      limits: { fileSize: 1000 * 1000 * 10 },
+    });
+    upload.single('file')(req, res, next);
+  },
 };
 
 export default userValidation;

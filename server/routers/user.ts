@@ -1,4 +1,5 @@
 import express, { Request, Response, Router, NextFunction } from 'express';
+import { nextTick } from 'process';
 import userController from '../API/controller/user';
 import userValidation from '../API/validation/user';
 
@@ -6,24 +7,6 @@ const userRouter: Router = express.Router();
 
 const multer: any = require('multer');
 const method: any = require('../method/custom');
-
-const DIR_NAME: any = __dirname
-  .split('/')
-  .slice(0, __dirname.split('/').length - 1)
-  .join('/');
-
-const storage: any = multer.diskStorage({
-  destination: (req: any, file: any, cb: any): void => {
-    cb(null, DIR_NAME + '/image/user/'); // 파일 업로드 경로
-  },
-  filename: (req: any, file: any, cb: any): void => {
-    cb(null, method.randomString(8, file.originalname)); //파일 이름 설정
-  },
-});
-
-const upload: any = multer({
-  storage,
-});
 
 userRouter.post('/login', userValidation.login, userController.login);
 userRouter.post('/logout', userValidation.logout, userController.logout);
@@ -47,13 +30,12 @@ userRouter.patch(
 );
 userRouter.put(
   '/upload/image/:email',
-  upload.single('file'),
+  userValidation.uploadImage,
   userValidation.uploadProfileImage,
   userController.uploadProfileImage,
 );
 userRouter.post(
   '/report',
-  upload.single('file'),
   userValidation.reportUser,
   userController.reportUser,
 );

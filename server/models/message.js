@@ -12,16 +12,19 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'room_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
       models.Message.belongsTo(models.User, {
         foreignKey: 'user_email',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
       models.Message.hasMany(models.Report_message, {
         foreignKey: 'message_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        hooks: true,
       });
     }
   }
@@ -38,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       content: DataTypes.STRING,
       message_type: { type: DataTypes.STRING, defaultValue: 'TEXT' },
       is_update: { type: DataTypes.STRING, defaultValue: 'N' },
-      write_date: { type: DataTypes.DATE, defaultValue: new Date() },
+      write_date: { type: DataTypes.DATE(6), defaultValue: new Date() },
     },
     {
       sequelize,

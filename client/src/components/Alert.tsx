@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { alert, showAlert } from '../reducers/componetSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { deleteAccessToken } from '../reducers/userSlice';
 
 const Alert = () => {
   const dispatch = useAppDispatch();
@@ -20,6 +21,10 @@ const Alert = () => {
       case 'signup':
         setTitle('회원가입');
         setSubTitle('회원가입에 성공 하셨습니다.');
+        break;
+      case 'tempSignup':
+        setTitle('임시 계정 만들기');
+        setSubTitle('임시 계정을 만들었습니다.');
         break;
       case 'logout':
         setTitle('로그아웃');
@@ -43,7 +48,15 @@ const Alert = () => {
         break;
       case 'signout':
         setTitle('계정삭제');
-        setSubTitle('라잇나우 계정을 삭제하였습니다.');
+        setSubTitle('라잇나우 계정을 완전히 삭제하였습니다.');
+        break;
+      case 'invalidRefreshToken':
+        setTitle('토큰만료');
+        setSubTitle('토큰이 만료되었습니다. 다시 로그인 해주세요.');
+        break;
+      case 'temperedToken':
+        setTitle('토큰오류');
+        setSubTitle('토큰과 일치하는 유저가 없습니다. 다시 로그인 해주세요.');
         break;
       case 'signoutWrongPassword':
         setTitle('계정삭제');
@@ -71,22 +84,67 @@ const Alert = () => {
         setTitle('모임검색');
         setSubTitle('매칭 취소는 그룹장만 할 수 있습니다.');
         break;
+      case 'blank':
+        setTitle('텍스트 입력');
+        setSubTitle('공백문자는 사용 할 수 없습니다.');
+        break;
+      case 'requestFriend':
+        setTitle('친구 추가');
+        setSubTitle('성공적으로 친구요청을 보냈습니다.');
+        break;
+      case 'alredyRequest':
+        setTitle('친구 추가');
+        setSubTitle('이미 친구요청을 보냈습니다.');
+        break;
+      case 'noExistUser':
+        setTitle('친구 추가');
+        setSubTitle('이메일이 존재하지 않습니다.');
+        break;
+      case 'alredyFriend':
+        setTitle('친구 추가');
+        setSubTitle('이미 친구목록에 있습니다.');
+        break;
+      case 'friendRequest':
+        setTitle('친구 추가');
+        setSubTitle('이미 상대가 친구요청을 보냈습니다.');
+        break;
+      case 'selfRequest':
+        setTitle('친구 추가');
+        setSubTitle('자기 자신에게는 친구요청을 보낼 수 없습니다.');
+        break;
+      case 'acceptFriend':
+        setTitle('친구 요청');
+        setSubTitle('친구 요청을 수락하였습니다.');
+        break;
+      case 'rejectFriend':
+        setTitle('친구 요청');
+        setSubTitle('친구 요청을 거절하였습니다.');
+        break;
+      case 'deleteFriend':
+        setTitle('친구 목록');
+        setSubTitle('친구를 삭제하였습니다.');
+        break;
     }
   }, [alertType]);
 
   const closeAlert = (): void => {
     dispatch(showAlert(''));
+    // 토큰만료일 경우 확인을 누르면 로그아웃시킴
+    if (alertType === 'invalidRefreshToken') {
+      dispatch(deleteAccessToken());
+    }
   };
+
   return (
     <>
       <div
-        className={`w-full absolute top-0 left-0 white bg-opacity-100 flex justify-center items-start ${
+        className={`w-full absolute top-0 left-0 bg-opacity-100 flex justify-center items-start ${
           alertType ? 'z-20 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         onClick={closeAlert}
       >
         <div
-          className={`w-96 h-32 rounded-md bg-white p-6 relative border-1 shadow-md transition-all ${
+          className={`w-96 h-32 rounded-md bg-white px-6 py-4 relative border-1 shadow-md transition-all ${
             alertType ? 'top-10 opacity-100' : 'top-0 opacity-0'
           }`}
           onClick={(e) => {
@@ -94,10 +152,10 @@ const Alert = () => {
           }}
         >
           <div className="text-lg font-bold">{title}</div>
-          <div className="text-sm mt-4">{subTitle}</div>
-          <div className="mt-8 text-right space-x-2 absolute bottom-6 right-6">
+          <div className="text-sm mt-2 relative top-0">{subTitle}</div>
+          <div className="text-right space-x-2 absolute bottom-4 right-6">
             <button
-              className={`w-20 h-8 rounded-md bg-main text-white text-sm`}
+              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={closeAlert}
             >
               확인

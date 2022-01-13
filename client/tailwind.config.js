@@ -25,7 +25,9 @@ module.exports = {
             30: "120px",
             50: "200px",
             60: "240px",
+            112: "448px",
             120: "480px",
+            135: "540px",
             167.5: "670px",
             192: "768px",
             250: "1000px",
@@ -40,9 +42,15 @@ module.exports = {
             "4xl": "2rem",
         },
         colors: {
-            main: "#FC1681",
-            subMain: "#ffffef",
-            sub: "#1C1C1B"
+            main: "tomato",
+            subMain: "#fc1657",
+            sub: "#1C1C1B",
+            kakao: '#FBE300',
+            kakaoText: '#3B1E1E',
+
+        },
+        minWidth: {
+            5: "20px"
         },
         minHeight: {
             login: "calc(100vh - 72px)",

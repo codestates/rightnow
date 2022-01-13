@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
-axios.defaults.withCredentials = true
+axios.defaults.withCredentials = true;
 
 export default function userApi(
   name: string,
   body?: object,
   callback?: any,
   accessToken?: any,
+  email?: string,
 ) {
   switch (name) {
     // 로그인 요청
@@ -37,8 +38,7 @@ export default function userApi(
           }
         })
         .catch((err) => {
-          console.log(err.response);
-          if (err.response.status === 404) {
+          if (err.response.status === 409) {
             callback(err.response.status, '등록된 이메일 입니다.');
           }
         });
@@ -53,10 +53,9 @@ export default function userApi(
           }
         })
         .catch((err) => {
-          console.log(err.response);
-          // if (err.response.status === 404) {
-          //   callback(err.response.status, '등록된 이메일 입니다.');
-          // }
+          if (err.response.status === 404) {
+            callback(err.response.status, '등록된 이메일 없습니다.');
+          }
         });
       break;
     // 회원정보 불러오기 요청
@@ -70,11 +69,11 @@ export default function userApi(
         })
         .then((res) => {
           if (res.status === 200) {
-            callback(res.status, res.data.data.userInfo);
+            callback(res.status, res.data.data);
           }
         })
         .catch((err) => {
-          console.log(err);
+          callback(err.response.status);
         });
       break;
     // 회원가입 요청
@@ -161,17 +160,37 @@ export default function userApi(
           }
         });
       break;
-    case 'update':
+    case 'logout':
+      axios
+        .post(`http://${endpoint}/user/logout`)
+        .then((res) => {
+          // console.log(res);
+        })
+        .catch((err) => {
+          // console.log(err);
+        });
       break;
-    case 'uploadProfileImage':
+    case 'kakaoLogin':
+      axios
+        .post(`http://${endpoint}/oauth/callback/kakao`, body)
+        .then((res) => {
+          if (res.status === 201) {
+            callback(res.status, res.data.data.accessToken)
+          }
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
       break;
-    case 'emailAuth':
-      break;
-    case 'reportUser':
-      break;
-    case 'reportRoom':
-      break;
-    case 'getUserAll':
+    case 'googleLogin':
+      axios
+        .post(`http://${endpoint}/oauth/callback/google`, body)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
       break;
   }
 }

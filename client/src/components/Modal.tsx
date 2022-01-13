@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { showModal, modal, showAlert } from '../reducers/componetSlice';
+import {
+  showModal,
+  modal,
+  showAlert,
+  updateUrl,
+} from '../reducers/componetSlice';
 import { useNavigate } from 'react-router-dom';
-import { logout, userEmail } from '../reducers/userSlice';
+import { deleteAccessToken, userEmail } from '../reducers/userSlice';
 import { useAppSelector, useAppDispatch } from '../config/hooks';
 import userApi from '../api/userApi';
 
@@ -24,23 +29,17 @@ const Modal = ({ password }: IProps) => {
   let onClickHandler = (): void => {
     if (modalType === 'logout') {
       closeModal();
-      dispatch(logout());
-      router('/auth/login');
-      setTimeout(() => {
-        dispatch(showAlert('logout'));
-      }, 50);
+      dispatch(deleteAccessToken());
     } else if (modalType === 'signout') {
       const body = {
         email: email,
         password: password,
+        social_login: 'original',
       };
       const callback = (code: number) => {
         if (code === 200) {
-          dispatch(logout());
-          router('/');
-          setTimeout(() => {
-            dispatch(showAlert('signout'));
-          }, 50);
+          dispatch(updateUrl('deleteAccount'));
+          dispatch(deleteAccessToken());
         } else if (code === 404) {
           dispatch(showAlert('signoutWrongPassword'));
         }
@@ -86,13 +85,13 @@ const Modal = ({ password }: IProps) => {
           <div className="text-sm mt-4">{subTitle}</div>
           <div className="mt-8 text-right space-x-2 absolute bottom-6 right-6">
             <button
-              className={`w-20 h-8 rounded-md border-1 border-main text-main text-sm`}
+              className={`w-20 h-8 rounded-md border-1 border-main text-main text-sm hover:bg-gray-100`}
               onClick={closeModal}
             >
               취소
             </button>
             <button
-              className={`w-20 h-8 rounded-md bg-main text-white text-sm`}
+              className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={onClickHandler}
             >
               확인

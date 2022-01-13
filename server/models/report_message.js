@@ -13,11 +13,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'message_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
       models.Report_message.belongsTo(models.User, {
         foreignKey: 'reporter',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
+        foreignKeyConstraint: true,
       });
     }
   }
@@ -37,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'Report_message',
       timestamps: false,
-    }
+    },
   );
   return Report_message;
 };

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, response, Response } from 'express';
 import { CustomRequest } from '../../type/type';
 import { Op } from 'sequelize';
 import axios from 'axios';
@@ -13,6 +13,11 @@ interface Participant {
 }
 
 interface ParticipantValidation {
+  checkParticipantAPI(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
   checkParticipant(
     email: string,
     type: string,
@@ -35,6 +40,50 @@ interface ParticipantValidation {
 }
 
 const participantValidation: ParticipantValidation = {
+  async checkParticipantAPI(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    let { email } = req.body;
+    let find = null;
+    try {
+      find = await db.Participant.findOne({
+        include: {
+          model: db.Room,
+          attributes: { include: ['id', 'close_date'] },
+        },
+        where: [
+          { user_email: email },
+          {
+            [`$Room.close_date$`]: {
+              [Op.gt]: new Date(),
+            },
+          },
+        ],
+      });
+    } catch (e) {
+      res.status(400).send({
+        message: 'database err',
+      });
+    }
+    if (find) {
+      req.sendData = {
+        message: 'ok',
+        data: {
+          room_id: find.dataValues.room_id,
+        },
+        code: 200,
+      };
+    } else {
+      req.sendData = {
+        message: 'not exist',
+        data: 'N/A',
+        code: 200,
+      };
+    }
+    next();
+  },
   /*
     데이터 형식
         email : 본인의 이메일 
@@ -94,7 +143,13 @@ const participantValidation: ParticipantValidation = {
     });
     if (participant) return 'user aleady attend this room';
     if (type === 'ALONE') {
-      await db.Participant.create({ user_email: email, room_id, lon, lat });
+      await db.Participant.create({
+        user_email: email,
+        room_id,
+        lon,
+        lat,
+        enter_date: new Date(),
+      });
     } else if (type === 'GROUP') {
       let inserts: Array<Participant> = user_list.map((item: string) => {
         return {
@@ -102,6 +157,7 @@ const participantValidation: ParticipantValidation = {
           room_id,
           lon,
           lat,
+          enter_date: new Date(),
         };
       });
       inserts.push({ user_email: email, room_id, lon, lat });
@@ -113,9 +169,16 @@ const participantValidation: ParticipantValidation = {
           room_id,
           lon: item.lon,
           lat: item.lat,
+          enter_date: new Date(),
         };
       });
-      inserts.push({ user_email: email, room_id, lon, lat });
+      inserts.push({
+        user_email: email,
+        room_id,
+        lon,
+        lat,
+        enter_date: new Date(),
+      });
       await db.Participant.bulkCreate(inserts);
     }
     let room = await db.Room.findOne({ where: { id: room_id } });
@@ -138,7 +201,7 @@ const participantValidation: ParticipantValidation = {
 
     let participants = await db.Participant.findAll({ where: { room_id } });
     if (participants.length === 0) {
-      let room = await db.Participant.destroy(
+      let room = await db.Room.destroy(
         { where: { id: room_id } },
         { transaction },
       );

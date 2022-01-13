@@ -1,7 +1,7 @@
 module.exports = {
   dateToString(date: any, format: string = '', needTime: boolean = false) {
-    let dd: any = date.getDate();
-    let mm: any = date.getMonth() + 1; //January is 0!
+    let dd: string | number = date.getDate();
+    let mm: string | number = date.getMonth() + 1; //January is 0!
 
     let yyyy: any = date.getFullYear();
     if (dd < 10) {
@@ -15,8 +15,8 @@ module.exports = {
     mm = mm.toString();
     dd = dd.toString();
 
-    let m: any = date.getHours();
-    let s: any = date.getMinutes();
+    let m: string | number = date.getHours();
+    let s: string | number = date.getMinutes();
 
     if (m < 10) {
       m = '0' + m;
@@ -27,8 +27,8 @@ module.exports = {
     m = m.toString();
     s = s.toString();
 
-    let s1: any = yyyy + format + mm + format + dd;
-    let s2: any = yyyy + format + mm + format + dd + ' ' + m + ':' + s;
+    let s1: string = yyyy + format + mm + format + dd;
+    let s2: string = yyyy + format + mm + format + dd + ' ' + m + ':' + s;
     return needTime ? s2 : s1;
   },
   randomString(num: any, origin: any) {

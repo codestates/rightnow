@@ -8,12 +8,12 @@ module.exports = {
   sendEmail(
     req: any,
     res: any,
-    from: any,
-    to: any,
-    subject: any,
+    from: string,
+    to: string,
+    subject: string,
     content: any,
     isHtml: boolean = false,
-    number: any = 'null',
+    number: number,
   ): void {
     const mailOpt: any = {
       from,

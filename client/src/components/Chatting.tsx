@@ -1,21 +1,34 @@
-import React, { ChangeEventHandler, MouseEventHandler, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
-import { useAppSelector } from '../config/hooks';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
+import { MessageType } from '../type';
+import Map from './Map';
+import MemberList from './MemberList';
 
-const ChattingContainer = styled.div``;
+const ChattingContainer = styled.div`
+  height: 100%;
+  overflow-y: hidden;
+`;
 
 const Chatting = styled.div`
   width: 100%;
-  height: 32rem;
+  height: 100%;
   background-color: white;
   border-radius: 0.3rem;
   overflow-y: scroll;
   overflow-x: hidden;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   padding-top: 0.3rem;
 
   &::-webkit-scrollbar {
@@ -33,7 +46,7 @@ const Chatting = styled.div`
 `;
 
 const Container = styled.div`
-  height: 80%;
+  height: 100%;
 
   @media screen and (max-width: 1200px) {
     & {
@@ -136,7 +149,7 @@ const Content = styled.div`
 
 const MenuContainer = styled.div`
   background: white;
-  height: 45.2rem;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -191,20 +204,22 @@ const WarningMessage = styled.div`
   align-items: center;
 `;
 
+const ChattingForm = styled.form`
+  margin-top: 1rem;
+`;
+
+const AlwaysScrollToBottom = styled.span`
+  height: 0rem;
+  width: 0rem;
+`;
+
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
   talkContents: MessageType[];
   handleQuit: MouseEventHandler<HTMLButtonElement>;
-}
-
-interface MessageType {
-  id: number;
-  user: { email: string; nick_name: string; profile_image: string }; // fix - profile_img -> profile_image
-  content: string;
-  isUpdate: string;
-  writeDate: string;
-  isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
+  handleInsertMessage: any;
+  updateMessage: any;
 }
 
 const ChattingRoom = ({
@@ -212,12 +227,36 @@ const ChattingRoom = ({
   text,
   handleText,
   handleQuit,
+  handleInsertMessage,
+  updateMessage,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
   const [isShow, setIsShow] = useState<boolean>(false);
   const [reportNick, setReportNick] = useState<string>('');
   const [reportMessage, setReportMessage] = useState<number>(-1);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const [editMode, setEditMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [talkContents]);
+
+  const scrollToBottom = () => {
+    if (editMode) {
+      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      scrollRef.current?.scrollIntoView();
+    }
+  };
+
+  const handleMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleInsertMessage();
+    setEditMode(true);
+  };
 
   const handleMenu = (e: any) => {
     setMenu(e.target.value);
@@ -284,6 +323,14 @@ const ChattingRoom = ({
           <NavItem htmlFor="map" back="yellow">
             모임위치
           </NavItem>
+          <Radio
+            type="radio"
+            onClick={handleMenu}
+            value="member"
+            id="member"
+            name="menu"
+            defaultChecked={menu === 'member'}
+          />
           <NavItem htmlFor="member" back="yellow">
             대화 상대
           </NavItem>
@@ -310,23 +357,32 @@ const ChattingRoom = ({
                     key={idx}
                     messageData={messageData}
                     handleModal={handleModal}
+                    updateMessage={updateMessage}
                   ></Message>
                 ))
               ) : (
                 <div>아직 메시지가 없습니다. 대회를 시작해보세요!</div>
               )}
+              <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
           </ChattingContainer>
-          <ChattingInput
-            className="drop-shadow focus:drop-shadow-lg"
-            onChange={handleText}
-            value={text}
-            placeholder="메세지 보내기"
-          />
+          <ChattingForm onSubmit={handleMessage}>
+            <ChattingInput
+              className="drop-shadow focus:drop-shadow-lg"
+              onChange={handleText}
+              value={text}
+              placeholder="메세지 보내기"
+              autoFocus
+            />
+          </ChattingForm>
         </>
       ) : menu === 'map' ? (
         <MenuContainer className="drop-shadow">
-          모임 위치(지도 표시)
+          <Map />
+        </MenuContainer>
+      ) : menu === 'member' ? (
+        <MenuContainer className="drop-shadow">
+          <MemberList />
         </MenuContainer>
       ) : (
         <MenuContainer className="drop-shadow">

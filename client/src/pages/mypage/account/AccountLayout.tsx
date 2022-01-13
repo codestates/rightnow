@@ -4,6 +4,8 @@ import ChangePassword from './ChangePassword';
 import DeleteAccount from './DeleteAccount';
 import Profile from './Profile';
 import LeftPannel from '../../../components/layout/LeftPannel';
+import { useAppSelector } from '../../../config/hooks';
+import { userRole } from '../../../reducers/userSlice';
 
 interface IOption {
   id: string;
@@ -11,6 +13,8 @@ interface IOption {
 }
 
 const AccountLayout = () => {
+  const role = useAppSelector(userRole);
+
   const options: IOption[] = [
     {
       id: 'profile',
@@ -23,12 +27,18 @@ const AccountLayout = () => {
   return (
     <>
       <LeftPannel options={options} type={'account'} />
-      <div className="w-5/6 text-left pl-4">
-        <Switch>
-          <Route path="/Profile" element={<Profile />} />
-          <Route path="/changePassword" element={<ChangePassword />} />
-          <Route path="/deleteAccount" element={<DeleteAccount />} />
-        </Switch>
+      <div className="w-5/6 text-left pl-4 pb-6">
+        {role === 'TEMP' ? (
+          <div className="mt-2 font-semibold text-sub">
+            회원가입을 통해 만든 계정으로 이용 할 수 있습니다.
+          </div>
+        ) : (
+          <Switch>
+            <Route path="/Profile" element={<Profile />} />
+            <Route path="/changePassword" element={<ChangePassword />} />
+            <Route path="/deleteAccount" element={<DeleteAccount />} />
+          </Switch>
+        )}
       </div>
     </>
   );

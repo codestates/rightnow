@@ -5,3 +5,5 @@ localhost*
 *package-lock.json
 *.pem
 image
+seeders
+*aws-config.json

@@ -8,7 +8,6 @@ interface FriendController {
   reqFriend(req: CustomRequest, res: Response): Promise<void>;
   resFriend(req: CustomRequest, res: Response): Promise<void>;
   deleteFriend(req: CustomRequest, res: Response): Promise<void>;
-  searchFriend(req: CustomRequest, res: Response): Promise<void>;
   requestList(req: CustomRequest, res: Response): Promise<void>;
   friendList(req: CustomRequest, res: Response): Promise<void>;
 }
@@ -21,13 +20,15 @@ const friendController: FriendController = {
     if (req.sendData.message === 'ok') {
       res.status(200).send({ message: 'ok' });
     } else if (req.sendData.message === 'already exists friend List') {
-      res.status(200).send({ message: 'you already exists friend List' });
+      res.status(409).send({ message: 'you already exists friend List' });
     } else if (req.sendData.message === 'you already request friend') {
-      res.status(200).send({ message: 'you already request friend' });
+      res.status(400).send({ message: 'you already request friend' });
     } else if (req.sendData.message === 'you already recieved friend request') {
-      res.status(200).send({ message: 'you already recieved friend request' });
+      res.status(409).send({ message: 'you already recieved friend request' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
+    } else if (req.sendData.message === 'dont have to request yourself') {
+      res.status(409).send({ message: 'dont have to request yourself' });
     }
   },
 
@@ -40,11 +41,11 @@ const friendController: FriendController = {
     } else if (req.sendData.message === 'ok, rejected') {
       res.status(200).send({ message: 'ok, rejected' });
     } else if (req.sendData.message === 'already exists friend List') {
-      res.status(200).send({ message: 'already exists friend List' });
+      res.status(409).send({ message: 'already exists friend List' });
     } else if (req.sendData.message === 'no exists request') {
-      res.status(200).send({ message: 'no exists request' });
+      res.status(404).send({ message: 'no exists request' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
     }
   },
 
@@ -55,27 +56,9 @@ const friendController: FriendController = {
     if (req.sendData.message === 'ok') {
       res.status(200).send({ message: 'ok' });
     } else if (req.sendData.message === 'no exists user') {
-      res.status(200).send({ message: 'no exists user' });
+      res.status(404).send({ message: 'no exists user' });
     } else if (req.sendData.message === 'not friend') {
-      res.status(200).send({ message: 'not friend' });
-    }
-  },
-
-  /*
-  친구 검색
-  */
-  async searchFriend(req: CustomRequest, res: Response): Promise<void> {
-    if (req.sendData.message === 'ok') {
-      res.status(200).send({
-        data: {
-          userInfo: req.sendData.data.userInfo,
-        },
-        message: 'ok',
-      });
-    } else if (req.sendData.message === 'no exists email') {
-      res.status(404).send({ message: 'no exists email' });
-    } else {
-      res.status(500).send({ message: 'err' });
+      res.status(404).send({ message: 'not friend' });
     }
   },
 
@@ -86,7 +69,7 @@ const friendController: FriendController = {
     if (req.sendData.message === 'ok') {
       res.status(200).send({
         data: {
-          RequestFriend: req.sendData.data.RequestFriend,
+          RequestFriendList: req.sendData.data.RequestFriendList,
         },
         message: 'ok',
       });

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../../type/type';
+import { Op } from 'sequelize';
 
 const dotenv: any = require('dotenv');
 dotenv.config();
@@ -20,11 +21,6 @@ interface FriendValidation {
     next: NextFunction,
   ): Promise<any>;
   deleteFriend(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any>;
-  searchFriend(
     req: CustomRequest,
     res: Response,
     next: NextFunction,
@@ -51,6 +47,11 @@ const friendValidation: FriendValidation = {
     next: NextFunction,
   ): Promise<any> {
     const { req_user, res_user } = req.body;
+    if (req_user === res_user) {
+      req.sendData = { message: 'dont have to request yourself' };
+      next();
+      return;
+    }
     const reqFriend: any = await db['Friend'].findOne({
       where: { req_user, res_user },
     });
@@ -182,32 +183,6 @@ const friendValidation: FriendValidation = {
   },
 
   /*
-  친구 검색
-  */
-  async searchFriend(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any> {
-    const { email } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-    delete userInfo.dataValues.password;
-    if (userInfo) {
-      req.sendData = {
-        data: { userInfo: userInfo },
-        message: 'ok',
-      };
-    } else {
-      req.sendData = {
-        message: 'no exists email',
-      };
-    }
-    next();
-  },
-
-  /*
   요청이 온  친구 신청 목록 보기 
   */
   async requestList(
@@ -215,7 +190,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.body;
+    const { email } = req.params;
     const userInfo: any = await db['User'].findOne({
       where: { email: email },
     });
@@ -230,7 +205,18 @@ const friendValidation: FriendValidation = {
     RequestFriend = RequestFriend.filter((el: any) => {
       return el.dataValues.is_accept === 'N';
     });
-    req.sendData = { data: { RequestFriend: RequestFriend }, message: 'ok' };
+    RequestFriend = RequestFriend.map((el: any) => {
+      return el.req_user;
+    });
+    const RequestFriendList = await db['User'].findAll({
+      where: { email: { [Op.in]: RequestFriend } },
+      attributes: { exclude: ['password'] },
+      order: [['nick_name', 'ASC']],
+    });
+    req.sendData = {
+      data: { RequestFriendList: RequestFriendList },
+      message: 'ok',
+    };
     next();
   },
 
@@ -242,7 +228,7 @@ const friendValidation: FriendValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email } = req.body;
+    const { email } = req.params;
     const userInfo: any = await db['User'].findOne({
       where: { email },
     });
@@ -251,10 +237,10 @@ const friendValidation: FriendValidation = {
       next();
       return;
     }
-    let FriendList1: any = await db['Friend'].findAll({
+    let FriendList1: string[] = await db['Friend'].findAll({
       where: { req_user: email },
     });
-    let FriendList2: any = await db['Friend'].findAll({
+    let FriendList2: string[] = await db['Friend'].findAll({
       where: { res_user: email },
     });
     FriendList1 = FriendList1.filter((el: any) => {
@@ -263,7 +249,18 @@ const friendValidation: FriendValidation = {
     FriendList2 = FriendList2.filter((el: any) => {
       return el.dataValues.is_accept === 'Y';
     });
-    const FriendList: any = [...FriendList1, ...FriendList2];
+    FriendList1 = FriendList1.map((el: any) => {
+      return el.res_user;
+    });
+    FriendList2 = FriendList2.map((el: any) => {
+      return el.req_user;
+    });
+    const FriendList3: string[] = [...FriendList1, ...FriendList2];
+    const FriendList = await db['User'].findAll({
+      where: { email: { [Op.in]: FriendList3 } },
+      attributes: { exclude: ['password'] },
+      order: [['nick_name', 'ASC']],
+    });
     req.sendData = { data: { FriendList: FriendList }, message: 'ok' };
     next();
   },

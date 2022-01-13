@@ -67,7 +67,7 @@ const categoryValidation: CategoryValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const categoryList: any = await db['Category'].findAll();
+    const categoryList: string[] = await db['Category'].findAll();
     req.sendData = {
       data: {
         categoryList: categoryList,

@@ -1,14 +1,20 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import { useAppSelector, useAppDispatch } from '../../../config/hooks';
-import { updateNickname, userAccessToken, userEmail, userNickname } from '../../../reducers/userSlice';
-import profile from '../../../images/profile.png';
+import {
+  updateNickname,
+  updateProfile,
+  userAccessToken,
+  userEmail,
+  userNickname,
+  userProfile,
+} from '../../../reducers/userSlice';
+import defaultProfile from '../../../images/profile.png';
 import axios from 'axios';
 import { IconButton } from '@material-ui/core';
 import userApi from '../../../api/userApi';
 import { showAlert } from '../../../reducers/componetSlice';
-import Alert from '../../../components/Alert';
 
 interface IShowDropDown {
   userInfo: boolean;
@@ -16,10 +22,15 @@ interface IShowDropDown {
 }
 
 const Proflie = () => {
+  const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
+
   const dispatch = useAppDispatch();
+
+  // 유저 프로파일 이미지
+  const profile = useAppSelector(userProfile);
   // 드롭다운 보임 유무
   const [showDropDown, setShowDropDown] = useState<IShowDropDown>({
-    userInfo: true,
+    userInfo: false,
     image: false,
   });
 
@@ -44,20 +55,22 @@ const Proflie = () => {
   };
 
   // 회원정보 관련
-  const [nickname, setNickname] = useState<string>(
-    useAppSelector(userNickname),
-  );
+  const curNickname = useAppSelector(userNickname);
+  const [nickname, setNickname] = useState<string>(curNickname);
 
   // 회원정보 수정
   const changeNickname = (e: ChangeEvent<HTMLInputElement>) => {
-    setNickname(e.target.value);
+    if (e.target.value.indexOf(' ') !== -1) {
+      dispatch(showAlert('blank'));
+    }
+    setNickname(e.target.value.replace(/ /g, ''));
   };
 
   // 저장버튼 활성화 유무
-  const [isDisable, setIsDisable] = useState<boolean>(false);
+  const [isDisable, setIsDisable] = useState<boolean>(true);
 
   useEffect(() => {
-    if (nickname === '') {
+    if (nickname === '' || nickname === curNickname) {
       setIsDisable(true);
     } else {
       setIsDisable(false);
@@ -71,16 +84,20 @@ const Proflie = () => {
     if (e.target.files) {
       const uploadFile = e.target.files[0];
       const formData = new FormData();
-      formData.append('files', uploadFile);
+      formData.append('file', uploadFile);
 
-      await axios({
-        method: 'put',
-        url: '/api/files/images',
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      axios
+        .put(`http://localhost/user/upload/image/${email}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((res) => {
+          dispatch(updateProfile(res.data.data.profile_image));
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
     }
   };
 
@@ -89,16 +106,24 @@ const Proflie = () => {
     const body = {
       email: email,
       nick_name: nickname,
-    }
+    };
     const callback = (code: number, data: string) => {
       if (code === 200) {
-        dispatch(updateNickname(data))
-        dispatch(showAlert('updateUserInfo'))
+        dispatch(updateNickname(data));
+        dispatch(showAlert('updateUserInfo'));
+        setIsDisable(true);
       } else {
-        console.log(data)
+        console.log(data);
       }
+    };
+    userApi('updateUserInfo', body, callback, accessToken);
+  };
+
+  // 이메일에서 엔터를 누를 경우 비밀번호로 이동
+  const pressEnter = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.code === 'Enter' && !isDisable) {
+      requestModifyUserInfo();
     }
-    userApi('updateUserInfo', body, callback, accessToken)
   };
 
   return (
@@ -148,9 +173,7 @@ const Proflie = () => {
             <p className="text-gray-600 text-sm text-left font-semibold">
               이메일
             </p>
-            <p className="text-gray-600 text-sm text-left">
-              {email}
-            </p>
+            <p className="text-gray-600 text-sm text-left">{email}</p>
           </div>
           <div className="space-y-1">
             <p className="text-gray-600 text-sm text-left font-semibold">
@@ -160,10 +183,14 @@ const Proflie = () => {
               id="nickname"
               className="border-2 border-slate-200 block w-full h-10 rounded-md pl-2 outline-main text-sm"
               type={'text'}
-              placeholder="변경할 닉네임을 입력해주세요"
+              placeholder="변경할 닉네임을 8글자 이내로 입력해주세요"
+              maxLength={8}
               value={nickname}
               onChange={(e) => {
                 changeNickname(e);
+              }}
+              onKeyDown={(e) => {
+                pressEnter(e);
               }}
             />
           </div>
@@ -172,7 +199,7 @@ const Proflie = () => {
               className={`w-36 h-10 rounded-md   text-sm font-semibold ${
                 isDisable
                   ? 'bg-slate-100 text-slate-300 border-0'
-                  : 'border-slate-500 text-slate-500 border-2'
+                  : 'border-slate-500 text-slate-500 border-2 hover:bg-gray-100'
               }`}
               disabled={isDisable}
               onClick={requestModifyUserInfo}
@@ -222,15 +249,19 @@ const Proflie = () => {
               : 'p-0 h-0 opacity-0 border-0'
           }`}
         >
-          <div className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden">
-            <img
-              src={profile}
-              alt="userProfile"
-              width={224}
-              height={224}
-              className="rounded-full"
-            />
-          </div>
+          <div
+            className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden"
+            style={{
+              backgroundImage: `url(${
+                profile === null
+                  ? defaultProfile
+                  : profile.indexOf('kakaocdn') === -1
+                  ? imageEndpoint + profile
+                  : profile
+              })`,
+              backgroundSize: 'cover',
+            }}
+          />
           <form className="text-right mt-5">
             <button
               className={`w-36 h-10 rounded-md border-2 border-slate-500 text-slate-500 text-sm font-semibold relative`}
@@ -248,7 +279,6 @@ const Proflie = () => {
           </form>
         </div>
       </div>
-      <Alert/>
     </>
   );
 };

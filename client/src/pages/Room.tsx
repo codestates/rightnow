@@ -5,9 +5,12 @@ import { categoryAPI } from '../api/categoryApi';
 import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
-import { userEmail } from '../reducers/userSlice';
+import MemberList from '../components/MemberList';
+import { userEmail, userIsLogin } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { setTimeout } from 'timers';
+import { MessageType, CategoryType, UserType } from '../type';
+import { setParticipant } from '../reducers/roomSlice';
+import LoginConfirm from '../components/LoginConfirm';
 
 function dateToString(
   date: Date,
@@ -51,12 +54,13 @@ const MemberContainer = styled.div`
   padding: 1rem 1.3rem;
   border-radius: 0.5rem;
   width: 30%;
-  height: 38.3rem;
+  height: 100%;
 `;
 
 const ChatBox = styled.div`
   width: 70%;
   margin-right: 1rem;
+  height: 100%;
 `;
 
 const Container = styled.div`
@@ -79,7 +83,7 @@ const Container = styled.div`
 const ChatContainer = styled.div`
   width: 60%;
   background: ${(props) => props.theme.color.sub.white};
-  height: 48rem;
+  height: 95%;
   padding: 2rem;
   box-shadow: 10px 10px 0 0 rgb(0, 0, 0, 0.4);
   @media screen and (max-width: 1200px) {
@@ -112,11 +116,12 @@ const RoomDetail = styled.div`
 
 const ContentContainer = styled.div`
   display: flex;
+  height: 90%;
 `;
 
 const GroupTitle = styled.div`
   font-size: 1.5rem;
-  background: ${(props) => props.theme.color.main};
+  background: ${(props) => props.theme.color.sub.title};
   color: black;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.3rem;
@@ -126,121 +131,43 @@ const GroupTitle = styled.div`
   line-height: 2rem;
 `;
 
-const ProfileMenu = styled.div`
-  margin-left: auto;
-`;
-
-const ProfileName = styled.div`
-  font-size: 1.1rem;
-`;
-
 const SubTitle = styled.div`
   font-size: 1.3rem;
   font-weight: 600;
-`;
-
-const ImageContainer = styled.div``;
-
-const ProfileImg = styled.div<{ url: string }>`
-  width: 3rem;
-  height: 3rem;
-  background-color: red;
-  background-size: auto 100%;
-  background-position: center;
-  background-image: url(${(props) => props.url});
-  border-radius: 1.5rem;
-  margin-right: 1rem;
-`;
-
-const MemberList = styled.div`
-  overflow-y: scroll;
-  overflow-x: hidden;
-  height: 95%;
-  margin-top: 0.6rem;
-
-  &::-webkit-scrollbar {
-    width: 0.5rem;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-track {
-    padding: 1rem;
-  }
-`;
-
-const Member = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.3rem;
-  transition: background 0.2s ease-in;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
 `;
 
 const ChatContent = styled(Chatting)`
   width: 100%;
 `;
 let socket: any = null;
-interface User {
-  email: string;
-  nick_name: string;
-  profile_image: string;
-  enterDate: string;
-  role: string;
-}
-
-interface MessageType {
-  id: number;
-  user: {
-    email: string;
-    nick_name: string;
-    profile_image: string; // fix - profile_img -> profile_image
-  };
-  content: string;
-  isUpdate: string;
-  writeDate: string;
-  isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
-}
 
 interface StateType {
   room_id: string;
 }
 
-interface CategoryType {
-  id: number;
-  name: string;
-  user_num: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 const Room = () => {
+  const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
+  const isLogin = useAppSelector(userIsLogin);
   const state = location.state as StateType;
-  const { room_id } = state;
+  let room_id = state.room_id;
+
   const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
-  const [memberList, setMemberList] = useState<User[]>([]);
+  const [memberList, setMemberList] = useState<UserType[]>([]);
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
-  const [attendMembers, setAttendMembers] = useState<User[]>([]);
-  const navigate = useNavigate();
+  const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
+
   useEffect(() => {
     const roomData = async () => {
       const {
         data: {
           data: { Messages, Participants, category_id, location },
         },
-      } = await roomAPI.getRoomInfo(room_id);
+      } = await roomAPI.getRoomInfo(room_id, email);
       setTalkContents(Messages);
       setRoomLocation(location);
 
@@ -248,6 +175,7 @@ const Room = () => {
         return member.User;
       });
       setMemberList(members);
+      dispatch(setParticipant(Participants));
 
       const {
         data: {
@@ -260,8 +188,10 @@ const Room = () => {
         }
       });
     };
-    roomData();
-  }, [room_id]);
+    if (room_id) {
+      roomData();
+    }
+  }, []);
 
   useEffect(() => {
     const io = require('socket.io-client');
@@ -285,47 +215,55 @@ const Room = () => {
       setAttendMembers(data.users);
       let message: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 들어온 인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, message]);
-      console.log(talkContents);
+      setMemberList((users: Array<UserType>) => {
+        let find = users.find(
+          (item: UserType) => item.email === data.user.email,
+        );
+        users = find ? users : [...users, data.user];
+        return users;
+      });
     });
     socket.on('msg_insert', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: false,
       };
       //전달받은 메세지 추가
       setTalkContents((item: Array<MessageType>) => [...item, getMessage]);
+      console.log(talkContents);
     });
     socket.on('msg_update', (data: any) => {
       let { email, nick_name, profile_image } = data.sender;
       let getMessage = {
         id: data.message_id,
-        user: {
+        User: {
           email,
           nick_name,
           profile_image,
         },
         content: data.message,
-        isUpdate: 'Y',
-        writeDate: data.writeDate,
+        is_update: 'Y',
+        write_date: data.writeDate,
         isAlarm: false,
       };
+
       //전달받은 메세지 변경
       setTalkContents((item: Array<MessageType>): any => {
         return item.map((message: MessageType) => {
@@ -337,10 +275,10 @@ const Room = () => {
       let { users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -352,10 +290,10 @@ const Room = () => {
       let { email, users, message } = data;
       let inputMessage: MessageType = {
         id: -1,
-        user: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
+        User: { email: 'ADMIN', nick_name: 'ADMIN', profile_image: 'ADMIN' },
         content: message,
-        isUpdate: 'N',
-        writeDate: dateToString(new Date(), '-', true),
+        is_update: 'N',
+        write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
       };
       // 나간인원 알림
@@ -363,12 +301,17 @@ const Room = () => {
       // 참가중인 멤버 업데이트
       setAttendMembers(users);
       // 멤버 목록에서 나간 유저 제외
-      setMemberList((item: Array<User>) => {
-        return item.filter((user: User) => user.email !== email);
+      setMemberList((item: Array<UserType>) => {
+        return item.filter((user: UserType) => user.email !== email);
       });
     });
-
+    socket.on('out', (data: any) => {
+      navigate('/');
+    });
     socket.emit('join_room', { room_id, email });
+    return () => {
+      socket.close();
+    };
   }, []);
   /**
    * 채팅 입력창 메시지 상태 관리
@@ -389,68 +332,60 @@ const Room = () => {
   /**
    * 모임 나가기
    */
-  const handleQuit = () => {
-    socket.emit('leave_meeting', { room_id, email });
-    navigate('/search'); // 모임 검색 페이지로 이동
+  const handleQuit = async () => {
+    await socket.emit('leave_meeting', { room_id, email });
+    //navigate('/search'); // 모임 검색 페이지로 이동
   };
 
-  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임
+  // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
   const handleInsertMessage = () => {
+    console.log('보내기');
     if (!text || text === '') {
       return;
     }
     socket.emit('msg_insert', { email, room_id, content: text });
+    setText('');
   };
 
-  //todo message update 이벤트 추가
-  const updateMessage = () => {
+  //todo message update 이벤트 추가 - 수정 후 엔터
+  const updateMessage = (content: string, message_id: number) => {
     socket.emit('msg_update', {
-      /* 
       room_id,
       email,
       content,
-      message_id*/
+      message_id,
     });
   };
   return (
     <>
       <Header />
-      <Container>
-        <ChatContainer>
-          <RoomDetail>
-            <GroupTitle>{roomTitle()}</GroupTitle>
-          </RoomDetail>
-          <ContentContainer>
-            <ChatBox>
-              <ChatContent
-                talkContents={talkContents}
-                text={text}
-                handleText={handleText}
-                handleQuit={handleQuit}
-              />
-            </ChatBox>
-            <MemberContainer className="drop-shadow">
-              <SubTitle>대화 상대</SubTitle>
-              <MemberList>
-                {memberList && memberList.length > 0 ? (
-                  memberList.map((member: User) => {
-                    return (
-                      <Member key={member.email}>
-                        <ImageContainer>
-                          <ProfileImg url={member.profile_image} />
-                        </ImageContainer>
-                        <ProfileName>{member.nick_name}</ProfileName>
-                      </Member>
-                    );
-                  })
-                ) : (
-                  <div>대화 상대가 없습니다.</div>
-                )}
-              </MemberList>
-            </MemberContainer>
-          </ContentContainer>
-        </ChatContainer>
-      </Container>
+      {isLogin ? (
+        <Container>
+          <ChatContainer>
+            <RoomDetail>
+              <GroupTitle>{roomTitle()}</GroupTitle>
+            </RoomDetail>
+            <ContentContainer>
+              <ChatBox>
+                <ChatContent
+                  talkContents={talkContents}
+                  text={text}
+                  handleText={handleText}
+                  handleQuit={handleQuit}
+                  handleInsertMessage={handleInsertMessage}
+                  updateMessage={updateMessage}
+                />
+              </ChatBox>
+              <MemberContainer className="drop-shadow">
+                <SubTitle>대화 상대</SubTitle>
+                <MemberList roomMember={memberList} />
+              </MemberContainer>
+            </ContentContainer>
+          </ChatContainer>
+        </Container>
+      ) : (
+        <LoginConfirm />
+      )}
     </>
   );
 };
