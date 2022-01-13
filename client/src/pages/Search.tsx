@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { categoryAPI } from '../api/categoryApi';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { userEmail, userRole } from '../reducers/userSlice';
+import { userEmail, userIsLogin, userRole } from '../reducers/userSlice';
 import ModalTemp from '../components/ModalTemp';
 import MatchingModal from '../components/MatchingModal';
+import defaultImg from '../images/profile.png';
 import {
   roomLat,
   roomLocation,
@@ -23,9 +24,9 @@ import Loading from '../components/Loading';
 import { useNavigate } from 'react-router';
 import { showAlert } from '../reducers/componetSlice';
 import Header from '../components/layout/Header';
-import Alert from '../components/Alert';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
+import LoginConfirm from '../components/LoginConfirm';
 
 const Container = styled.div`
   display: flex;
@@ -295,6 +296,7 @@ const Search = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
+  const isLogin = useAppSelector(userIsLogin);
   const role = useAppSelector(userRole); // 사용자 상태 (회원 / 비회원)
 
   const [modalMessage, setModalMessage] = useState<string>(''); // 상태 메시지 모달 상태
@@ -326,7 +328,6 @@ const Search = () => {
           data: { FriendList },
         },
       } = await friendAPI.list(email);
-      console.log(FriendList);
       setFriendList(FriendList);
     };
     friendsData();
@@ -386,7 +387,6 @@ const Search = () => {
     });
     socket.on('reject_match', (res: any) => {
       if (res.message === 'invalid access') {
-        console.log(res);
       }
       if (res.message === 'another client request') {
         // 매칭 중 다른 탭 또는 다른 클라이언트에서 본인 아이디로 매칭을 한 경우 - 메인화면으로 이동 or 로그아웃
@@ -487,7 +487,6 @@ const Search = () => {
     socket.on('searching_friend', (res: any) => {
       //검색중인 친구 목록
       let { leave_friends } = res;
-      console.log(leave_friends);
       setVisibleFriend([...leave_friends]);
     });
     // 필터링
@@ -633,6 +632,7 @@ const Search = () => {
     <>
       <Header />
       <Container>
+        {isLogin ? null : <LoginConfirm />}
         {modalMessage.length > 0 ? <Modal>{modalMessage}</Modal> : <></>}
         {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
         {isSearching ? (
@@ -682,7 +682,18 @@ const Search = () => {
                           checked={selectedFriend.includes(friend.email)}
                         >
                           <FriendImg>
-                            <Image src={friend.profile_img} />
+                            <Image
+                              src={
+                                // image 정상 추가
+                                friend.profile_image
+                                  ? friend.profile_image.indexOf('kakaocdn') ===
+                                    -1
+                                    ? process.env.REACT_APP_IMAGE_ENDPOINT +
+                                      friend.profile_image
+                                    : friend.profile_image
+                                  : defaultImg
+                              }
+                            />
                           </FriendImg>
                           <FriendNick>{friend.nick_name}</FriendNick>
                         </Friend>
@@ -704,7 +715,6 @@ const Search = () => {
           </OptionContainer>
         </SearchContainer>
       </Container>
-      <Alert />
     </>
   );
 };

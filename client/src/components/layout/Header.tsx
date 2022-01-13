@@ -2,13 +2,21 @@ import React, { useState } from 'react';
 import Logo from '../Logo';
 import Modal from '../Modal';
 import { useAppSelector, useAppDispatch } from '../../config/hooks';
-import { userIsLogin, userNickname, logout } from '../../reducers/userSlice';
+import {
+  userIsLogin,
+  userNickname,
+  userProfile,
+} from '../../reducers/userSlice';
 import { Link } from 'react-router-dom';
 import { showModal } from '../../reducers/componetSlice';
-import profile from '../../images/profile.png';
+import defaultProfile from '../../images/profile.png';
 
 const Header = () => {
+  const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
+
   const dispatch = useAppDispatch();
+  // 유저의 사진
+  const profile = useAppSelector(userProfile);
   // 로그인 유무
   const isLogin = useAppSelector(userIsLogin);
   // 닉네임
@@ -28,14 +36,14 @@ const Header = () => {
   return (
     <>
       <header
-        className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-20"
+        className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-20 top-0"
         onClick={() => {
           if (isVisible) {
             toggleModal();
           }
         }}
       >
-        <Link to={isLogin ? '/room' : '/'} className="flex items-center">
+        <Link to={isLogin ? '/search' : '/'} className="flex items-center">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Logo />
             <p className=" text-sub font-bold text-4xl whitespace-nowrap w-auto ">
@@ -73,12 +81,18 @@ const Header = () => {
                 toggleModal();
               }}
             >
-              <img
-                src={profile}
-                alt="user profile"
-                width={40}
-                height={40}
-                className="rounded-full"
+              <div
+                className={'h-10 w-10 rounded-full'}
+                style={{
+                  backgroundImage: `url(${
+                    profile === null
+                      ? defaultProfile
+                      : profile.indexOf('kakaocdn') === -1
+                      ? imageEndpoint + profile
+                      : profile
+                  })`,
+                  backgroundSize: 'cover',
+                }}
               />
             </div>
           )}

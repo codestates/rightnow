@@ -17,11 +17,17 @@ import {
   logout,
   updateAccessToken,
   deleteAccessToken,
+  userEmail,
 } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
 import Search from './pages/Search';
-import { showAlert, updateUrl, url } from './reducers/componetSlice';
+import {
+  componetSlice,
+  showAlert,
+  updateUrl,
+  url,
+} from './reducers/componetSlice';
 import Alert from './components/Alert';
 import Load from './pages/Load';
 
@@ -37,6 +43,8 @@ function Routes() {
   const accessToken = useAppSelector(userAccessToken);
   const isLogin = useAppSelector(userIsLogin);
   const prevPage = useAppSelector(url);
+  const email = useAppSelector(userEmail);
+
   useEffect(() => {
     if (accessToken) {
       const callback = (code: number, data: IData) => {
@@ -55,12 +63,40 @@ function Routes() {
     }
   }, [location]);
 
+  useEffect(() => {
+    if (location.search) {
+      const kakaoAuthCode = location.search.split('code=')[1];
+      // const googleAuthCode = location.search.split('code=')[1];
+      // const googleAuthCode = location.search.split('code=')[1].split('&')[0];
+      if (kakaoAuthCode) {
+        const body = {
+          code: kakaoAuthCode,
+        };
+
+        const callback = (code: number, data: string): void => {
+          if (code === 201) {
+            dispatch(updateAccessToken(data));
+          }
+        };
+        userApi('kakaoLogin', body, callback);
+      }
+      // if (googleAuthCode) {
+      //   console.log('google')
+      //   const body = {
+      //     code: googleAuthCode,
+      //   };
+      //   const callback = (code: number, data: IData): void => {};
+      //   userApi('googleLogin', body, callback);
+      // }
+    }
+  }, []);
+
   // accessToken이 새롭게 받아질 때 마다 유저의 정보를 갱신시켜준다.
   const [first, setFirst] = useState<boolean>(true);
   useEffect(() => {
     if (!first) {
       if (accessToken) {
-        const callback = (code: number, data: IData) => {
+        const callback = (code: number, data: IData): void => {
           if (code === 200) {
             dispatch(getUserInfo(data.userInfo));
           }
@@ -78,8 +114,16 @@ function Routes() {
   useEffect(() => {
     if (!first) {
       if (isLogin) {
-        router('/room');
-        dispatch(showAlert('login'));
+        router('/search');
+        if (prevPage === 'signup') {
+          dispatch(showAlert('signup'));
+          dispatch(updateUrl(''));
+        } else if (prevPage === 'tempSignup') {
+          dispatch(showAlert('tempSignup'));
+          dispatch(updateUrl(''));
+        } else {
+          dispatch(showAlert('login'));
+        }
       } else {
         if (prevPage === 'deleteAccount') {
           dispatch(showAlert('signout'));

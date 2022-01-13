@@ -4,12 +4,12 @@ import oauthValidation from '../API/validation/oauth';
 
 const oauthRouter: Router = express.Router();
 
-oauthRouter.get(
+oauthRouter.post(
   '/callback/kakao',
   oauthValidation.kakaoLogin,
   oauthController.kakaoLogin,
 );
-oauthRouter.get(
+oauthRouter.post(
   '/callback/google',
   oauthValidation.googleLogin,
   oauthController.googleLogin,

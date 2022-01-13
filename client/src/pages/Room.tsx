@@ -5,10 +5,12 @@ import { categoryAPI } from '../api/categoryApi';
 import { roomAPI } from '../api/roomApi';
 import Chatting from '../components/Chatting';
 import Header from '../components/layout/Header';
-import { userEmail } from '../reducers/userSlice';
+import MemberList from '../components/MemberList';
+import { userEmail, userIsLogin } from '../reducers/userSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
-import defaultImg from '../images/profile.png';
+import { setParticipant } from '../reducers/roomSlice';
+import LoginConfirm from '../components/LoginConfirm';
 
 function dateToString(
   date: Date,
@@ -129,63 +131,9 @@ const GroupTitle = styled.div`
   line-height: 2rem;
 `;
 
-const ProfileMenu = styled.div`
-  margin-left: auto;
-`;
-
-const ProfileName = styled.div`
-  font-size: 1.1rem;
-`;
-
 const SubTitle = styled.div`
   font-size: 1.3rem;
   font-weight: 600;
-`;
-
-const ImageContainer = styled.div``;
-
-const ProfileImg = styled.div<{ url: string }>`
-  width: 3rem;
-  height: 3rem;
-  background-color: red;
-  background-size: auto 100%;
-  background-position: center;
-  background-image: url(${(props) => props.url});
-  border-radius: 1.5rem;
-  margin-right: 1rem;
-`;
-
-const MemberList = styled.div`
-  overflow-y: scroll;
-  overflow-x: hidden;
-  height: 95%;
-  margin-top: 0.6rem;
-
-  &::-webkit-scrollbar {
-    width: 0.5rem;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-track {
-    padding: 1rem;
-  }
-`;
-
-const Member = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.3rem;
-  transition: background 0.2s ease-in;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
 `;
 
 const ChatContent = styled(Chatting)`
@@ -198,9 +146,13 @@ interface StateType {
 }
 
 const Room = () => {
+  const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
+  const isLogin = useAppSelector(userIsLogin);
   const state = location.state as StateType;
-  const { room_id } = state;
+  let room_id = state.room_id;
+
   const email = useAppSelector(userEmail);
   const [text, setText] = useState<string>(''); // 채팅창 입력 메시지
   const [talkContents, setTalkContents] = useState<MessageType[]>([]);
@@ -209,7 +161,6 @@ const Room = () => {
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
 
-  const navigate = useNavigate();
   useEffect(() => {
     const roomData = async () => {
       const {
@@ -224,6 +175,7 @@ const Room = () => {
         return member.User;
       });
       setMemberList(members);
+      dispatch(setParticipant(Participants));
 
       const {
         data: {
@@ -236,8 +188,10 @@ const Room = () => {
         }
       });
     };
-    roomData();
-  }, [room_id]);
+    if (room_id) {
+      roomData();
+    }
+  }, []);
 
   useEffect(() => {
     const io = require('socket.io-client');
@@ -405,46 +359,33 @@ const Room = () => {
   return (
     <>
       <Header />
-      <Container>
-        <ChatContainer>
-          <RoomDetail>
-            <GroupTitle>{roomTitle()}</GroupTitle>
-          </RoomDetail>
-          <ContentContainer>
-            <ChatBox>
-              <ChatContent
-                talkContents={talkContents}
-                text={text}
-                handleText={handleText}
-                handleQuit={handleQuit}
-                handleInsertMessage={handleInsertMessage}
-                updateMessage={updateMessage}
-              />
-            </ChatBox>
-            <MemberContainer className="drop-shadow">
-              <SubTitle>대화 상대</SubTitle>
-              <MemberList>
-                {memberList && memberList.length > 0 ? (
-                  memberList.map((member: UserType) => {
-                    return (
-                      <Member key={member.email}>
-                        <ImageContainer>
-                          <ProfileImg
-                            url={member.profile_image || defaultImg}
-                          />
-                        </ImageContainer>
-                        <ProfileName>{member.nick_name}</ProfileName>
-                      </Member>
-                    );
-                  })
-                ) : (
-                  <div>대화 상대가 없습니다.</div>
-                )}
-              </MemberList>
-            </MemberContainer>
-          </ContentContainer>
-        </ChatContainer>
-      </Container>
+      {isLogin ? (
+        <Container>
+          <ChatContainer>
+            <RoomDetail>
+              <GroupTitle>{roomTitle()}</GroupTitle>
+            </RoomDetail>
+            <ContentContainer>
+              <ChatBox>
+                <ChatContent
+                  talkContents={talkContents}
+                  text={text}
+                  handleText={handleText}
+                  handleQuit={handleQuit}
+                  handleInsertMessage={handleInsertMessage}
+                  updateMessage={updateMessage}
+                />
+              </ChatBox>
+              <MemberContainer className="drop-shadow">
+                <SubTitle>대화 상대</SubTitle>
+                <MemberList roomMember={memberList} />
+              </MemberContainer>
+            </ContentContainer>
+          </ChatContainer>
+        </Container>
+      ) : (
+        <LoginConfirm />
+      )}
     </>
   );
 };

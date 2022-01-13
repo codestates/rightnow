@@ -120,10 +120,15 @@ const Login = () => {
 
   // 로그인 에러
   const [loginError, setLoginError] = useState<string>('');
+  const [tempLoginError, setTempLoginError] = useState<string>('');
 
   // 로그인 요청
   const requestLogin = (): void => {
     setLoginError('');
+    const body = {
+      email: userInfo.email,
+      password: userInfo.password,
+    };
     const callback = (code: number, data: string) => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
@@ -131,11 +136,26 @@ const Login = () => {
         setLoginError(data);
       }
     };
-    userApi('login', userInfo, callback);
+    userApi('login', body, callback);
   };
   // 임시 로그인 요청
   const requestTempLogin = (): void => {
-    alert('임시 로그인 요청');
+    setTempLoginError('');
+    const body = {
+      type: 'TEMP',
+      nick_name: userInfo.tempId,
+      password: userInfo.tempPw,
+    };
+    const callback = (code: number, data: string) => {
+      if (code === 200) {
+        dispatch(updateAccessToken(data));
+      } else if (code === 400) {
+        setTempLoginError('등록되지 않은 임시계정 입니다.');
+      } else if (code === 401) {
+        setTempLoginError(data);
+      }
+    };
+    userApi('login', body, callback);
   };
 
   return (
@@ -210,11 +230,17 @@ const Login = () => {
               <div className="mt-8">
                 <p className="mb-4 text-gray-600">소셜 계정으로 로그인</p>
               </div>
-              <div className="mt-6 relative">
+              <div className="relative">
                 <button
                   className={
                     'w-96 h-12 rounded-md bg-kakao text-kakaoText font-semibold'
                   }
+                  onClick={() => {
+                    window.open(
+                      `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}&response_type=code`,
+                      '_self',
+                    );
+                  }}
                 >
                   카카오로 로그인
                 </button>
@@ -225,11 +251,17 @@ const Login = () => {
                   className=" absolute top-3 left-5"
                 />
               </div>
-              <div className="mt-6 relative">
+              <div className="mt-2 relative">
                 <button
                   className={
                     'w-96 h-12 rounded-md border-1 bg-white text-black font-semibold'
                   }
+                  onClick={() => {
+                    window.open(
+                      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.REACT_APP_GOOGLE_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_GOOGLE_REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email`,
+                      '_self',
+                    );
+                  }}
                 >
                   구글로 로그인
                 </button>
@@ -268,7 +300,7 @@ const Login = () => {
                     사용된 아이디와 비밀번호는 하나의 모임에서만 사용할 수
                     있습니다.
                   </li>
-                  <li>모임을 나갈 경우 해당 게정은 삭제됩니다.</li>
+                  <li>모임을 나갈 경우 해당 계정은 삭제됩니다.</li>
                   <li>
                     이전에 나가기를 하지 않은 일회용 아이디가 있다면 모임이
                     닫히기 전까지는 해당 일회용 계정을 사용할 수 있습니다.
@@ -307,6 +339,11 @@ const Login = () => {
                   ref={tempPwRef}
                 />
               </div>
+              {tempLoginError && (
+                <div className="text-sm text-red-400 w-96 inline-block text-left pl-2">
+                  {tempLoginError}
+                </div>
+              )}
               <div className="mt-6">
                 <button
                   className={`w-96 h-12 rounded-md ${
@@ -319,6 +356,18 @@ const Login = () => {
                 >
                   임시 로그인
                 </button>
+              </div>
+              <p className="mt-6 text-gray-600">임시 계정이 없으신가요?</p>
+              <div className="mt-6">
+                <Link to="/auth/tempJoin">
+                  <button
+                    className={
+                      'w-96 h-12 rounded-md border-1 border-main text-main hover:bg-gray-100'
+                    }
+                  >
+                    임시 계정 만들기
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

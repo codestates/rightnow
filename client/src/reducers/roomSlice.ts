@@ -8,6 +8,7 @@ export interface RoomState {
   category: string;
   joinCnt: number;
   maxCnt: number;
+  participant: Array<any>;
 }
 
 const initialState: RoomState = {
@@ -17,6 +18,7 @@ const initialState: RoomState = {
   category: '',
   joinCnt: 0,
   maxCnt: 0,
+  participant: [],
 };
 
 export const roomSlice = createSlice({
@@ -41,6 +43,9 @@ export const roomSlice = createSlice({
     setMaxCnt: (state, action: PayloadAction<number>) => {
       state.maxCnt = action.payload;
     },
+    setParticipant: (state, action: PayloadAction<any>) => {
+      state.participant = action.payload;
+    },
   },
 });
 
@@ -51,6 +56,7 @@ export const {
   setRoomCategory,
   setJoinCnt,
   setMaxCnt,
+  setParticipant,
 } = roomSlice.actions;
 export const roomLocation = (state: RootState) => state.room.location;
 export const roomLon = (state: RootState) => state.room.lon;
@@ -58,5 +64,6 @@ export const roomLat = (state: RootState) => state.room.lat;
 export const roomCategory = (state: RootState) => state.room.category;
 export const roomJoinCnt = (state: RootState) => state.room.joinCnt;
 export const roomMaxCnt = (state: RootState) => state.room.maxCnt;
+export const roomParticipant = (state: RootState) => state.room.participant;
 
 export default roomSlice.reducer;

@@ -597,12 +597,12 @@ const userValidation: UserValidation = {
       return;
     }
     const { email } = req.params;
-    const { filename } = req.file;
+    const { key } = req.file;
 
     db['User']
       .update(
         {
-          profile_image: filename,
+          profile_image: key,
         },
         {
           where: { email },
@@ -610,7 +610,7 @@ const userValidation: UserValidation = {
       )
       .then((result: any) => {
         if (result) {
-          req.sendData = { message: 'ok' };
+          req.sendData = { data: { profile_image: key }, message: 'ok' };
           next();
         } else {
           req.sendData = { message: 'err' };
@@ -653,6 +653,9 @@ const userValidation: UserValidation = {
     }
   },
 
+  /*
+  이미지 s3에 업로드
+  */
   uploadImage(req: Request, res: Response, next: NextFunction): any {
     const DIR_NAME = __dirname + '/../..';
     // const storage: any = multer.diskStorage({
@@ -677,6 +680,7 @@ const userValidation: UserValidation = {
     //     cb(null, method.randomString(8, name)); //파일 이름 설정
     //   },
     // });
+
     const storage: any = multerS3({
       s3: s3,
       bucket: 'rightnow-image',
@@ -685,10 +689,10 @@ const userValidation: UserValidation = {
         const regex: any = /^[a-z|A-Z|0-9|]+$/;
         let dot =
           file.originalname.split('.')[file.originalname.split('.').length - 1];
-        if (dot !== 'png' && dot !== 'jpg' && dot !== 'jepg') {
+        if (dot !== 'png' && dot !== 'jpg' && dot !== 'jpeg') {
           res
             .status(400)
-            .send({ message: 'Only .png, .jpg and .jpeg format allowed' });
+            .send({ message: 'Only .png, .jpg and .jpeg format allowed.' });
           return;
         }
         let name = file.originalname;

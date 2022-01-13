@@ -1,16 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes as Switch, Link, useLocation } from 'react-router-dom';
+import {
+  Route,
+  Routes as Switch,
+  Link,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import FriendsLayout from './friends/FriendsLayout';
 import AccountLayout from './account/AccountLayout';
 import Header from '../../components/layout/Header';
+import { useAppDispatch, useAppSelector } from '../../config/hooks';
+import {
+  updateRequestFriendCount,
+  updateRequestFriendList,
+  userEmail,
+  userIsLogin,
+  userRequestFriendList,
+} from '../../reducers/userSlice';
+import friendsApi from '../../api/friendsApi';
 
 interface IOption {
   id: string;
   label: string;
 }
 
+interface IData {
+  email: string;
+  nick_name: string;
+  profile_image: string;
+  role: string;
+  social_login: string;
+  auth_code: string;
+  is_block: string;
+  block_date: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const MypageLayout = () => {
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  // 유저 친구요청 목록
+  const requestFriendList = useAppSelector(userRequestFriendList);
+  // 유저 이메일
+  const email = useAppSelector(userEmail);
   // mypage 옵션
   const headerOption: IOption[] = [
     { id: 'friends', label: '친구관리' },
@@ -21,14 +54,39 @@ const MypageLayout = () => {
     location.pathname.split('/')[2],
   );
 
-  useEffect(() => {
+  useEffect((): void => {
     setSelectedId(location.pathname.split('/')[2]);
   }, [location]);
 
+  // 로그인 상태가 아닐 경우 첫 페이지로 리다이렉팅
+  const isLogin = useAppSelector(userIsLogin);
+  const router = useNavigate();
+
+  useEffect((): void => {
+    if (!isLogin) {
+      router('/');
+    } else {
+      // 친구요청 수 불러오기
+      const callback = (code: number, data: IData[]): void => {
+        if (code === 200) {
+          const newData = data.map((obj, idx) => {
+            const { email } = obj;
+            return email;
+          });
+          if (JSON.stringify(requestFriendList) !== JSON.stringify(newData)) {
+            dispatch(updateRequestFriendList(newData));
+            dispatch(updateRequestFriendCount(newData.length));
+          }
+        }
+      };
+      friendsApi('getFriendRequestList', {}, callback, email);
+    }
+  }, []);
+
   return (
     <>
-      <Header/>
-      <header className="mt-1 text-center bg-white h-10 shadow-md fixed top-16 w-screen">
+      <Header />
+      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-10">
         <div className="inline-flex w-222 h-full items-center relative">
           {headerOption.map((v, i) => {
             const { id, label } = v;

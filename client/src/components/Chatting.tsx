@@ -13,6 +13,8 @@ import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
 import { MessageType } from '../type';
+import Map from './Map';
+import MemberList from './MemberList';
 
 const ChattingContainer = styled.div`
   height: 100%;
@@ -321,6 +323,14 @@ const ChattingRoom = ({
           <NavItem htmlFor="map" back="yellow">
             모임위치
           </NavItem>
+          <Radio
+            type="radio"
+            onClick={handleMenu}
+            value="member"
+            id="member"
+            name="menu"
+            defaultChecked={menu === 'member'}
+          />
           <NavItem htmlFor="member" back="yellow">
             대화 상대
           </NavItem>
@@ -368,7 +378,11 @@ const ChattingRoom = ({
         </>
       ) : menu === 'map' ? (
         <MenuContainer className="drop-shadow">
-          모임 위치(지도 표시)
+          <Map />
+        </MenuContainer>
+      ) : menu === 'member' ? (
+        <MenuContainer className="drop-shadow">
+          <MemberList />
         </MenuContainer>
       ) : (
         <MenuContainer className="drop-shadow">

@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../config/hooks';
 import Logo from '../components/Logo';
 import phone from '../images/phones.png';
-import 'react-alice-carousel/lib/alice-carousel.css';
 import Slider from '../components/Slider';
 import { userIsLogin } from '../reducers/userSlice';
 
@@ -36,17 +35,17 @@ const RendingPage = () => {
 
   const location = useLocation();
   const router = useNavigate();
-  const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
-  const [loadingZIndex, setLoadingZIndex] = useState<string>('z-30');
+  // const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
+  // const [loadingZIndex, setLoadingZIndex] = useState<string>('z-30');
 
-  useEffect((): void => {
-    setTimeout(() => {
-      setLoadingOpacity('opacity-0');
-    }, 1000);
-    setTimeout(() => {
-      setLoadingZIndex('-z-20');
-    }, 1500);
-  }, []);
+  // useEffect((): void => {
+  //   setTimeout(() => {
+  //     setLoadingOpacity('opacity-0');
+  //   }, 1000);
+  //   setTimeout(() => {
+  //     setLoadingZIndex('-z-20');
+  //   }, 1500);
+  // }, []);
 
   // 스크롤 위치
   const [scrollPosition, setScrollPosition] = useState<number>(0);
@@ -104,14 +103,18 @@ const RendingPage = () => {
   };
 
   useEffect(() => {
-    handleScroll()
-  }, [])
+    handleScroll();
+  }, []);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+    };
   }, []);
-  
+
   const firstContentY: number = 604;
   const contentDy: number = 670;
 
@@ -196,7 +199,7 @@ const RendingPage = () => {
                 );
               })}
             <Link
-              to={isLogin ? '/room' : '/auth/login'}
+              to={isLogin ? '/search' : '/auth/login'}
               className="flex items-center"
             >
               <button
@@ -238,7 +241,7 @@ const RendingPage = () => {
               className=" flex bg-main w-60 h-16 rounded-2xl relative group cursor-pointer bounce-4"
               onClick={() => {
                 if (isLogin) {
-                  router('/room');
+                  router('/search');
                 } else {
                   router('/auth/login');
                 }

@@ -22,6 +22,10 @@ const Alert = () => {
         setTitle('회원가입');
         setSubTitle('회원가입에 성공 하셨습니다.');
         break;
+      case 'tempSignup':
+        setTitle('임시 계정 만들기');
+        setSubTitle('임시 계정을 만들었습니다.');
+        break;
       case 'logout':
         setTitle('로그아웃');
         setSubTitle('로그아웃 하였습니다.');
@@ -79,6 +83,46 @@ const Alert = () => {
       case 'cannotCancel':
         setTitle('모임검색');
         setSubTitle('매칭 취소는 그룹장만 할 수 있습니다.');
+        break;
+      case 'blank':
+        setTitle('텍스트 입력');
+        setSubTitle('공백문자는 사용 할 수 없습니다.');
+        break;
+      case 'requestFriend':
+        setTitle('친구 추가');
+        setSubTitle('성공적으로 친구요청을 보냈습니다.');
+        break;
+      case 'alredyRequest':
+        setTitle('친구 추가');
+        setSubTitle('이미 친구요청을 보냈습니다.');
+        break;
+      case 'noExistUser':
+        setTitle('친구 추가');
+        setSubTitle('이메일이 존재하지 않습니다.');
+        break;
+      case 'alredyFriend':
+        setTitle('친구 추가');
+        setSubTitle('이미 친구목록에 있습니다.');
+        break;
+      case 'friendRequest':
+        setTitle('친구 추가');
+        setSubTitle('이미 상대가 친구요청을 보냈습니다.');
+        break;
+      case 'selfRequest':
+        setTitle('친구 추가');
+        setSubTitle('자기 자신에게는 친구요청을 보낼 수 없습니다.');
+        break;
+      case 'acceptFriend':
+        setTitle('친구 요청');
+        setSubTitle('친구 요청을 수락하였습니다.');
+        break;
+      case 'rejectFriend':
+        setTitle('친구 요청');
+        setSubTitle('친구 요청을 거절하였습니다.');
+        break;
+      case 'deleteFriend':
+        setTitle('친구 목록');
+        setSubTitle('친구를 삭제하였습니다.');
         break;
     }
   }, [alertType]);
