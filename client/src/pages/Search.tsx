@@ -110,20 +110,9 @@ const FrindContainer = styled.div`
 const ButtonContainer = styled.div``;
 
 const Button = styled.button`
-  width: 15rem;
-  height: 2.2rem;
-  border-radius: 3px;
   background: ${(props) => props.theme.color.main};
   color: black;
-  transition: 0.2s;
-
-  &:active {
-    background: rgb(211, 76, 52);
-  }
-
-  &:hover {
-    opacity: 0.95;
-  }
+  transition: 1s;
 `;
 
 const CategoryList = styled.div`
@@ -280,16 +269,11 @@ const Searching = styled(Loading)`
 `;
 
 const CancelBtn = styled.button`
-  width: 10rem;
-  height 2rem;
+  transition: 0.5s;
   color: black;
   background: ${(props) => props.theme.color.sub.yellow};
   margin-top: 2rem;
-  border-radius: 4px;
-
-  &:hover {
-    opacity: 0.85;
-  }    
+  border-radius: 6px;
 `;
 
 const initCategory = {
@@ -647,7 +631,9 @@ const Search = () => {
         {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
         {isSearching ? (
           <Searching>
-            <CancelBtn onClick={handleMatching}>취소</CancelBtn>
+            <CancelBtn className="w-28 h-9" onClick={handleMatching}>
+              취소
+            </CancelBtn>
           </Searching>
         ) : (
           <></>
@@ -721,7 +707,7 @@ const Search = () => {
               )}
             </FrindContainer>
             <ButtonContainer>
-              <Button className="hover:bg-red-500" onClick={handleJoinRoom}>
+              <Button className="rounded-md w-60 h-9" onClick={handleJoinRoom}>
                 모임 찾기
               </Button>
             </ButtonContainer>
