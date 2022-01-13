@@ -202,9 +202,19 @@ const FriendLabel = styled(Label)`
   margin-right: 1rem;
 `;
 
+const FriendMessage = styled.div`
+  white-space: pre-line;
+  padding: 0.7rem 0;
+  color: ${(props) => props.theme.color.font};
+`;
+
+const MessageContainer = styled.div`
+  padding: 0 0.3rem;
+`;
+
 const FriendList = styled.div`
   height: 12rem;
-  width: 15rem;
+  width: 16rem;
   overflow-y: scroll;
   background: rgba(0, 0, 0, 0.03);
   margin-left: -0.1rem;
@@ -279,7 +289,7 @@ const CancelBtn = styled.button`
 
   &:hover {
     opacity: 0.85;
-  }
+  }    
 `;
 
 const initCategory = {
@@ -669,11 +679,10 @@ const Search = () => {
             </Location>
             <FrindContainer>
               <FriendLabel>친구와 함께하기</FriendLabel>
-              <FriendList>
-                {role === 'USER' ? (
-                  visibleFriend.length > 0 ? (
-                    visibleFriend.map((friend: FriendType) => {
-                      // friendList -> visibleFriend 로 변경
+              {role === 'USER' ? (
+                visibleFriend.length > 0 ? (
+                  <FriendList>
+                    {visibleFriend.map((friend: FriendType) => {
                       return (
                         <Friend
                           title={friend.email}
@@ -698,14 +707,18 @@ const Search = () => {
                           <FriendNick>{friend.nick_name}</FriendNick>
                         </Friend>
                       );
-                    })
-                  ) : (
-                    <div>같이 할 수 있는 친구가 없습니다.</div>
-                  )
+                    })}
+                  </FriendList>
                 ) : (
-                  <div>친구와 함께 하려면 회원가입을 해주세요</div>
-                )}
-              </FriendList>
+                  <MessageContainer>
+                    <FriendMessage>
+                      같이 할 수 있는 친구가 없어요🥲
+                    </FriendMessage>
+                  </MessageContainer>
+                )
+              ) : (
+                <FriendMessage>회원가입을 해야 이용할 수 있어요!</FriendMessage>
+              )}
             </FrindContainer>
             <ButtonContainer>
               <Button className="hover:bg-red-500" onClick={handleJoinRoom}>
