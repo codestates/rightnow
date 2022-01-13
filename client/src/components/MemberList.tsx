@@ -56,10 +56,11 @@ const ProfileName = styled.div`
   font-size: 1.1rem;
 `;
 
-const MemberList = () => {
+const MemberList = ({ roomMember }: any) => {
   const participant = useAppSelector(roomParticipant);
-  const memberList: Array<UserType> =
-    participant && participant.map((member) => member.User);
+  // const memberList: Array<UserType> =
+  //   participant && participant.map((member) => member.User);
+  const memberList: Array<UserType> = roomMember;
   return (
     <Container>
       {memberList && memberList.length > 0 ? (
@@ -67,7 +68,17 @@ const MemberList = () => {
           return (
             <Member key={member.email}>
               <ImageContainer>
-                <ProfileImg url={member.profile_image || defaultImg} />
+                <ProfileImg
+                  url={
+                    // image 정상 추가
+                    member.profile_image
+                      ? member.profile_image.indexOf('kakaocdn') === -1
+                        ? process.env.REACT_APP_IMAGE_ENDPOINT +
+                          member.profile_image
+                        : member.profile_image
+                      : defaultImg
+                  }
+                />
               </ImageContainer>
               <ProfileName>{member.nick_name}</ProfileName>
             </Member>
