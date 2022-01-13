@@ -147,7 +147,17 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   return (
     <Container key={id}>
       <ImageContainer>
-        <MImage url={User ? User.profile_image || defaultImg : defaultImg} />
+        <MImage
+          url={
+            User
+              ? User.profile_image
+                ? User.profile_image.indexOf('kakaocdn') === -1
+                  ? process.env.REACT_APP_IMAGE_ENDPOINT + User.profile_image
+                  : User.profile_image
+                : defaultImg
+              : ''
+          }
+        />
       </ImageContainer>
       <MainContent>
         <Title>

@@ -143,7 +143,13 @@ const participantValidation: ParticipantValidation = {
     });
     if (participant) return 'user aleady attend this room';
     if (type === 'ALONE') {
-      await db.Participant.create({ user_email: email, room_id, lon, lat });
+      await db.Participant.create({
+        user_email: email,
+        room_id,
+        lon,
+        lat,
+        enter_date: new Date(),
+      });
     } else if (type === 'GROUP') {
       let inserts: Array<Participant> = user_list.map((item: string) => {
         return {
@@ -151,6 +157,7 @@ const participantValidation: ParticipantValidation = {
           room_id,
           lon,
           lat,
+          enter_date: new Date(),
         };
       });
       inserts.push({ user_email: email, room_id, lon, lat });

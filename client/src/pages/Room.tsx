@@ -378,7 +378,7 @@ const Room = () => {
               </ChatBox>
               <MemberContainer className="drop-shadow">
                 <SubTitle>대화 상대</SubTitle>
-                <MemberList />
+                <MemberList roomMember={memberList} />
               </MemberContainer>
             </ContentContainer>
           </ChatContainer>

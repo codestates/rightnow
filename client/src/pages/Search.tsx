@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail, userIsLogin, userRole } from '../reducers/userSlice';
 import ModalTemp from '../components/ModalTemp';
 import MatchingModal from '../components/MatchingModal';
+import defaultImg from '../images/profile.png';
 import {
   roomLat,
   roomLocation,
@@ -327,7 +328,6 @@ const Search = () => {
           data: { FriendList },
         },
       } = await friendAPI.list(email);
-      console.log(FriendList);
       setFriendList(FriendList);
     };
     friendsData();
@@ -387,7 +387,6 @@ const Search = () => {
     });
     socket.on('reject_match', (res: any) => {
       if (res.message === 'invalid access') {
-        console.log(res);
       }
       if (res.message === 'another client request') {
         // 매칭 중 다른 탭 또는 다른 클라이언트에서 본인 아이디로 매칭을 한 경우 - 메인화면으로 이동 or 로그아웃
@@ -488,7 +487,6 @@ const Search = () => {
     socket.on('searching_friend', (res: any) => {
       //검색중인 친구 목록
       let { leave_friends } = res;
-      console.log(leave_friends);
       setVisibleFriend([...leave_friends]);
     });
     // 필터링
@@ -684,7 +682,18 @@ const Search = () => {
                           checked={selectedFriend.includes(friend.email)}
                         >
                           <FriendImg>
-                            <Image src={friend.profile_img} />
+                            <Image
+                              src={
+                                // image 정상 추가
+                                friend.profile_image
+                                  ? friend.profile_image.indexOf('kakaocdn') ===
+                                    -1
+                                    ? process.env.REACT_APP_IMAGE_ENDPOINT +
+                                      friend.profile_image
+                                    : friend.profile_image
+                                  : defaultImg
+                              }
+                            />
                           </FriendImg>
                           <FriendNick>{friend.nick_name}</FriendNick>
                         </Friend>

@@ -28,7 +28,7 @@ export interface UserType {
 }
 
 export interface FriendType {
-  profile_img: string;
+  profile_image: string; // 데이터 형식이 달라서 img -> image로 변경
   nick_name: string;
   email: string;
 }
