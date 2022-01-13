@@ -129,6 +129,12 @@ const GroupTitle = styled.div`
   width: 30rem;
   height: 3rem;
   line-height: 2rem;
+  @media screen and (max-width: 768px) {
+    & {
+      font-size: 1.3rem;
+      width: 40%;
+    }
+  }
 `;
 
 const SubTitle = styled.div`
