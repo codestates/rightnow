@@ -116,7 +116,8 @@ const oauthValidation: OAuthValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const googleAccessToken: string = await getGoogleToken(req.body.code);
+      const googleAccessToken: string = await getGoogleToken(req.query.code);
+      console.log(googleAccessToken);
       if (googleAccessToken) {
         const data = await getGoogleSubId(googleAccessToken);
         if (data) {

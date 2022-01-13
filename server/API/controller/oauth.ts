@@ -42,22 +42,20 @@ const oauthController: OAuthController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
       });
-      res.status(201).send({
-        data: {
-          userInfo: req.sendData.data.userInfo,
-          accessToken: req.sendData.data.accessToken,
-        },
-        message: 'ok',
-      });
-      // res.redirect(
-      //   `http://localhost:3000?message=ok&accessToken=${req.sendData.data.accessToken}&login=google`,
-      // );
+      // res.status(201).send({
+      //   data: {
+      //     userInfo: req.sendData.data.userInfo,
+      //     accessToken: req.sendData.data.accessToken,
+      //   },
+      //   message: 'ok',
+      // });
+      res.redirect(`http://localhost:3000?message=ok&login=google`);
     } else if (req.sendData.message === 'invalid accessToken') {
-      res.status(404).send({ message: 'invalid accessToken' });
-      // res.redirect(`http://localhost:3000?message=err&login=google`);
+      // res.status(404).send({ message: 'invalid accessToken' });
+      res.redirect(`http://localhost:3000?message=err&login=google`);
     } else if (req.sendData.message === 'Invalid authorization code') {
-      res.status(404).send({ message: 'Invalid authorization code' });
-      // res.redirect(`http://localhost:3000?message=err&login=google`);
+      // res.status(404).send({ message: 'Invalid authorization code' });
+      res.redirect(`http://localhost:3000?message=err&login=google`);
     } else {
       res.status(500).send({ message: 'err' });
     }
