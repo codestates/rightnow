@@ -11,18 +11,21 @@ import {
   User,
 } from '../type/type';
 import myDate from '../method/myDate';
+import { Socket, Server, Namespace } from 'socket.io';
+import { Http2Server } from 'http2';
+
 const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
-const http: any = require('http').createServer(socketRouter);
-const socketPort = 4000;
+const http: Http2Server = require('http').createServer(socketRouter);
+const socketPort: number = 4000;
 const UUID_FUNC: Function = require('../method/uuid');
-const SEARCH_COUNT = 5;
-const LOOP_TIME = 5000;
+const SEARCH_COUNT: number = 5;
+
 http.listen(socketPort, () => {
   console.log('listening on *:' + socketPort);
 });
 
-const io: any = require('socket.io')(http, {
+const io: Server | any = require('socket.io')(http, {
   cors: {
     origin: true,
     methods: ['GET', 'POST'],
@@ -49,9 +52,9 @@ let searchings: Map<string, NodeJS.Timer | any> = new Map();
 let tempRooms: Array<TempRoom | any> = [];
 
 //client 에서  주소/search 로 보내줘야 함
-const searchNamespace = io.of('/search');
+const searchNamespace: Namespace = io.of('/search');
 
-const chatNamespace = io.of('/chat');
+const chatNamespace: Namespace = io.of('/chat');
 
 searchNamespace.on('connection', (socket: any) => {
   socket.on('disconnect', (data: any) => {
