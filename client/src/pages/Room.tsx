@@ -379,6 +379,7 @@ const Room = () => {
                   handleQuit={handleQuit}
                   handleInsertMessage={handleInsertMessage}
                   updateMessage={updateMessage}
+                  roomMember={memberList}
                 />
               </ChatBox>
               <MemberContainer className="drop-shadow">
