@@ -57,7 +57,7 @@ const ProfileName = styled.div`
 `;
 
 const MemberList = ({ roomMember }: any) => {
-  const participant = useAppSelector(roomParticipant);
+  // const participant = useAppSelector(roomParticipant);
   // const memberList: Array<UserType> =
   //   participant && participant.map((member) => member.User);
   const memberList: Array<UserType> = roomMember;

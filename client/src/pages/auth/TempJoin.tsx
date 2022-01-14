@@ -12,6 +12,7 @@ import userApi from '../../api/userApi';
 import { useAppDispatch } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
 import { showAlert, updateUrl } from '../../reducers/componetSlice';
+import { useTitle } from '../../Routes';
 
 interface IUserInfo {
   nickname: string;
@@ -20,6 +21,7 @@ interface IUserInfo {
 }
 
 const TempJoin = () => {
+  useTitle('Right now - 임시계정 회원가입');
   const dispatch = useAppDispatch();
   // ref
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -102,8 +104,8 @@ const TempJoin = () => {
         if (code === 201) {
           dispatch(updateUrl('tempSignup'));
           dispatch(updateAccessToken(data));
-        } else if(code === 400) {
-          setError('닉네임이 존재합니다.')
+        } else if (code === 400) {
+          setError('닉네임이 존재합니다.');
         }
       };
       userApi('signup', body, callback);

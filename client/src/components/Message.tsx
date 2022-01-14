@@ -146,72 +146,79 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   //유저 탈퇴할 경우 User 정보 불러올 수 없음 . 로직 약간 변경.
   return (
     <Container key={id}>
-      <ImageContainer>
-        <MImage
-          url={
-            User
-              ? User.profile_image
-                ? User.profile_image.indexOf('kakaocdn') === -1
-                  ? process.env.REACT_APP_IMAGE_ENDPOINT + User.profile_image
-                  : User.profile_image
-                : defaultImg
-              : ''
-          }
-        />
-      </ImageContainer>
-      <MainContent>
-        <Title>
-          <Name>
-            {User
-              ? isAlarm
-                ? ''
-                : User.email === email
-                ? '나'
-                : User.nick_name
-              : '(삭제된 유저)'}
-          </Name>
-          <Date>{write_date}</Date>
-          <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
-          {isAlarm ? (
-            ''
-          ) : (
-            <MenuContainer>
-              {User ? (
-                email !== User.email ? null : (
-                  <Edit onClick={handleEdit}>
-                    {isEdit ? '수정 취소' : '수정'}
-                  </Edit>
-                )
-              ) : null}
-              {User ? (
-                email !== User.email ? (
-                  <Report onClick={() => handleModal(User.nick_name, id)}>
-                    신고
-                  </Report>
-                ) : null
-              ) : null}
-            </MenuContainer>
-          )}
-        </Title>
-        {isEdit ? (
-          <EditForm
-            onSubmit={handleUpdate}
-            className="transition-all"
-            edit={isEdit}
-          >
-            <EditInput
-              className="rounded bg-orange-200 p-1 w-full"
-              value={newContent}
-              onChange={handleNewContent}
-              autoFocus
+      {id === -1 ? (
+        <>{content}</>
+      ) : (
+        <>
+          <ImageContainer>
+            <MImage
+              url={
+                User
+                  ? User.profile_image
+                    ? User.profile_image.indexOf('kakaocdn') === -1
+                      ? process.env.REACT_APP_IMAGE_ENDPOINT +
+                        User.profile_image
+                      : User.profile_image
+                    : defaultImg
+                  : ''
+              }
             />
-          </EditForm>
-        ) : (
-          <Content className="transition-all" edit={isEdit}>
-            {content}
-          </Content>
-        )}
-      </MainContent>
+          </ImageContainer>
+          <MainContent>
+            <Title>
+              <Name>
+                {User
+                  ? isAlarm
+                    ? ''
+                    : User.email === email
+                    ? '나'
+                    : User.nick_name
+                  : '(삭제된 유저)'}
+              </Name>
+              <Date>{write_date}</Date>
+              <Edited>{is_update === 'N' ? '' : '(수정됨)'}</Edited>
+              {isAlarm ? (
+                ''
+              ) : (
+                <MenuContainer>
+                  {User ? (
+                    email !== User.email ? null : (
+                      <Edit onClick={handleEdit}>
+                        {isEdit ? '수정 취소' : '수정'}
+                      </Edit>
+                    )
+                  ) : null}
+                  {User ? (
+                    email !== User.email ? (
+                      <Report onClick={() => handleModal(User.nick_name, id)}>
+                        신고
+                      </Report>
+                    ) : null
+                  ) : null}
+                </MenuContainer>
+              )}
+            </Title>
+            {isEdit ? (
+              <EditForm
+                onSubmit={handleUpdate}
+                className="transition-all"
+                edit={isEdit}
+              >
+                <EditInput
+                  className="rounded bg-orange-200 p-1 w-full"
+                  value={newContent}
+                  onChange={handleNewContent}
+                  autoFocus
+                />
+              </EditForm>
+            ) : (
+              <Content className="transition-all" edit={isEdit}>
+                {content}
+              </Content>
+            )}
+          </MainContent>
+        </>
+      )}
     </Container>
   );
 };

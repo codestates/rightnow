@@ -27,6 +27,7 @@ import Header from '../components/layout/Header';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
 import LoginConfirm from '../components/LoginConfirm';
+import { useTitle } from '../Routes';
 
 const Container = styled.div`
   display: flex;
@@ -287,6 +288,7 @@ const initCategory = {
 let socket: any = null;
 
 const Search = () => {
+  useTitle('Right now - 모임 검색');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
@@ -376,7 +378,7 @@ const Search = () => {
   //소켓 연동 - 페이지 들어올 떄 한번만
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/search', {
+    socket = io(`${process.env.REACT_APP_SOCKET_URI}/search`, {
       withCredentials: true,
     });
     socket.on('reject_match', (res: any) => {

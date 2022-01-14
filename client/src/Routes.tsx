@@ -30,11 +30,22 @@ import {
 } from './reducers/componetSlice';
 import Alert from './components/Alert';
 import Load from './pages/Load';
+import { SettingsOutlined } from '@material-ui/icons';
 
 interface IData {
   userInfo: IUserInfo;
   accessToken?: string;
 }
+export const useTitle = (initialTitle: string) => {
+  const [title, setTitle] = useState<string>(initialTitle);
+
+  useEffect(() => {
+    const htmlTitle = document.querySelector('title') as HTMLTitleElement;
+    htmlTitle.innerText = title;
+  }, [title]);
+
+  return setTitle;
+};
 
 function Routes() {
   const router = useNavigate();

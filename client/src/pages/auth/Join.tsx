@@ -13,6 +13,7 @@ import userApi from '../../api/userApi';
 import { useAppDispatch } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
 import { showAlert, updateUrl } from '../../reducers/componetSlice';
+import { useTitle } from '../../Routes';
 
 interface IUserInfo {
   email: string;
@@ -35,6 +36,7 @@ interface IDisable {
 }
 
 const Join = () => {
+  useTitle('Right now - 회원가입');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   // ref

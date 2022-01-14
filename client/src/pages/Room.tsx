@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import { setParticipant } from '../reducers/roomSlice';
 import LoginConfirm from '../components/LoginConfirm';
+import { useTitle } from '../Routes';
 
 function dateToString(
   date: Date,
@@ -132,7 +133,7 @@ const GroupTitle = styled.div`
   @media screen and (max-width: 768px) {
     & {
       font-size: 1.3rem;
-      width: 40%;
+      width: max-content;
     }
   }
 `;
@@ -152,6 +153,7 @@ interface StateType {
 }
 
 const Room = () => {
+  useTitle('Right now - 모임방');
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -166,6 +168,10 @@ const Room = () => {
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
+
+  // useEffect(() => {
+  //   if (room_id) navigate('/search');
+  // }, []);
 
   useEffect(() => {
     const roomData = async () => {
@@ -201,7 +207,7 @@ const Room = () => {
 
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/chat', {
+    socket = io(`${process.env.REACT_APP_SOCKET_URI}/chat`, {
       withCredentials: true,
     });
     socket.on('reject', (data: any) => {
@@ -380,6 +386,7 @@ const Room = () => {
                   handleQuit={handleQuit}
                   handleInsertMessage={handleInsertMessage}
                   updateMessage={updateMessage}
+                  roomMember={memberList}
                 />
               </ChatBox>
               <MemberContainer className="drop-shadow">
