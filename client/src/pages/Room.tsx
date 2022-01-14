@@ -132,7 +132,7 @@ const GroupTitle = styled.div`
   @media screen and (max-width: 768px) {
     & {
       font-size: 1.3rem;
-      width: 40%;
+      width: max-content;
     }
   }
 `;
@@ -166,6 +166,10 @@ const Room = () => {
   const [category, setCategory] = useState<string>('');
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
+
+  // useEffect(() => {
+  //   if (room_id) navigate('/search');
+  // }, []);
 
   useEffect(() => {
     const roomData = async () => {
@@ -380,6 +384,7 @@ const Room = () => {
                   handleQuit={handleQuit}
                   handleInsertMessage={handleInsertMessage}
                   updateMessage={updateMessage}
+                  roomMember={memberList}
                 />
               </ChatBox>
               <MemberContainer className="drop-shadow">

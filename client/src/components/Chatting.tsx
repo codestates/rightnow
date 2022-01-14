@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
-import { MessageType } from '../type';
+import { MessageType, UserType } from '../type';
 import Map from './Map';
 import MemberList from './MemberList';
 
@@ -47,19 +47,6 @@ const Chatting = styled.div`
 
 const Container = styled.div`
   height: 100%;
-
-  @media screen and (max-width: 1200px) {
-    & {
-    }
-  }
-  @media screen and (max-width: 992px) {
-    & {
-    }
-  }
-  @media screen and (max-width: 768px) {
-    & {
-    }
-  }
 `;
 
 const ChattingInput = styled.input`
@@ -205,12 +192,27 @@ const WarningMessage = styled.div`
 `;
 
 const ChattingForm = styled.form`
+  display: flex;
   margin-top: 1rem;
 `;
 
 const AlwaysScrollToBottom = styled.span`
   height: 0rem;
   width: 0rem;
+`;
+
+const SubmitBtn = styled.button`
+  display: none;
+  @media screen and (max-width: 768px) {
+    display: block;
+    background: ${(props) => props.theme.color.main};
+    width: 5rem;
+    margin-left: 0.5rem;
+    border-radius: 0.5rem;
+    &:hover {
+      background-color: ${(props) => props.theme.color.sub.orange};
+    }
+  }
 `;
 
 interface ChattingProps {
@@ -220,6 +222,7 @@ interface ChattingProps {
   handleQuit: MouseEventHandler<HTMLButtonElement>;
   handleInsertMessage: any;
   updateMessage: any;
+  roomMember: Array<UserType>;
 }
 
 const ChattingRoom = ({
@@ -229,6 +232,7 @@ const ChattingRoom = ({
   handleQuit,
   handleInsertMessage,
   updateMessage,
+  roomMember,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
@@ -273,6 +277,10 @@ const ChattingRoom = ({
     setReportNick(nickName);
     setIsShow((prev) => !prev);
   };
+
+  const EmptyMessage = styled.div`
+    padding: 0.4rem 1.3rem;
+  `;
 
   return (
     <Container className="flex flex-col">
@@ -361,7 +369,9 @@ const ChattingRoom = ({
                   ></Message>
                 ))
               ) : (
-                <div>아직 메시지가 없습니다. 대회를 시작해보세요!</div>
+                <EmptyMessage>
+                  아직 메시지가 없습니다. 대회를 시작해보세요!
+                </EmptyMessage>
               )}
               <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
@@ -374,6 +384,7 @@ const ChattingRoom = ({
               placeholder="메세지 보내기"
               autoFocus
             />
+            <SubmitBtn type="submit">전송</SubmitBtn>
           </ChattingForm>
         </>
       ) : menu === 'map' ? (
@@ -382,7 +393,7 @@ const ChattingRoom = ({
         </MenuContainer>
       ) : menu === 'member' ? (
         <MenuContainer className="drop-shadow">
-          <MemberList />
+          <MemberList roomMember={roomMember} />
         </MenuContainer>
       ) : (
         <MenuContainer className="drop-shadow">
