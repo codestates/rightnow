@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import { setParticipant } from '../reducers/roomSlice';
 import LoginConfirm from '../components/LoginConfirm';
+import { useTitle } from '../Routes';
 
 function dateToString(
   date: Date,
@@ -152,6 +153,7 @@ interface StateType {
 }
 
 const Room = () => {
+  useTitle('Right now - 모임방');
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();

@@ -27,6 +27,7 @@ import Header from '../components/layout/Header';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
 import LoginConfirm from '../components/LoginConfirm';
+import { useTitle } from '../Routes';
 
 const Container = styled.div`
   display: flex;
@@ -287,6 +288,7 @@ const initCategory = {
 let socket: any = null;
 
 const Search = () => {
+  useTitle('Right now - 모임 검색');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일

@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../config/hooks';
 import userApi from '../../api/userApi';
 import { showAlert } from '../../reducers/componetSlice';
+import { useTitle } from '../../Routes';
 
 interface IDisable {
   email: boolean;
@@ -25,6 +26,7 @@ interface IPassword {
 }
 
 const ResetPassword = () => {
+  useTitle('Right now - 비밀번호 변경');
   const router = useNavigate();
   const dispatch = useAppDispatch();
   // ref

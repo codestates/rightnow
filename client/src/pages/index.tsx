@@ -5,6 +5,7 @@ import Logo from '../components/Logo';
 import phone from '../images/phones.png';
 import Slider from '../components/Slider';
 import { userIsLogin } from '../reducers/userSlice';
+import { useTitle } from '../Routes';
 
 interface IList {
   id: string;
@@ -12,6 +13,7 @@ interface IList {
 }
 
 const RendingPage = () => {
+  useTitle('Right now');
   const isLogin = useAppSelector(userIsLogin);
   // 스크린샷 더미데이터
   const images = [

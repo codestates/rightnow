@@ -18,6 +18,7 @@ import {
   userRequestFriendList,
 } from '../../reducers/userSlice';
 import friendsApi from '../../api/friendsApi';
+import { useTitle } from '../../Routes';
 
 interface IOption {
   id: string;
@@ -38,6 +39,7 @@ interface IData {
 }
 
 const MypageLayout = () => {
+  useTitle('Right now - 마이페이지');
   const location = useLocation();
   const dispatch = useAppDispatch();
   // 유저 친구요청 목록
