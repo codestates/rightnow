@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../config/hooks';
-import { roomParticipant } from '../reducers/roomSlice';
+import { useAppDispatch, useAppSelector } from '../config/hooks';
+import {
+  roomLat,
+  roomLocation,
+  roomLon,
+  roomParticipant,
+  setParticipant,
+} from '../reducers/roomSlice';
 import { userEmail } from '../reducers/userSlice';
 
 // const { kakao } = window;
@@ -25,9 +31,23 @@ declare global {
   }
 }
 
-const Map = () => {
-  const participants = useAppSelector(roomParticipant);
+interface MapProps {
+  type?: string;
+}
+
+const Map = ({ type }: MapProps) => {
+  const dispatch = useAppDispatch();
+  let participants = useAppSelector(roomParticipant);
   const email = useAppSelector(userEmail);
+  const lon = useAppSelector(roomLon);
+  const lat = useAppSelector(roomLat);
+
+  useEffect(() => {
+    if (type === 'search') {
+      dispatch(setParticipant([{ user_email: email, lon, lat }]));
+    }
+  }, []);
+
   useEffect(() => {
     const makeMark = (map: any) => {
       participants.map((member: any) => {
@@ -53,7 +73,6 @@ const Map = () => {
         });
         marker.setMap(map);
       });
-      console.log(participants);
     };
     const getMap = async () => {
       const success = (pos: any) => {
@@ -61,7 +80,7 @@ const Map = () => {
         const container = document.getElementById('map-container');
         const options = {
           center: new window.kakao.maps.LatLng(latitude, longitude),
-          level: 3,
+          level: 4,
         };
         const map = new window.kakao.maps.Map(container, options);
         makeMark(map);
