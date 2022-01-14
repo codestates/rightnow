@@ -376,7 +376,7 @@ const Search = () => {
   //소켓 연동 - 페이지 들어올 떄 한번만
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/search', {
+    socket = io(`${process.env.REACT_APP_SOCKET_URI}/search`, {
       withCredentials: true,
     });
     socket.on('reject_match', (res: any) => {

@@ -201,7 +201,7 @@ const Room = () => {
 
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/chat', {
+    socket = io(`${process.env.REACT_APP_SOCKET_URI}/chat`, {
       withCredentials: true,
     });
     socket.on('reject', (data: any) => {
