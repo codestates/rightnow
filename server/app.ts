@@ -12,7 +12,7 @@ import {
   oauthRouter,
 } from './routers/index';
 
-const cookieParser: any = require('cookie-parser');
+const cookieParser: Function = require('cookie-parser');
 const app: Express = express();
 const port: number = 80;
 
