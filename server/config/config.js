@@ -33,7 +33,7 @@ module.exports = {
   production: {
     username: process.env.DB_USER || 'root',
     password: process.env.PASSWORD || '0000',
-    database: process.env.DB_DATABASE || 'database_production',
+    database: process.env.DB_DATABASE || 'rightnow',
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
