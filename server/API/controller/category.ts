@@ -22,7 +22,7 @@ const categoryController: CategoryController = {
       res.status(400).send({ message: 'insufficient parameters' });
     } else if (req.sendData.message === 'already exists category name') {
       res.status(409).send({ message: 'already exists category name' });
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },
@@ -36,7 +36,7 @@ const categoryController: CategoryController = {
         data: { categoryList: req.sendData.data.categoryList },
         message: 'ok',
       });
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },
@@ -51,7 +51,7 @@ const categoryController: CategoryController = {
       res.status(400).send({ message: 'insufficient parameters' });
     } else if (req.sendData.message === 'no exists category name') {
       res.status(404).send({ message: 'no exists category name' });
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },
@@ -66,7 +66,7 @@ const categoryController: CategoryController = {
       res.status(400).send({ message: 'insufficient parameters' });
     } else if (req.sendData.message === 'no exists category name') {
       res.status(404).send({ message: 'no exists category name' });
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },

@@ -62,110 +62,124 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    if (req.body.type === 'TEMP') {
-      const { nick_name, password } = req.body;
-      const userInfo: any = await db['User'].findOne({
-        where: { nick_name },
-      });
-      if (!userInfo) {
-        req.sendData = { message: 'no exists email' };
-        next();
-      } else {
-        if (userInfo.is_block === 'Y') {
-          req.sendData = {
-            data: { block_date: userInfo.block_date },
-            message: 'block user',
-          };
+    try {
+      if (req.body.type === 'TEMP') {
+        const { nick_name, password } = req.body;
+        const userInfo: any = await db['User'].findOne({
+          where: { nick_name },
+        });
+        if (!userInfo) {
+          req.sendData = { message: 'no exists email' };
           next();
-          return;
+        } else {
+          if (userInfo.is_block === 'Y') {
+            req.sendData = {
+              data: { block_date: userInfo.block_date },
+              message: 'block user',
+            };
+            next();
+            return;
+          }
+          bcrypt.compare(
+            password,
+            userInfo.password,
+            function (err: any, resp: any): void {
+              if (resp === false) {
+                req.sendData = { message: 'incorrect password' };
+                next();
+              } else if (resp === true) {
+                delete userInfo.dataValues.password;
+                const accessToken: any = jwt.sign(
+                  userInfo.dataValues,
+                  process.env.ACCESS_SECRET,
+                  {
+                    expiresIn: '15m',
+                  },
+                );
+                const refreshToken: any = jwt.sign(
+                  userInfo.dataValues,
+                  process.env.REFRESH_SECRET,
+                  {
+                    expiresIn: '30d',
+                  },
+                );
+                req.sendData = {
+                  data: {
+                    refreshToken: refreshToken,
+                    accessToken: accessToken,
+                  },
+                  message: 'ok',
+                };
+                next();
+              } else {
+                req.sendData = { message: 'err' };
+                next();
+              }
+            },
+          );
         }
-        bcrypt.compare(
-          password,
-          userInfo.password,
-          function (err: any, resp: any): void {
-            if (resp === false) {
-              req.sendData = { message: 'incorrect password' };
-              next();
-            } else if (resp === true) {
-              delete userInfo.dataValues.password;
-              const accessToken: any = jwt.sign(
-                userInfo.dataValues,
-                process.env.ACCESS_SECRET,
-                {
-                  expiresIn: '15m',
-                },
-              );
-              const refreshToken: any = jwt.sign(
-                userInfo.dataValues,
-                process.env.REFRESH_SECRET,
-                {
-                  expiresIn: '30d',
-                },
-              );
-              req.sendData = {
-                data: { refreshToken: refreshToken, accessToken: accessToken },
-                message: 'ok',
-              };
-              next();
-            } else {
-              req.sendData = { message: 'err' };
-              next();
-            }
-          },
-        );
-      }
-    } else {
-      const { email, password } = req.body;
-      const userInfo: any = await db['User'].findOne({
-        where: { email },
-      });
-      if (!userInfo) {
-        req.sendData = { message: 'no exists email' };
-        next();
       } else {
-        if (userInfo.is_block === 'Y') {
-          req.sendData = {
-            data: { block_date: userInfo.block_date },
-            message: 'block user',
-          };
+        const { email, password } = req.body;
+        const userInfo: any = await db['User'].findOne({
+          where: { email },
+        });
+        if (!userInfo) {
+          req.sendData = { message: 'no exists email' };
           next();
-          return;
+        } else {
+          if (userInfo.is_block === 'Y') {
+            req.sendData = {
+              data: { block_date: userInfo.block_date },
+              message: 'block user',
+            };
+            next();
+            return;
+          }
+          bcrypt.compare(
+            password,
+            userInfo.password,
+            function (err: any, resp: any): void {
+              if (resp === false) {
+                req.sendData = { message: 'incorrect password' };
+                next();
+              } else if (resp === true) {
+                delete userInfo.dataValues.password;
+                const accessToken: any = jwt.sign(
+                  userInfo.dataValues,
+                  process.env.ACCESS_SECRET,
+                  {
+                    expiresIn: '15m',
+                  },
+                );
+                const refreshToken: any = jwt.sign(
+                  userInfo.dataValues,
+                  process.env.REFRESH_SECRET,
+                  {
+                    expiresIn: '30d',
+                  },
+                );
+                req.sendData = {
+                  data: {
+                    refreshToken: refreshToken,
+                    accessToken: accessToken,
+                  },
+                  message: 'ok',
+                };
+                next();
+              } else {
+                req.sendData = { message: 'err' };
+                next();
+              }
+            },
+          );
         }
-        bcrypt.compare(
-          password,
-          userInfo.password,
-          function (err: any, resp: any): void {
-            if (resp === false) {
-              req.sendData = { message: 'incorrect password' };
-              next();
-            } else if (resp === true) {
-              delete userInfo.dataValues.password;
-              const accessToken: any = jwt.sign(
-                userInfo.dataValues,
-                process.env.ACCESS_SECRET,
-                {
-                  expiresIn: '15m',
-                },
-              );
-              const refreshToken: any = jwt.sign(
-                userInfo.dataValues,
-                process.env.REFRESH_SECRET,
-                {
-                  expiresIn: '30d',
-                },
-              );
-              req.sendData = {
-                data: { refreshToken: refreshToken, accessToken: accessToken },
-                message: 'ok',
-              };
-              next();
-            } else {
-              req.sendData = { message: 'err' };
-              next();
-            }
-          },
-        );
       }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
     }
   },
 
@@ -177,8 +191,16 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    req.sendData = { message: 'ok' };
-    next();
+    try {
+      req.sendData = { message: 'ok' };
+      next();
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
   },
 
   /*
@@ -189,86 +211,34 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { nick_name, password } = req.body;
-    if (req.body.type === 'TEMP') {
-      const userInfo: any = await db['User'].findOne({
-        where: { nick_name },
-      });
-      if (!userInfo) {
-        const encryptedPassword: any = bcrypt.hashSync(
-          password,
-          Number(process.env.PASSWORD_SALT),
-        );
-        const rightNow: any = new Date();
-        const email: any = rightNow
-          .toISOString()
-          .slice(0, 19)
-          .replace(/-/g, '')
-          .replace(/:/g, '');
-        db['User'].create({
-          email,
-          nick_name,
-          password: encryptedPassword,
-          role: 'TEMP',
-        });
-        const newUser: any = {
-          email,
-          nick_name,
-          role: 'TEMP',
-        };
-        const accessToken: any = jwt.sign(newUser, process.env.ACCESS_SECRET, {
-          expiresIn: '15m',
-        });
-
-        const refreshToken: any = jwt.sign(
-          newUser,
-          process.env.REFRESH_SECRET,
-          {
-            expiresIn: '30d',
-          },
-        );
-
-        req.sendData = {
-          data: {
-            refreshToken: refreshToken,
-            accessToken: accessToken,
-          },
-          message: 'ok',
-        };
-        next();
-      } else {
-        req.sendData = { message: 'exists nickname' };
-        next();
-      }
-    } else {
-      const { email } = req.body;
-      if (!email || !password || !nick_name) {
-        req.sendData = { message: 'insufficient parameters supplied' };
-        next();
-      } else {
+    try {
+      const { nick_name, password } = req.body;
+      if (req.body.type === 'TEMP') {
         const userInfo: any = await db['User'].findOne({
-          where: { email },
+          where: { nick_name },
         });
-        if (userInfo) {
-          req.sendData = { message: 'email exists' };
-          next();
-        } else {
+        if (!userInfo) {
           const encryptedPassword: any = bcrypt.hashSync(
             password,
             Number(process.env.PASSWORD_SALT),
           );
+          const rightNow: any = new Date();
+          const email: any = rightNow
+            .toISOString()
+            .slice(0, 19)
+            .replace(/-/g, '')
+            .replace(/:/g, '');
           db['User'].create({
             email,
-            password: encryptedPassword,
             nick_name,
-            role: 'USER',
+            password: encryptedPassword,
+            role: 'TEMP',
           });
           const newUser: any = {
             email,
             nick_name,
-            role: 'USER',
+            role: 'TEMP',
           };
-
           const accessToken: any = jwt.sign(
             newUser,
             process.env.ACCESS_SECRET,
@@ -293,8 +263,72 @@ const userValidation: UserValidation = {
             message: 'ok',
           };
           next();
+        } else {
+          req.sendData = { message: 'exists nickname' };
+          next();
+        }
+      } else {
+        const { email } = req.body;
+        if (!email || !password || !nick_name) {
+          req.sendData = { message: 'insufficient parameters supplied' };
+          next();
+        } else {
+          const userInfo: any = await db['User'].findOne({
+            where: { email },
+          });
+          if (userInfo) {
+            req.sendData = { message: 'email exists' };
+            next();
+          } else {
+            const encryptedPassword: any = bcrypt.hashSync(
+              password,
+              Number(process.env.PASSWORD_SALT),
+            );
+            db['User'].create({
+              email,
+              password: encryptedPassword,
+              nick_name,
+              role: 'USER',
+            });
+            const newUser: any = {
+              email,
+              nick_name,
+              role: 'USER',
+            };
+
+            const accessToken: any = jwt.sign(
+              newUser,
+              process.env.ACCESS_SECRET,
+              {
+                expiresIn: '15m',
+              },
+            );
+
+            const refreshToken: any = jwt.sign(
+              newUser,
+              process.env.REFRESH_SECRET,
+              {
+                expiresIn: '30d',
+              },
+            );
+
+            req.sendData = {
+              data: {
+                refreshToken: refreshToken,
+                accessToken: accessToken,
+              },
+              message: 'ok',
+            };
+            next();
+          }
         }
       }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
     }
   },
 
@@ -306,54 +340,62 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, social_login } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-    if (!userInfo) {
-      req.sendData = { message: 'no exists userInfo' };
-      next();
-      return;
-    }
-    if (social_login === 'kakao') {
-      const kakaoId = await disconnectKakao(userInfo.auth_code);
-      if (kakaoId) {
+    try {
+      const { email, social_login } = req.body;
+      const userInfo: any = await db['User'].findOne({
+        where: { email },
+      });
+      if (!userInfo) {
+        req.sendData = { message: 'no exists userInfo' };
+        next();
+        return;
+      }
+      if (social_login === 'kakao') {
+        const kakaoId = await disconnectKakao(userInfo.auth_code);
+        if (kakaoId) {
+          db['User'].destroy({
+            where: { email: userInfo.email },
+          });
+          req.sendData = { message: 'ok' };
+          next();
+        } else {
+          req.sendData = { message: 'err' };
+          next();
+        }
+      } else if (social_login === 'google') {
         db['User'].destroy({
           where: { email: userInfo.email },
         });
         req.sendData = { message: 'ok' };
         next();
-      } else {
-        req.sendData = { message: 'err' };
-        next();
+      } else if (social_login === 'original') {
+        const { password } = req.body;
+        bcrypt.compare(
+          password,
+          userInfo.password,
+          function (err: any, resp: any): void {
+            if (resp === false) {
+              req.sendData = { message: 'incorrect password' };
+              next();
+            } else if (resp === true) {
+              db['User'].destroy({
+                where: { email: userInfo.email },
+              });
+              req.sendData = { message: 'ok' };
+              next();
+            } else {
+              req.sendData = { message: 'err' };
+              next();
+            }
+          },
+        );
       }
-    } else if (social_login === 'google') {
-      db['User'].destroy({
-        where: { email: userInfo.email },
-      });
-      req.sendData = { message: 'ok' };
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
       next();
-    } else if (social_login === 'original') {
-      const { password } = req.body;
-      bcrypt.compare(
-        password,
-        userInfo.password,
-        function (err: any, resp: any): void {
-          if (resp === false) {
-            req.sendData = { message: 'incorrect password' };
-            next();
-          } else if (resp === true) {
-            db['User'].destroy({
-              where: { email: userInfo.email },
-            });
-            req.sendData = { message: 'ok' };
-            next();
-          } else {
-            req.sendData = { message: 'err' };
-            next();
-          }
-        },
-      );
     }
   },
 
@@ -365,52 +407,59 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, type } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
-    if (type === 'signup') {
-      if (userInfo) {
-        req.sendData = { message: 'exists email' };
-        next();
-        return;
+    try {
+      const { email, type } = req.body;
+      const userInfo: any = await db['User'].findOne({
+        where: { email },
+      });
+      if (type === 'signup') {
+        if (userInfo) {
+          req.sendData = { message: 'exists email' };
+          next();
+          return;
+        }
+      } else if (type === 'forgetPassword') {
+        if (!userInfo) {
+          req.sendData = { message: 'no exists email' };
+          next();
+          return;
+        }
       }
-    } else if (type === 'forgetPassword') {
-      if (!userInfo) {
-        req.sendData = { message: 'no exists email' };
-        next();
-        return;
+      let number: any = Math.floor(Math.random() * 1000000) + 100000;
+      if (number > 1000000) {
+        number = number - 100000;
       }
-    }
+      let title: string = '';
 
-    let number: any = Math.floor(Math.random() * 1000000) + 100000;
-    if (number > 1000000) {
-      number = number - 100000;
-    }
-    let title: string = '';
+      if (type === 'signup') {
+        title = 'RightNow 회원가입 인증번호 입니다.';
+      } else if (type === 'forgetPassword') {
+        title = 'RightNow 비밀번호 재설정 인증번호 입니다.';
+      }
 
-    if (type === 'signup') {
-      title = 'RightNow 회원가입 인증번호 입니다.';
-    } else if (type === 'forgetPassword') {
-      title = 'RightNow 비밀번호 재설정 인증번호 입니다.';
-    }
-
-    let html: any = `
+      let html: any = `
             <h1>아래의 인증번호를 RightNow 홈페이지 인증번호창에 입력해 주세요.</h1>
             <h2>[${number}]</h2>
             <br/>
             <h3>문의: ${process.env.MAIL_EMAIL}</h3>
       `;
 
-    req.sendData = {
-      data: {
-        subject: title,
-        content: html,
-        number: number,
-      },
-      message: 'ok',
-    };
-    next();
+      req.sendData = {
+        data: {
+          subject: title,
+          content: html,
+          number: number,
+        },
+        message: 'ok',
+      };
+      next();
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
   },
 
   /*
@@ -421,46 +470,54 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const type: string = 'get';
-    if (!req.headers.authorization) {
-      await accessTokenRequestValidation.accessTokenRequest(
-        req,
-        res,
-        type,
-        next,
-      );
-      return;
-    } else {
-      jwt.verify(
-        req.headers.authorization,
-        process.env.ACCESS_SECRET,
-        async (err: any, decoded: any) => {
-          if (err) {
-            await accessTokenRequestValidation.accessTokenRequest(
-              req,
-              res,
-              type,
-              next,
-            );
-            return;
-          } else {
-            const userInfo: any = await db['User'].findOne({
-              where: { email: decoded.email },
-            });
-            if (!userInfo) {
-              req.sendData = { message: 'token has been tempered' };
-              next();
+    try {
+      const type: string = 'get';
+      if (!req.headers.authorization) {
+        await accessTokenRequestValidation.accessTokenRequest(
+          req,
+          res,
+          type,
+          next,
+        );
+        return;
+      } else {
+        jwt.verify(
+          req.headers.authorization,
+          process.env.ACCESS_SECRET,
+          async (err: any, decoded: any) => {
+            if (err) {
+              await accessTokenRequestValidation.accessTokenRequest(
+                req,
+                res,
+                type,
+                next,
+              );
+              return;
             } else {
-              delete userInfo.dataValues.password;
-              req.sendData = {
-                data: { userInfo: userInfo.dataValues },
-                message: 'ok',
-              };
-              next();
+              const userInfo: any = await db['User'].findOne({
+                where: { email: decoded.email },
+              });
+              if (!userInfo) {
+                req.sendData = { message: 'token has been tempered' };
+                next();
+              } else {
+                delete userInfo.dataValues.password;
+                req.sendData = {
+                  data: { userInfo: userInfo.dataValues },
+                  message: 'ok',
+                };
+                next();
+              }
             }
-          }
-        },
-      );
+          },
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
     }
   },
 
@@ -472,55 +529,63 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, nick_name } = req.body;
-    const type: string = 'update';
+    try {
+      const { email, nick_name } = req.body;
+      const type: string = 'update';
 
-    if (!email || !nick_name) {
-      res.send('err');
-    } else if (!req.headers.authorization) {
-      await accessTokenRequestValidation.accessTokenRequest(
-        req,
-        res,
-        type,
-        next,
-      );
-      return;
-    } else {
-      jwt.verify(
-        req.headers.authorization,
-        process.env.ACCESS_SECRET,
-        async (err: any, decoded: any) => {
-          if (err) {
-            await accessTokenRequestValidation.accessTokenRequest(
-              req,
-              res,
-              type,
-              next,
-            );
-            return;
-          } else {
-            const userInfo: any = await db['User'].findOne({
-              where: { email: decoded.email },
-            });
-            if (!userInfo) {
-              req.sendData = { message: 'token has been tempered' };
-              next();
-            } else {
-              delete userInfo.dataValues.password;
-              await db['User'].update(
-                { nick_name },
-                { where: { email: decoded.email } },
+      if (!email || !nick_name) {
+        res.send('err');
+      } else if (!req.headers.authorization) {
+        await accessTokenRequestValidation.accessTokenRequest(
+          req,
+          res,
+          type,
+          next,
+        );
+        return;
+      } else {
+        jwt.verify(
+          req.headers.authorization,
+          process.env.ACCESS_SECRET,
+          async (err: any, decoded: any) => {
+            if (err) {
+              await accessTokenRequestValidation.accessTokenRequest(
+                req,
+                res,
+                type,
+                next,
               );
-              userInfo.dataValues.nick_name = nick_name;
-              req.sendData = {
-                data: { userInfo: userInfo.dataValues },
-                message: 'ok',
-              };
-              next();
+              return;
+            } else {
+              const userInfo: any = await db['User'].findOne({
+                where: { email: decoded.email },
+              });
+              if (!userInfo) {
+                req.sendData = { message: 'token has been tempered' };
+                next();
+              } else {
+                delete userInfo.dataValues.password;
+                await db['User'].update(
+                  { nick_name },
+                  { where: { email: decoded.email } },
+                );
+                userInfo.dataValues.nick_name = nick_name;
+                req.sendData = {
+                  data: { userInfo: userInfo.dataValues },
+                  message: 'ok',
+                };
+                next();
+              }
             }
-          }
-        },
-      );
+          },
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
     }
   },
 
@@ -532,123 +597,61 @@ const userValidation: UserValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { email, new_password, type } = req.body;
-    const userInfo: any = await db['User'].findOne({
-      where: { email },
-    });
+    try {
+      const { email, new_password, type } = req.body;
+      const userInfo: any = await db['User'].findOne({
+        where: { email },
+      });
 
-    if (type === 'forget') {
-      if (!userInfo) {
-        req.sendData = { message: 'no exists email' };
-        next();
-      } else {
-        const encryptedPassword: any = bcrypt.hashSync(
-          new_password,
-          Number(process.env.PASSWORD_SALT),
-        );
-
-        db['User'].update(
-          { password: encryptedPassword },
-          { where: { email } },
-        );
-        req.sendData = { message: 'ok' };
-        next();
-      }
-    } else if (type === 'know') {
-      const { password } = req.body;
-      bcrypt.compare(
-        password,
-        userInfo.password,
-        function (err: any, resp: any): void {
-          if (resp === false) {
-            req.sendData = { message: 'incorrect password' };
-            next();
-          } else if (resp === true) {
-            const encryptedPassword: any = bcrypt.hashSync(
-              new_password,
-              Number(process.env.PASSWORD_SALT),
-            );
-            db['User'].update(
-              { password: encryptedPassword },
-              { where: { email } },
-            );
-            req.sendData = { message: 'ok' };
-            next();
-          } else {
-            req.sendData = { message: 'err' };
-            next();
-          }
-        },
-      );
-    }
-  },
-
-  /*
-  프로필 이미지 업로드
-  */
-  async uploadProfileImage(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any> {
-    if (req.file === undefined) {
-      req.sendData = { message: 'no exists file' };
-      next();
-      return;
-    }
-    const { email } = req.params;
-    const { key } = req.file;
-
-    db['User']
-      .update(
-        {
-          profile_image: key,
-        },
-        {
-          where: { email },
-        },
-      )
-      .then((result: any) => {
-        if (result) {
-          req.sendData = { data: { profile_image: key }, message: 'ok' };
+      if (type === 'forget') {
+        if (!userInfo) {
+          req.sendData = { message: 'no exists email' };
           next();
         } else {
-          req.sendData = { message: 'err' };
+          const encryptedPassword: any = bcrypt.hashSync(
+            new_password,
+            Number(process.env.PASSWORD_SALT),
+          );
+
+          db['User'].update(
+            { password: encryptedPassword },
+            { where: { email } },
+          );
+          req.sendData = { message: 'ok' };
           next();
         }
-      });
-  },
-
-  /*
-  유저 신고하기
-  */
-  async reportUser(
-    req: CustomRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<any> {
-    const { message_id, reporter_email } = req.body;
-    if (message_id && reporter_email) {
-      const userInfo: any = await db['User'].findOne({
-        where: { email: reporter_email },
-      });
-      const message: any = await db['Message'].findOne({
-        where: { id: message_id },
-      });
-
-      if (userInfo && message) {
-        db['Report_message'].create({
-          message_id: Number(message_id),
-          reporter: reporter_email,
-        });
-        req.sendData = { message: 'ok' };
-        next();
-      } else {
-        req.sendData = { message: 'incorrect parameters supplied' };
-        next();
+      } else if (type === 'know') {
+        const { password } = req.body;
+        bcrypt.compare(
+          password,
+          userInfo.password,
+          function (err: any, resp: any): void {
+            if (resp === false) {
+              req.sendData = { message: 'incorrect password' };
+              next();
+            } else if (resp === true) {
+              const encryptedPassword: any = bcrypt.hashSync(
+                new_password,
+                Number(process.env.PASSWORD_SALT),
+              );
+              db['User'].update(
+                { password: encryptedPassword },
+                { where: { email } },
+              );
+              req.sendData = { message: 'ok' };
+              next();
+            } else {
+              req.sendData = { message: 'err' };
+              next();
+            }
+          },
+        );
       }
-    } else {
-      req.sendData = { message: 'insufficient parameters supplied' };
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
       next();
     }
   },
@@ -714,6 +717,91 @@ const userValidation: UserValidation = {
       limits: { fileSize: 1000 * 1000 * 10 },
     });
     upload.single('file')(req, res, next);
+  },
+
+  /*
+  프로필 이미지 업로드
+  */
+  async uploadProfileImage(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    try {
+      if (req.file === undefined) {
+        req.sendData = { message: 'no exists file' };
+        next();
+        return;
+      }
+      const { email } = req.params;
+      const { key } = req.file;
+      db['User']
+        .update(
+          {
+            profile_image: key,
+          },
+          {
+            where: { email },
+          },
+        )
+        .then((result: any) => {
+          if (result) {
+            req.sendData = { data: { profile_image: key }, message: 'ok' };
+            next();
+          } else {
+            req.sendData = { message: 'err' };
+            next();
+          }
+        });
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
+  },
+
+  /*
+  유저 신고하기
+  */
+  async reportUser(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    try {
+      const { message_id, reporter_email } = req.body;
+      if (message_id && reporter_email) {
+        const userInfo: any = await db['User'].findOne({
+          where: { email: reporter_email },
+        });
+        const message: any = await db['Message'].findOne({
+          where: { id: message_id },
+        });
+
+        if (userInfo && message) {
+          db['Report_message'].create({
+            message_id: Number(message_id),
+            reporter: reporter_email,
+          });
+          req.sendData = { message: 'ok' };
+          next();
+        } else {
+          req.sendData = { message: 'incorrect parameters supplied' };
+          next();
+        }
+      } else {
+        req.sendData = { message: 'insufficient parameters supplied' };
+        next();
+      }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
   },
 };
 

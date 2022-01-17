@@ -32,13 +32,15 @@ const adminController: AdminController = {
     } else if (
       req.sendData.message === 'ok, give new accessToken and refreshToken'
     ) {
-      res.status(201).json({
+      res.status(200).json({
         data: {
           reportedUserInfo: req.sendData.data.reportedUserInfo,
           accessToken: req.sendData.data.accessToken,
         },
         message: 'ok',
       });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
     }
   },
 
@@ -48,6 +50,8 @@ const adminController: AdminController = {
   async blockUser(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
       res.status(200).send({ message: 'ok' });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
     }
   },
 };
