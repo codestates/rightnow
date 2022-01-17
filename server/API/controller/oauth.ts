@@ -50,11 +50,11 @@ const oauthController: OAuthController = {
       //   message: 'ok',
       // });
       res.redirect(`http://localhost:3000/load?message=ok&login=google`);
-    } else if (req.sendData.message === 'invalid accessToken') {
+    } else if (
+      req.sendData.message === 'invalid accessToken' ||
+      req.sendData.message === 'Invalid authorization code'
+    ) {
       // res.status(404).send({ message: 'invalid accessToken' });
-      res.redirect(`http://localhost:3000/load?message=err&login=google`);
-    } else if (req.sendData.message === 'Invalid authorization code') {
-      // res.status(404).send({ message: 'Invalid authorization code' });
       res.redirect(`http://localhost:3000/load?message=err&login=google`);
     } else {
       res.status(500).send({ message: 'err' });
