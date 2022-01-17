@@ -132,7 +132,7 @@ const GroupTitle = styled.div`
   @media screen and (max-width: 768px) {
     & {
       font-size: 1.3rem;
-      width: 40%;
+      width: fit-content;
     }
   }
 `;
