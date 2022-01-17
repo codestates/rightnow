@@ -14,8 +14,6 @@ const {
   getGoogleSubId,
 } = require('../../method/oauth');
 
-import accessTokenRequestValidation from '../../method/token';
-
 interface OAuthValidation {
   kakaoLogin(
     req: CustomRequest,
@@ -118,7 +116,7 @@ const oauthValidation: OAuthValidation = {
     try {
       const googleAccessToken: string = await getGoogleToken(req.query.code);
       if (googleAccessToken) {
-        const data = await getGoogleSubId(googleAccessToken);
+        const data: any = await getGoogleSubId(googleAccessToken);
         if (data) {
           const email: string = data.email;
           const nick_name: string = data.email.split('@')[0];

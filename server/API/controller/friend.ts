@@ -29,6 +29,8 @@ const friendController: FriendController = {
       res.status(404).send({ message: 'no exists user' });
     } else if (req.sendData.message === 'dont have to request yourself') {
       res.status(409).send({ message: 'dont have to request yourself' });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
     }
   },
 
@@ -46,6 +48,8 @@ const friendController: FriendController = {
       res.status(404).send({ message: 'no exists request' });
     } else if (req.sendData.message === 'no exists user') {
       res.status(404).send({ message: 'no exists user' });
+    } else if (req.sendData.message === 'err') {
+      res.status(50000).send({ message: 'err' });
     }
   },
 
@@ -58,7 +62,9 @@ const friendController: FriendController = {
     } else if (req.sendData.message === 'no exists user') {
       res.status(404).send({ message: 'no exists user' });
     } else if (req.sendData.message === 'not friend') {
-      res.status(404).send({ message: 'not friend' });
+      res.status(409).send({ message: 'not friend' });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
     }
   },
 
@@ -75,6 +81,8 @@ const friendController: FriendController = {
       });
     } else if (req.sendData.message === 'no exists userInfo') {
       res.status(404).send({ message: 'no exists userInfo' });
+    } else if (req.sendData.message === 'err') {
+      res.status(404).send({ message: 'err' });
     }
   },
 
@@ -91,6 +99,8 @@ const friendController: FriendController = {
       });
     } else if (req.sendData.message === 'no exists userInfo') {
       res.status(404).send({ message: 'no exists userInfo' });
+    } else if (req.sendData.message === 'err') {
+      res.status(404).send({ message: 'err' });
     }
   },
 };

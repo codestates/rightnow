@@ -37,70 +37,78 @@ const adminValidation: AdminValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const type: string = 'adminReported';
-    if (!req.headers.authorization) {
-      await accessTokenRequestValidation.accessTokenRequest(
-        req,
-        res,
-        type,
-        next,
-      );
-      return;
-    } else {
-      jwt.verify(
-        req.headers.authorization,
-        process.env.ACCESS_SECRET,
-        async (err: any, decoded: any) => {
-          if (err) {
-            await accessTokenRequestValidation.accessTokenRequest(
-              req,
-              res,
-              type,
-              next,
-            );
-            return;
-          } else {
-            const adminInfo: any = await db['User'].findOne({
-              where: { email: decoded.email },
-            });
-            if (!adminInfo) {
-              req.sendData = { message: 'token has been tempered' };
-              next();
+    try {
+      const type: string = 'adminReported';
+      if (!req.headers.authorization) {
+        await accessTokenRequestValidation.accessTokenRequest(
+          req,
+          res,
+          type,
+          next,
+        );
+        return;
+      } else {
+        jwt.verify(
+          req.headers.authorization,
+          process.env.ACCESS_SECRET,
+          async (err: any, decoded: any) => {
+            if (err) {
+              await accessTokenRequestValidation.accessTokenRequest(
+                req,
+                res,
+                type,
+                next,
+              );
+              return;
             } else {
-              delete adminInfo.dataValues.password;
-              if (adminInfo.role === 'ADMIN') {
-                let reportedUserInfo: any = await db['Message'].findAll({
-                  include: [
-                    {
-                      model: db['Report_message'],
-                    },
-                    {
-                      model: db['User'],
-                    },
-                  ],
-                });
-                reportedUserInfo = reportedUserInfo.map((el: any) => {
-                  return el.dataValues;
-                });
-                for (let i = 0; i < reportedUserInfo.length; i++) {
-                  delete reportedUserInfo[i].User.dataValues.password;
-                }
-
-                req.sendData = {
-                  data: { reportedUserInfo: reportedUserInfo },
-                  message: 'ok',
-                };
+              const adminInfo: any = await db['User'].findOne({
+                where: { email: decoded.email },
+              });
+              if (!adminInfo) {
+                req.sendData = { message: 'token has been tempered' };
                 next();
               } else {
-                req.sendData = {
-                  message: 'not admin account',
-                };
-                next();
+                delete adminInfo.dataValues.password;
+                if (adminInfo.role === 'ADMIN') {
+                  let reportedUserInfo: any = await db['Message'].findAll({
+                    include: [
+                      {
+                        model: db['Report_message'],
+                      },
+                      {
+                        model: db['User'],
+                      },
+                    ],
+                  });
+                  reportedUserInfo = reportedUserInfo.map((el: any) => {
+                    return el.dataValues;
+                  });
+                  for (let i = 0; i < reportedUserInfo.length; i++) {
+                    delete reportedUserInfo[i].User.dataValues.password;
+                  }
+
+                  req.sendData = {
+                    data: { reportedUserInfo: reportedUserInfo },
+                    message: 'ok',
+                  };
+                  next();
+                } else {
+                  req.sendData = {
+                    message: 'not admin account',
+                  };
+                  next();
+                }
               }
             }
-          }
-        },
-      );
+          },
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
     }
   },
 
@@ -112,33 +120,41 @@ const adminValidation: AdminValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const { block_emails, block_date } = req.body;
-    for (let i = 0; i < block_emails.length; i++) {
-      await db['User'].update(
-        { block_date: block_date, is_block: 'Y' },
-        { where: { email: block_emails[i] } },
-      );
-    }
-    req.sendData = {
-      message: 'ok',
-    };
-    next();
-
-    cron.schedule(`0 0 0 * * *`, async () => {
-      const d = new Date();
-      const year = d.getFullYear();
-      const month = ('0' + (d.getMonth() + 1)).slice(-2);
-      const day = ('0' + d.getDate()).slice(-2);
-
+    try {
+      const { block_emails, block_date } = req.body;
       for (let i = 0; i < block_emails.length; i++) {
-        if (block_date === `${year}-${month}-${day}`) {
-          await db['User'].update(
-            { block_date: null, is_block: 'N' },
-            { where: { email: block_emails[i] } },
-          );
-        }
+        await db['User'].update(
+          { block_date: block_date, is_block: 'Y' },
+          { where: { email: block_emails[i] } },
+        );
       }
-    });
+      req.sendData = {
+        message: 'ok',
+      };
+      next();
+
+      cron.schedule(`0 0 0 * * *`, async () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = ('0' + (d.getMonth() + 1)).slice(-2);
+        const day = ('0' + d.getDate()).slice(-2);
+
+        for (let i = 0; i < block_emails.length; i++) {
+          if (block_date === `${year}-${month}-${day}`) {
+            await db['User'].update(
+              { block_date: null, is_block: 'N' },
+              { where: { email: block_emails[i] } },
+            );
+          }
+        }
+      });
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
   },
 };
 
