@@ -253,6 +253,7 @@ interface ChattingProps {
   handleInsertMessage: any;
   updateMessage: any;
   roomMember: Array<UserType>;
+  handleUploadImg: any;
 }
 
 const ChattingRoom = ({
@@ -263,6 +264,7 @@ const ChattingRoom = ({
   handleInsertMessage,
   updateMessage,
   roomMember,
+  handleUploadImg,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
@@ -315,23 +317,24 @@ const ChattingRoom = ({
     imgInput.current?.click();
   };
 
-  const uploadImg = async (e: React.SyntheticEvent) => {
-    const { files } = e.target as HTMLInputElement;
+  // ! Room.tsx 로 메서드 이동 - 소켓연동 위해
+  // const uploadImg = async (e: React.SyntheticEvent) => {
+  //   const { files } = e.target as HTMLInputElement;
 
-    if (files) {
-      const formData = new FormData();
-      formData.append('file', files[0]);
-      try {
-        const {
-          data: { url },
-        } = await roomAPI.sendImg(formData);
-        // ! 서버에서 받아온 이미지 url
-        console.log(url);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
+  //   if (files) {
+  //     const formData = new FormData();
+  //     formData.append('file', files[0]);
+  //     try {
+  //       const {
+  //         data: { url },
+  //       } = await roomAPI.sendImg(formData);
+  //       // ! 서버에서 받아온 이미지 url
+  //       console.log(url);
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
+  // };
 
   return (
     <Container className="flex flex-col">
@@ -439,7 +442,7 @@ const ChattingRoom = ({
                 ref={imgInput}
                 type="file"
                 accept="image/*"
-                onChange={uploadImg}
+                onChange={handleUploadImg}
               />
               <ImageBtn
                 className="text-neutral-500 hover:bg-zinc-200 active:bg-neutral-400 active:text-neutral-100 transition-all"

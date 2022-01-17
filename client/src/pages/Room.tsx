@@ -225,6 +225,7 @@ const Room = () => {
         is_update: 'N',
         write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
+        message_type: 'ADMIN',
       };
       // 들어온 인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, message]);
@@ -237,7 +238,7 @@ const Room = () => {
       });
     });
     socket.on('msg_insert', (data: any) => {
-      let { email, nick_name, profile_image } = data.sender;
+      let { email, nick_name, profile_image, message_type } = data.sender;
       let getMessage = {
         id: data.message_id,
         User: {
@@ -249,6 +250,7 @@ const Room = () => {
         is_update: 'N',
         write_date: dateToString(new Date(), '-', true),
         isAlarm: false,
+        message_type, // todo message type 추가 -IMAGE 일 경우 분기처리
       };
       //전달받은 메세지 추가
       setTalkContents((item: Array<MessageType>) => [...item, getMessage]);
@@ -285,6 +287,7 @@ const Room = () => {
         is_update: 'N',
         write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
+        message_type: 'ADMIN',
       };
       // 나간인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, inputMessage]);
@@ -300,6 +303,7 @@ const Room = () => {
         is_update: 'N',
         write_date: dateToString(new Date(), '-', true),
         isAlarm: true,
+        message_type: 'ADMIN',
       };
       // 나간인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, inputMessage]);
@@ -361,6 +365,29 @@ const Room = () => {
       message_id,
     });
   };
+  const uploadImg = async (e: React.SyntheticEvent) => {
+    const { files } = e.target as HTMLInputElement;
+
+    if (files) {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      try {
+        const {
+          data: { url },
+        } = await roomAPI.sendImg(formData);
+        // ! 서버에서 받아온 이미지 url
+        console.log(url);
+        socket.emit('msg_insert', {
+          email,
+          room_id,
+          content: url,
+          message_type: 'IMAGE',
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
   return (
     <>
       <Header />
@@ -380,6 +407,7 @@ const Room = () => {
                   handleInsertMessage={handleInsertMessage}
                   updateMessage={updateMessage}
                   roomMember={memberList}
+                  handleUploadImg={uploadImg}
                 />
               </ChatBox>
               <MemberContainer className="drop-shadow">
