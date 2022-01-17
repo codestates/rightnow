@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import { setParticipant } from '../reducers/roomSlice';
 import LoginConfirm from '../components/LoginConfirm';
-import { useTitle } from '../Routes';
 
 function dateToString(
   date: Date,
@@ -133,7 +132,7 @@ const GroupTitle = styled.div`
   @media screen and (max-width: 768px) {
     & {
       font-size: 1.3rem;
-      width: max-content;
+      width: 40%;
     }
   }
 `;
@@ -153,7 +152,6 @@ interface StateType {
 }
 
 const Room = () => {
-  useTitle('Right now - 모임방');
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -169,10 +167,6 @@ const Room = () => {
   const [roomLocation, setRoomLocation] = useState<string>('');
   const [attendMembers, setAttendMembers] = useState<UserType[]>([]);
 
-  // useEffect(() => {
-  //   if (room_id) navigate('/search');
-  // }, []);
-
   useEffect(() => {
     const roomData = async () => {
       const {
@@ -182,7 +176,6 @@ const Room = () => {
       } = await roomAPI.getRoomInfo(room_id, email);
       setTalkContents(Messages);
       setRoomLocation(location);
-
       const members = Participants.map((member: any) => {
         return member.User;
       });
