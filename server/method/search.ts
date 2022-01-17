@@ -429,6 +429,7 @@ const searchMethod = (socket: any) => {
     // 원하는 룸을 찾을 수 없을 경우 count 가 10 이상일 경우 해당 카테고리의 임시 룸 생성 아닐경우 방찾기 지속
     else {
       // 찾기 count가 10회 미만일 경우 - 계속 찾기
+      console.log(data.count);
       if (data.count < SEARCH_COUNT) {
         searchNamespace.to(data.email).emit('search_room', data);
         return;
