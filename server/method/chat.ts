@@ -111,6 +111,7 @@ const chatMethod = (socket: any): void => {
         email,
         room_id,
         content
+        type : only img
       }
     */
   socket.on('msg_insert', async (data: ChatCommunicationData | any) => {
@@ -121,6 +122,7 @@ const chatMethod = (socket: any): void => {
         data.room_id,
         data.content,
         user.email,
+        data.type || 'TEXT',
       );
       chatNamespace.to(data.room_id).emit('msg_insert', {
         message: `${data.content}`,

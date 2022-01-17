@@ -43,6 +43,7 @@ interface ChatCommunicationData {
   email: string;
   content?: string;
   message_id?: number;
+  type?: string;
 }
 
 export {
