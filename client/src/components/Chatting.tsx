@@ -51,9 +51,6 @@ const Container = styled.div`
 
 const ChattingInput = styled.input`
   width: 100%;
-  height: 3rem;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1rem;
   font-size: 1rem;
   max-height: 10rem;
 
@@ -215,6 +212,39 @@ const SubmitBtn = styled.button`
   }
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  background: white;
+
+  width: 100%;
+  height: 3rem;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  max-height: 10rem;
+`;
+
+const ImageInput = styled.input`
+  display: none;
+`;
+
+const ImageBtn = styled.button`
+  padding: 0rem 0.3rem;
+  margin-right: -0.4rem;
+  border-radius: 6px;
+  &::after {
+    font-family: 'Font Awesome\ 5 Free';
+    content: '\f03e';
+    font-weight: 900;
+    font-size: 2em;
+  }
+`;
+
+const EmptyMessage = styled.div`
+  padding: 0.4rem 1.3rem;
+`;
+
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
@@ -243,6 +273,8 @@ const ChattingRoom = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState<boolean>(false);
+
+  const imgInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollToBottom();
@@ -278,9 +310,28 @@ const ChattingRoom = ({
     setIsShow((prev) => !prev);
   };
 
-  const EmptyMessage = styled.div`
-    padding: 0.4rem 1.3rem;
-  `;
+  const ClickImgBtn = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    imgInput.current?.click();
+  };
+
+  const uploadImg = async (e: React.SyntheticEvent) => {
+    const { files } = e.target as HTMLInputElement;
+
+    if (files) {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      try {
+        const {
+          data: { url },
+        } = await roomAPI.sendImg(formData);
+        // ! 서버에서 받아온 이미지 url
+        console.log(url);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
 
   return (
     <Container className="flex flex-col">
@@ -377,13 +428,24 @@ const ChattingRoom = ({
             </Chatting>
           </ChattingContainer>
           <ChattingForm onSubmit={handleMessage}>
-            <ChattingInput
-              className="drop-shadow focus:drop-shadow-lg"
-              onChange={handleText}
-              value={text}
-              placeholder="메세지 보내기"
-              autoFocus
-            />
+            <InputContainer className="drop-shadow ">
+              <ChattingInput
+                onChange={handleText}
+                value={text}
+                placeholder="메세지 보내기"
+                autoFocus
+              />
+              <ImageInput
+                ref={imgInput}
+                type="file"
+                accept="image/*"
+                onChange={uploadImg}
+              />
+              <ImageBtn
+                className="text-neutral-500 hover:bg-zinc-200 active:bg-neutral-400 active:text-neutral-100 transition-all"
+                onClick={ClickImgBtn}
+              ></ImageBtn>
+            </InputContainer>
             <SubmitBtn type="submit">전송</SubmitBtn>
           </ChattingForm>
         </>
