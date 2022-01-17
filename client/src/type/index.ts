@@ -9,6 +9,7 @@ export interface MessageType {
   is_update: string;
   write_date: string;
   isAlarm?: boolean; // fix - 채팅방 알람타입 인지 확인위해 (유저 입장, 퇴장 시)
+  message_type: string; // message_type 추가 - img 처리
 }
 
 export interface CategoryType {
