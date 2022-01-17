@@ -9,9 +9,6 @@ const api = axios.create({
 });
 
 export const roomAPI = {
-  createRoom: () => {},
-  deleteRoom: () => {},
-  updateRoom: () => {},
   getRoomInfo: (room_id: string, email: string) =>
     api.post(`room/get`, {
       room_id,
@@ -28,5 +25,11 @@ export const roomAPI = {
     api.post(`user/report`, {
       message_id,
       reporter_email,
+    }),
+  sendImg: (formData: FormData) =>
+    api.post('/message/image', formData, {
+      headers: {
+        'Content-type': 'multipart/form-data',
+      },
     }),
 };

@@ -215,6 +215,16 @@ const SubmitBtn = styled.button`
   }
 `;
 
+const ImageInput = styled.input`
+  display: none;
+`;
+
+const ImageBtn = styled.button``;
+
+const EmptyMessage = styled.div`
+  padding: 0.4rem 1.3rem;
+`;
+
 interface ChattingProps {
   text: string;
   handleText: ChangeEventHandler<HTMLInputElement>;
@@ -243,6 +253,8 @@ const ChattingRoom = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState<boolean>(false);
+
+  const imgInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollToBottom();
@@ -278,9 +290,28 @@ const ChattingRoom = ({
     setIsShow((prev) => !prev);
   };
 
-  const EmptyMessage = styled.div`
-    padding: 0.4rem 1.3rem;
-  `;
+  const ClickImgBtn = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    imgInput.current?.click();
+  };
+
+  const uploadImg = async (e: React.SyntheticEvent) => {
+    const { files } = e.target as HTMLInputElement;
+
+    if (files) {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      try {
+        const {
+          data: { url },
+        } = await roomAPI.sendImg(formData);
+        // ! 이미지 url
+        console.log(url);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
 
   return (
     <Container className="flex flex-col">
@@ -384,6 +415,13 @@ const ChattingRoom = ({
               placeholder="메세지 보내기"
               autoFocus
             />
+            <ImageInput
+              ref={imgInput}
+              type="file"
+              accept="image/*"
+              onChange={uploadImg}
+            />
+            <ImageBtn onClick={ClickImgBtn}>{'이미지'}</ImageBtn>
             <SubmitBtn type="submit">전송</SubmitBtn>
           </ChattingForm>
         </>
