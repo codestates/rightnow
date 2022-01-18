@@ -89,7 +89,7 @@ function Routes() {
           code: kakaoAuthCode,
         };
         const callback = (code: number, data: string): void => {
-          if (code === 201) {
+          if (code === 200) {
             dispatch(updateAccessToken(data));
           }
         };

@@ -110,7 +110,7 @@ const TempJoin = () => {
         if (code === 201) {
           dispatch(updateUrl('tempSignup'));
           dispatch(updateAccessToken(data));
-        } else if (code === 400) {
+        } else if (code === 409) {
           setError('닉네임이 존재합니다.');
           nicknameRef.current?.focus();
         }
