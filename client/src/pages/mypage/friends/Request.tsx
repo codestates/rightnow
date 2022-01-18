@@ -106,7 +106,7 @@ const Request = () => {
                 }}
               />
               <div className="ml-5 font-semibold text-sub">{nick_name}</div>
-              <div className="absolute right-0 flex items-center space-x-2">
+              <div className="absolute right-0 flex items-center space-x-1">
                 <div
                   className=" bg-main py-1.5 px-4 text-sm text-white rounded-md text-center hover:bg-orange-700 cursor-pointer"
                   onClick={() => {
