@@ -31,6 +31,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       is_block: {
+        defaultValue: 'N',
         type: Sequelize.STRING,
       },
       block_date: {
