@@ -4,4 +4,9 @@ import messageValidation from '../API/validation/message';
 
 const messageRouter: Router = express.Router();
 
+messageRouter.post(
+  '/image',
+  messageValidation.uploadImage,
+  messageController.uploadImage,
+);
 export default messageRouter;

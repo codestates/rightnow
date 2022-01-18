@@ -18,7 +18,7 @@ const oauthController: OAuthController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
       });
-      res.status(201).send({
+      res.status(200).send({
         data: {
           userInfo: req.sendData.data.userInfo,
           accessToken: req.sendData.data.accessToken,
@@ -29,7 +29,7 @@ const oauthController: OAuthController = {
       res.status(404).send({ message: 'invalid accessToken' });
     } else if (req.sendData.message === 'Invalid authorization code') {
       res.status(404).send({ message: 'Invalid authorization code' });
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },
@@ -42,21 +42,13 @@ const oauthController: OAuthController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
       });
-      // res.status(201).send({
-      //   data: {
-      //     userInfo: req.sendData.data.userInfo,
-      //     accessToken: req.sendData.data.accessToken,
-      //   },
-      //   message: 'ok',
-      // });
       res.redirect(`http://localhost:3000/load?message=ok&login=google`);
-    } else if (req.sendData.message === 'invalid accessToken') {
-      // res.status(404).send({ message: 'invalid accessToken' });
+    } else if (
+      req.sendData.message === 'invalid accessToken' ||
+      req.sendData.message === 'Invalid authorization code'
+    ) {
       res.redirect(`http://localhost:3000/load?message=err&login=google`);
-    } else if (req.sendData.message === 'Invalid authorization code') {
-      // res.status(404).send({ message: 'Invalid authorization code' });
-      res.redirect(`http://localhost:3000/load?message=err&login=google`);
-    } else {
+    } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
   },
