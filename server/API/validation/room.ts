@@ -105,11 +105,11 @@ const roomValidation: RoomValidation = {
                 exclude: ['is_block', 'block_date', 'createdAt', 'updatedAt'],
               },
             },
-            where: {
-              write_date: {
-                [Op.gte]: messageDate,
-              },
-            },
+            // where: {
+            //   write_date: {
+            //     [Op.gte]: messageDate,
+            //   },
+            // },
             required: false,
           },
         ],
