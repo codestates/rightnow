@@ -124,6 +124,7 @@ const chatMethod = (socket: any): void => {
         user.email,
         data.message_type || 'TEXT',
       );
+      console.log(message.message_type);
       chatNamespace.to(data.room_id).emit('msg_insert', {
         message: `${data.content}`,
         sender: user,

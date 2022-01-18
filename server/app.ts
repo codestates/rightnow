@@ -37,7 +37,7 @@ app.use('/oauth', oauthRouter);
 
 app.use(socketRouter);
 app.get('/', (req: Request, res: Response): void => {
-  res.send('Hellow TypeScript!! !!! x');
+  res.send('It is RightNow Server !');
 });
 
 app.listen(port, () => {
