@@ -18,6 +18,7 @@ const oauthController: OAuthController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
       });
+      console.log(req.sendData.data.userInfo);
       res.status(200).send({
         data: {
           userInfo: req.sendData.data.userInfo,
