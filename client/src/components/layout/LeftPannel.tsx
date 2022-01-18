@@ -44,7 +44,9 @@ const LeftPannel = ({ options, type }: IProps) => {
                 ? `/mypage/friends/${id}`
                 : type === 'report'
                 ? `/mypage/report/${id}`
-                : `/mypage/category/${id}`
+                : type === 'category'
+                ? `/mypage/category/${id}`
+                : `/mypage/user/${id}`
             }
             key={id}
             onClick={() => {
@@ -62,10 +64,6 @@ const LeftPannel = ({ options, type }: IProps) => {
                   ? 'text-red-500 hover:bg-gray-100 hover:font-semibold'
                   : 'text-sub hover:bg-gray-100 hover:font-semibold'
               }`}
-              // onClick={() => {
-              //   setSelectedId(id);
-              //   setSelectedIdIndex(index);
-              // }}
             >
               <span>{label}</span>
               {id === 'request' && requestFriendCount !== 0 && (

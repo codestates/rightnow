@@ -36,6 +36,7 @@ const Header = () => {
       ? [
           { id: 'friends', label: '친구관리', to: '/mypage/friends/list' },
           { id: 'account', label: '계정관리', to: '/mypage/account/profile' },
+          { id: 'user', label: '유저관리', to: '/mypage/user/list' },
           { id: 'report', label: '신고관리', to: '/mypage/report/user' },
           { id: 'category', label: '카테고리', to: '/mypage/category/list' },
         ]
@@ -58,12 +59,12 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-30 top-0">
+      <header className="bg-gray-50 h-16 flex shadow-md justify-center space-x-96 fixed w-full z-40 top-0">
         <Link to={isLogin ? '/search' : '/'} className="flex items-center">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Logo />
             <p className=" text-sub font-bold text-4xl whitespace-nowrap w-auto ">
-              rightnow
+              Rightnow
             </p>
           </div>
         </Link>
@@ -85,7 +86,11 @@ const Header = () => {
             </Link>
           )}
           {isLogin && (
-            <div className=" text-slate-600 font-semibold text-sm mr-2 whitespace-nowrap text-ellipsis">{`${nickname}님 환영합니다`}</div>
+            <div className=" text-slate-600 font-semibold text-sm mr-2 whitespace-nowrap text-ellipsis">
+              {role === 'ADMIN'
+                ? `${nickname}(관리자)님 환영합니다`
+                : `${nickname}님 환영합니다`}
+            </div>
           )}
           {isLogin && (
             <div

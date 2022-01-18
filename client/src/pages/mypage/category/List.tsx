@@ -1,7 +1,7 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { categoryAPI } from '../../../api/categoryApi';
-import { useAppDispatch } from '../../../config/hooks';
-import { showAlert } from '../../../reducers/componetSlice';
+import { useAppDispatch, useAppSelector } from '../../../config/hooks';
+import { alert, showAlert } from '../../../reducers/componetSlice';
 import StyleIcon from '@material-ui/icons/Style';
 import { IconButton } from '@material-ui/core';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
@@ -9,6 +9,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { isNumber } from '../../../utils/regex';
+import MovieIcon from '@material-ui/icons/Movie';
+import SportsEsportsIcon from '@material-ui/icons/SportsEsports';
+import SportsBaseballIcon from '@material-ui/icons/SportsBaseball';
+import SportsBasketballIcon from '@material-ui/icons/SportsBasketball';
+import SportsSoccerIcon from '@material-ui/icons/SportsSoccer';
+import SportsTennisIcon from '@material-ui/icons/SportsTennis';
+import GroupIcon from '@material-ui/icons/Group';
 
 interface ICategory {
   id: number;
@@ -20,6 +27,8 @@ interface ICategory {
 
 const List = () => {
   const dispatch = useAppDispatch();
+  // 알림 창 존재 유무
+  const isExistAlert = useAppSelector(alert) !== '';
   // 카테고리
   const [category, setCategory] = useState<ICategory[]>([]);
   // 선택된 카테고리
@@ -37,10 +46,7 @@ const List = () => {
     const temp_category = [...category];
     if (e.target.id === 'name-' + id) {
       temp_category[index].name = e.target.value;
-    } else if (
-      e.target.id === 'user_num-' + id &&
-      isNumber(e.target.value)
-    ) {
+    } else if (e.target.id === 'user_num-' + id && isNumber(e.target.value)) {
       temp_category[index].user_num = Number(e.target.value);
     }
     setCategory(temp_category);
@@ -111,7 +117,7 @@ const List = () => {
 
   // 엔터 단축키 관련
   const pressEnter = (e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.code === 'Enter') {
+    if (e.code === 'Enter' && !isExistAlert) {
       updateCategory();
     }
   };
@@ -173,7 +179,25 @@ const List = () => {
                 </div>
                 <div className="w-1/3">{updatedAt}</div>
                 <div className="absolute left-1 ">
-                  <StyleIcon />
+                  {name === '축구' ? (
+                    <SportsSoccerIcon />
+                  ) : name === '농구' ? (
+                    <SportsBasketballIcon />
+                  ) : name === '테니스' ? (
+                    <SportsTennisIcon />
+                  ) : name === '배드민턴' ? (
+                    <SportsTennisIcon />
+                  ) : name === '야구' ? (
+                    <SportsBaseballIcon />
+                  ) : name === '영화' ? (
+                    <MovieIcon />
+                  ) : name === '게임' ? (
+                    <SportsEsportsIcon />
+                  ) : name === '미팅' ? (
+                    <GroupIcon />
+                  ) : (
+                    <StyleIcon />
+                  )}
                 </div>
                 {selectId === id ? (
                   <div

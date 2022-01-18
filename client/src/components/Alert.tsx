@@ -171,7 +171,7 @@ const Alert = () => {
     <>
       <div
         className={`w-full absolute top-0 left-0 bg-opacity-100 flex justify-center items-start ${
-          alertType ? 'z-40 opacity-100 h-full' : '-z-10 opacity-0 h-0'
+          alertType ? 'z-50 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         onClick={closeAlert}
       >

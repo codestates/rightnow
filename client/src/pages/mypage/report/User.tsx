@@ -5,6 +5,7 @@ import { userAccessToken } from '../../../reducers/userSlice';
 import defaultProfile from '../../../images/profile.png';
 import { IconButton } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import HelpIcon from '@material-ui/icons/Help';
 interface IReporter {
   reporter: string;
   date: string;
@@ -32,6 +33,7 @@ const User = () => {
 
   // user의 accessToken
   const aceessToken = useAppSelector(userAccessToken);
+  console.log(aceessToken)
   // 신고목록
   const [reportList, setReportList] = useState<[]>([]);
   const getReportList = async () => {
@@ -41,7 +43,7 @@ const User = () => {
         console.log(res.data.data.reportedUserInfo);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
       });
   };
   useEffect((): void => {
@@ -193,17 +195,44 @@ const User = () => {
     },
   ];
 
+  // help 메세지 보임 유무
+  const [isVisibleHelp, setIsVisibleHelp] = useState<boolean>(false);
+
   return (
     <>
-      <div className="w-215 text-sm text-sub ">
-        <div className="flex items-center fixed w-215 z-10 bg-white font-semibold pt-5 -mt-5">
+      <div className="w-215 text-xs text-sub pb-18">
+        <div className="flex items-center fixed w-215 z-20 bg-white font-semibold pt-5 -mt-5 pb-1">
           <div className="w-1/5 pl-10">이메일</div>
           <div className="w-1/5">정지상태(~까지 정지)</div>
-          <div className="w-1/5">메세지</div>
+          <div className="w-1/5 flex items-center relative">
+            <div>메세지</div>
+            <div
+              className="ml-1 flex items-center justify-center cursor-help relative"
+              onMouseOver={() => {
+                setIsVisibleHelp(true);
+              }}
+              onMouseLeave={() => {
+                setIsVisibleHelp(false);
+              }}
+            >
+              <HelpIcon style={{ fontSize: 20 }} />
+            </div>
+            <div
+              className={`absolute left-18 top-0 w-60 p-2 rounded-md shadow-md border-1 text-xs font-normal bg-white ${
+                isVisibleHelp ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <span className="text-blue-600 font-semibold">파란색</span>{' '}
+              메세지는 처리가 된 메세지,{' '}
+              <span className="text-main font-semibold">빨간색</span> 메세지는
+              처리가 되지 않은 메세지 입니다. 신고 된 유저를 제재하면 현재
+              존재하는 비처리 건은 모두 처리 된 메세지로 바뀝니다.
+            </div>
+          </div>
           <div className="w-1/5">신고자</div>
           <div className="w-1/5">신고일</div>
         </div>
-        <div className="relative top-4">
+        <div className="relative top-7">
           {data.map((obj, index) => {
             const { reportedUser, profile_image, block_date, aboutReport } =
               obj;
@@ -246,7 +275,7 @@ const User = () => {
                       >
                         <div
                           className={`w-1/3 break-words ${
-                            complete === 'Y' ? 'text-blue-500' : 'text-main'
+                            complete === 'Y' ? 'text-blue-600' : 'text-main'
                           }`}
                         >
                           {message}
@@ -277,33 +306,35 @@ const User = () => {
                     setSelectedIndex(index);
                   }}
                 >
-                  <IconButton size="small">
-                    <MoreVertIcon />
-                  </IconButton>
-                </div>
-                {selectedIndex === index && (
-                  <div
-                    className=" bg-white absolute -right-13 top-30 z-10 w-32 py-2 border-1 rounded-md text-xs text-slate-500 shadow-md"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    {block_date_option.map((v) => {
-                      return (
-                        <p
-                          key={v}
-                          className="hover:bg-gray-100 cursor-pointer px-2 py-2"
-                          onClick={() => {
-                            blockUser(v, reportedUser);
-                            setSelectedIndex(-1);
-                          }}
-                        >
-                          {v === '영구' ? '영구 정지' : `${v}일 정지`}
-                        </p>
-                      );
-                    })}
+                  <div className="relative">
+                    <IconButton size="small">
+                      <MoreVertIcon />
+                    </IconButton>
+                    {selectedIndex === index && (
+                      <div
+                        className=" bg-white absolute right-8 -top-19 z-10 w-32 py-2 border-1 rounded-md text-xs text-slate-500 shadow-md"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {block_date_option.map((v) => {
+                          return (
+                            <p
+                              key={v}
+                              className="hover:bg-gray-100 cursor-pointer px-2 py-2"
+                              onClick={() => {
+                                blockUser(v, reportedUser);
+                                setSelectedIndex(-1);
+                              }}
+                            >
+                              {v === '영구' ? '영구 정지' : `${v}일 정지`}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             );
           })}

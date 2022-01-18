@@ -90,7 +90,7 @@ const Modal = ({ password }: IProps) => {
     <>
       <div
         className={`w-full absolute top-0 left-0 bg-black bg-opacity-20 flex justify-center items-center ${
-          modalType ? 'z-40 opacity-100 h-full' : '-z-10 opacity-0 h-0'
+          modalType ? 'z-50 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         // onClick={closeModal}
       >

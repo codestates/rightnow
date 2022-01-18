@@ -16,4 +16,5 @@ export const adminAPI = {
       },
     }),
   userBlock: () => {},
+  getUserList: () => api.get('/user'),
 };
