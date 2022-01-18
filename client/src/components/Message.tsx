@@ -187,7 +187,7 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
               ) : (
                 <MenuContainer>
                   {User ? (
-                    email !== User.email ? null : (
+                    email !== User.email || message_type === 'IMAGE' ? null : (
                       <Edit onClick={handleEdit}>
                         {isEdit ? '수정 취소' : '수정'}
                       </Edit>
