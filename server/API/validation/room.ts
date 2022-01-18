@@ -73,6 +73,19 @@ const roomValidation: RoomValidation = {
         },
       });
       console.log(participant.dataValues);
+      let [date, time] = participant.dataValues.enter_date.split(' ');
+      let [Y, M, D] = date.split('-');
+      let [h, m, s] = time.split(':');
+      console.log(`${Y} ${M} ${D} ${h} ${m} ${s}`);
+      let messageDate = new Date(
+        Number(Y),
+        Number(M) - 1,
+        Number(D),
+        Number(h),
+        Number(m),
+        Number(s),
+      );
+      console.log(messageDate);
       let room = await db.Room.findOne({
         include: [
           {
@@ -94,7 +107,7 @@ const roomValidation: RoomValidation = {
             },
             where: {
               write_date: {
-                [Op.gte]: participant.dataValues.enter_date,
+                [Op.gte]: messageDate,
               },
             },
             required: false,
@@ -103,7 +116,6 @@ const roomValidation: RoomValidation = {
         order: [[db.Message, 'write_date', 'ASC']],
         where: { id: room_id },
       });
-
       if (room === null)
         req.sendData = { data: 'N/A', message: 'room not exist', status: 409 };
       else {
