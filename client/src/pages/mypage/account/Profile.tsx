@@ -16,11 +16,6 @@ import { IconButton } from '@material-ui/core';
 import userApi from '../../../api/userApi';
 import { showAlert } from '../../../reducers/componetSlice';
 
-interface IShowDropDown {
-  userInfo: boolean;
-  image: boolean;
-}
-
 const Proflie = () => {
   const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
 
@@ -29,30 +24,14 @@ const Proflie = () => {
   // 유저 프로파일 이미지
   const profile = useAppSelector(userProfile);
   // 드롭다운 보임 유무
-  const [showDropDown, setShowDropDown] = useState<IShowDropDown>({
-    userInfo: false,
-    image: false,
-  });
+  const [showUserInfo, setShowUserInfo] = useState<boolean>(false);
+  const [showProfileImage, setShowProfileImage] = useState<boolean>(true);
 
   // 유저의 이메일
   const email = useAppSelector(userEmail);
 
   // 유저의 accessToken
   const accessToken = useAppSelector(userAccessToken);
-
-  const toggleDropDown = (e: any): void => {
-    if (e.target.id === 'userInfo') {
-      setShowDropDown({
-        ...showDropDown,
-        userInfo: !showDropDown.userInfo,
-      });
-    } else if (e.target.id === 'image') {
-      setShowDropDown({
-        ...showDropDown,
-        image: !showDropDown.image,
-      });
-    }
-  };
 
   // 회원정보 관련
   const curNickname = useAppSelector(userNickname);
@@ -94,9 +73,14 @@ const Proflie = () => {
         })
         .then((res) => {
           dispatch(updateProfile(res.data.data.profile_image));
+          dispatch(showAlert('updateProfile'));
+          document.getElementById('profile-upload')?.blur();
         })
         .catch((err) => {
-          console.log(err.response);
+          if (err.response.status === 400) {
+            window.location.reload();
+            dispatch(showAlert('profileTypeError'));
+          }
         });
     }
   };
@@ -129,18 +113,18 @@ const Proflie = () => {
   return (
     <>
       <p className="text-lg font-semibold">프로필 설정</p>
-      <div className="mt-5">
+      <div className="mt-2">
         <div
           className={`flex items-center p-4 w-96 justify-between border-2 border-slate-300 ${
-            showDropDown.userInfo ? 'rounded-t-md' : 'rounded-md'
+            showUserInfo ? 'rounded-t-md' : 'rounded-md'
           }`}
         >
           <div className="font-semibold">회원정보 수정</div>
-          {showDropDown.userInfo ? (
+          {showUserInfo ? (
             <IconButton
               size={'small'}
-              onClick={(e) => {
-                toggleDropDown(e);
+              onClick={() => {
+                setShowUserInfo(false);
               }}
             >
               <KeyboardArrowUp
@@ -151,8 +135,8 @@ const Proflie = () => {
           ) : (
             <IconButton
               size={'small'}
-              onClick={(e) => {
-                toggleDropDown(e);
+              onClick={() => {
+                setShowUserInfo(true);
               }}
             >
               <KeyboardArrowDown
@@ -164,9 +148,7 @@ const Proflie = () => {
         </div>
         <div
           className={`w-96 overflow-hidden border-2 -mt-0.5 border-slate-300 border-t-0 rounded-b-md text-center transition-all space-y-5 ${
-            showDropDown.userInfo
-              ? 'p-4 h-60 opacity-100'
-              : 'p-0 h-0 opacity-0 border-0'
+            showUserInfo ? 'p-4 h-60 opacity-100' : 'p-0 h-0 opacity-0 border-0'
           }`}
         >
           <div className="space-y-1">
@@ -212,15 +194,15 @@ const Proflie = () => {
       <div className="mt-5">
         <div
           className={`flex items-center p-4 w-96 justify-between border-2 border-slate-300 ${
-            showDropDown.image ? 'rounded-t-md' : 'rounded-md'
+            showProfileImage ? 'rounded-t-md' : 'rounded-md'
           }`}
         >
           <div className="font-semibold">프로필 사진</div>
-          {showDropDown.image ? (
+          {showProfileImage ? (
             <IconButton
               size={'small'}
-              onClick={(e) => {
-                toggleDropDown(e);
+              onClick={() => {
+                setShowProfileImage(false);
               }}
             >
               <KeyboardArrowUp
@@ -231,8 +213,8 @@ const Proflie = () => {
           ) : (
             <IconButton
               size={'small'}
-              onClick={(e) => {
-                toggleDropDown(e);
+              onClick={() => {
+                setShowProfileImage(true);
               }}
             >
               <KeyboardArrowDown
@@ -244,7 +226,7 @@ const Proflie = () => {
         </div>
         <div
           className={`w-96 overflow-hidden border-2 -mt-0.5 border-slate-300 border-t-0 rounded-b-md text-center transition-all ${
-            showDropDown.image
+            showProfileImage
               ? 'p-4 h-80 opacity-100'
               : 'p-0 h-0 opacity-0 border-0'
           }`}
@@ -255,9 +237,10 @@ const Proflie = () => {
               backgroundImage: `url(${
                 profile === null
                   ? defaultProfile
-                  : profile.indexOf('kakaocdn') === -1
-                  ? imageEndpoint + profile
-                  : profile
+                  : profile.indexOf('kakaocdn') !== -1 ||
+                    profile.indexOf('googleusercontent') !== -1
+                  ? profile
+                  : imageEndpoint + profile
               })`,
               backgroundSize: 'cover',
             }}

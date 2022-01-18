@@ -9,9 +9,9 @@ import { Link } from 'react-router-dom';
 import AuthContainer from '../../components/layout/AuthContainer';
 import Logo from '../../components/Logo';
 import userApi from '../../api/userApi';
-import { useAppDispatch } from '../../config/hooks';
+import { useAppDispatch, useAppSelector } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
-import { showAlert, updateUrl } from '../../reducers/componetSlice';
+import { alert, showAlert, updateUrl } from '../../reducers/componetSlice';
 
 interface IUserInfo {
   nickname: string;
@@ -22,8 +22,12 @@ interface IUserInfo {
 const TempJoin = () => {
   const dispatch = useAppDispatch();
   // ref
+  const nicknameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const rePasswordRef = useRef<HTMLInputElement>(null);
+
+  // 알림 창 존재 유무
+  const isExistAlert = useAppSelector(alert) !== '';
 
   // 사용자의 이메일, 페스워드 state
   const [userInfo, setUserInfo] = useState<IUserInfo>({
@@ -76,17 +80,19 @@ const TempJoin = () => {
 
   // 엔터 단축키 관련 >>> 한글 마지막 글자가 다음 input에 써지는 에러가 있습니다.
   const pressEnter = (e: KeyboardEvent<HTMLInputElement>): void => {
-    const target = e.target as HTMLInputElement;
-    if (target.id === 'nickname' && e.code === 'Enter') {
-      passwordRef.current?.focus();
-    } else if (target.id === 'password' && e.code === 'Enter') {
-      rePasswordRef.current?.focus();
-    } else if (
-      target.id === 're-password' &&
-      !isDisable &&
-      e.code === 'Enter'
-    ) {
-      requestTempSignup();
+    if (!isExistAlert) {
+      const target = e.target as HTMLInputElement;
+      if (target.id === 'nickname' && e.code === 'Enter') {
+        passwordRef.current?.focus();
+      } else if (target.id === 'password' && e.code === 'Enter') {
+        rePasswordRef.current?.focus();
+      } else if (
+        target.id === 're-password' &&
+        !isDisable &&
+        e.code === 'Enter'
+      ) {
+        requestTempSignup();
+      }
     }
   };
 
@@ -102,13 +108,15 @@ const TempJoin = () => {
         if (code === 201) {
           dispatch(updateUrl('tempSignup'));
           dispatch(updateAccessToken(data));
-        } else if(code === 400) {
-          setError('닉네임이 존재합니다.')
+        } else if (code === 400) {
+          setError('닉네임이 존재합니다.');
+          nicknameRef.current?.focus();
         }
       };
       userApi('signup', body, callback);
     } else {
       setError('비밀번호가 일치하지 않습니다.');
+      passwordRef.current?.focus();
     }
   };
 
@@ -133,9 +141,10 @@ const TempJoin = () => {
               }}
               placeholder="닉네임을 8글자 이내로 입력해주세요"
               maxLength={8}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
+              ref={nicknameRef}
             />
           </div>
           <div className="mt-2">
@@ -147,7 +156,7 @@ const TempJoin = () => {
               onChange={(e) => {
                 stateHandler(e);
               }}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               placeholder="비밀번호를 입력해주세요"
@@ -163,7 +172,7 @@ const TempJoin = () => {
               onChange={(e) => {
                 stateHandler(e);
               }}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               placeholder="비밀번호를 한번 더 입력해주세요"

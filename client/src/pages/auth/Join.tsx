@@ -7,12 +7,12 @@ import React, {
 } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContainer from '../../components/layout/AuthContainer';
-import { isValidEmail } from '../../utils/regex';
+import { isNumber, isValidEmail } from '../../utils/regex';
 import Logo from '../../components/Logo';
 import userApi from '../../api/userApi';
-import { useAppDispatch } from '../../config/hooks';
+import { useAppDispatch, useAppSelector } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
-import { showAlert, updateUrl } from '../../reducers/componetSlice';
+import { alert, showAlert, updateUrl } from '../../reducers/componetSlice';
 
 interface IUserInfo {
   email: string;
@@ -38,10 +38,14 @@ const Join = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   // ref
+  const emailRef = useRef<HTMLInputElement>(null);
   const nicknameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const rePasswordRef = useRef<HTMLInputElement>(null);
   const authRef = useRef<HTMLInputElement>(null);
+
+  // 알림 창 존재 유무
+  const isExistAlert = useAppSelector(alert) !== '';
 
   // 사용자의 이메일, 페스워드 state
   const [userInfo, setUserInfo] = useState<IUserInfo>({
@@ -81,7 +85,7 @@ const Join = () => {
         ...userInfo,
         rePassword: e.target.value.replace(/ /g, ''),
       });
-    } else if (e.target.id === 'auth') {
+    } else if (e.target.id === 'auth' && isNumber(e.target.value)) {
       setUserInfo({
         ...userInfo,
         auth: e.target.value.replace(/ /g, ''),
@@ -138,28 +142,34 @@ const Join = () => {
     }
   }, [userInfo.auth]);
 
-  // 엔터 단축키 관련 >>> 한글 마지막 글자가 다음 input에 써지는 에러가 있습니다.
+  // 엔터 단축키 관련
   const pressEnter = (e: KeyboardEvent<HTMLInputElement>): void => {
-    const target = e.target as HTMLInputElement;
-    if (target.id === 'email' && e.code === 'Enter') {
-      // nicknameRef.current.focus();
-    } else if (target.id === 'nickname' && e.code === 'Enter') {
-      // passwordRef.current.focus();
-    } else if (target.id === 'password' && e.code === 'Enter') {
-      // rePasswordRef.current.focus();
-    } else if (
-      target.id === 're-password' &&
-      !isDisable.authDisable &&
-      e.code === 'Enter'
-    ) {
-      reuqestEmailAuth();
-    }
-    if (
-      target.id === 'auth' &&
-      e.code === 'Enter' &&
-      !isDisable.singUpDisable
-    ) {
-      requestSignup();
+    if (!isExistAlert) {
+      const target = e.target as HTMLInputElement;
+      if (
+        target.id === 'email' &&
+        isValidEmail(userInfo.email) &&
+        e.code === 'Enter'
+      ) {
+        nicknameRef.current?.focus();
+      } else if (target.id === 'nickname' && e.code === 'Enter') {
+        passwordRef.current?.focus();
+      } else if (target.id === 'password' && e.code === 'Enter') {
+        rePasswordRef.current?.focus();
+      } else if (
+        target.id === 're-password' &&
+        !isDisable.authDisable &&
+        e.code === 'Enter'
+      ) {
+        reuqestEmailAuth();
+      }
+      if (
+        target.id === 'auth' &&
+        e.code === 'Enter' &&
+        !isDisable.singUpDisable
+      ) {
+        requestSignup();
+      }
     }
   };
 
@@ -184,20 +194,22 @@ const Join = () => {
   const reuqestEmailAuth = (): void => {
     if (userInfo.password !== userInfo.rePassword) {
       setError({
-        ...error,
+        authError: '',
+        existEmailError: '',
         passwordError: '비밀번호가 일치하지 않습니다.',
       });
+      passwordRef.current?.focus();
     } else {
+      setError({
+        authError: '',
+        existEmailError: '',
+        passwordError: '',
+      });
       setShowAuthNumber(false);
       setShowTimer(false);
       setIsDisable({
         ...isDisable,
         authDisable: true,
-      });
-      setError({
-        passwordError: '',
-        authError: '',
-        existEmailError: '',
       });
       clearInterval(timerId.current);
       time.current = 180;
@@ -230,13 +242,15 @@ const Join = () => {
         } else {
           clearInterval(timerId.current);
           setError({
-            ...error,
+            authError: '',
             existEmailError: data,
+            passwordError: '',
           });
           setIsDisable({
             ...isDisable,
             authDisable: false,
           });
+          emailRef.current?.focus();
         }
       };
       userApi(
@@ -255,6 +269,7 @@ const Join = () => {
         ...error,
         authError: '인증번호가 일치하지 않습니다.',
       });
+      authRef.current?.focus();
     } else {
       setError({
         ...error,
@@ -300,10 +315,11 @@ const Join = () => {
                 stateHandler(e);
               }}
               placeholder="이메일을 입력해주세요"
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               disabled={isDisable.emailDisable}
+              ref={emailRef}
             />
           </div>
           <div className="mt-2">
@@ -317,7 +333,7 @@ const Join = () => {
               }}
               placeholder="닉네임을 8글자 이내로 입력해주세요"
               maxLength={8}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               ref={nicknameRef}
@@ -332,7 +348,7 @@ const Join = () => {
               onChange={(e) => {
                 stateHandler(e);
               }}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               placeholder="비밀번호를 입력해주세요"
@@ -348,7 +364,7 @@ const Join = () => {
               onChange={(e) => {
                 stateHandler(e);
               }}
-              onKeyDown={(e) => {
+              onKeyPress={(e) => {
                 pressEnter(e);
               }}
               placeholder="비밀번호를 한번 더 입력해주세요"
@@ -357,9 +373,6 @@ const Join = () => {
           </div>
           <div className="mt-2">
             <div className="inline-flex relative w-96 justify-end">
-              <p className="text-red-400 absolute top-2 left-2 text-sm">
-                {error.passwordError}
-              </p>
               {showTimer && (
                 <p className="text-red-400 absolute top-2 right-40 text-sm">
                   {time.current !== -1
@@ -367,9 +380,9 @@ const Join = () => {
                     : '인증시간을 초과하였습니다.'}
                 </p>
               )}
-              {error.existEmailError && (
+              {(error.existEmailError || error.passwordError) && (
                 <p className="text-red-400 absolute top-2 right-40 text-sm">
-                  {error.existEmailError}
+                  {error.existEmailError || error.passwordError}
                 </p>
               )}
               <button
@@ -396,11 +409,12 @@ const Join = () => {
                   className="border-2 w-96 border-slate-200 h-12 rounded-md pl-2 outline-main"
                   type={'text'}
                   value={userInfo.auth}
+                  maxLength={6}
                   onChange={(e) => {
                     stateHandler(e);
                   }}
                   placeholder="인증번호 6자리를 입력해주세요"
-                  onKeyDown={(e) => {
+                  onKeyPress={(e) => {
                     pressEnter(e);
                   }}
                   ref={authRef}

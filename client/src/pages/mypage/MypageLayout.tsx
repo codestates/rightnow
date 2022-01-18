@@ -16,8 +16,11 @@ import {
   userEmail,
   userIsLogin,
   userRequestFriendList,
+  userRole,
 } from '../../reducers/userSlice';
 import friendsApi from '../../api/friendsApi';
+import ReportLayout from './report/ReportLayout';
+import CategoryLayout from './category/CategoryLayout';
 
 interface IOption {
   id: string;
@@ -40,15 +43,25 @@ interface IData {
 const MypageLayout = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
+  // 유저 role
+  const role = useAppSelector(userRole);
   // 유저 친구요청 목록
   const requestFriendList = useAppSelector(userRequestFriendList);
   // 유저 이메일
   const email = useAppSelector(userEmail);
   // mypage 옵션
-  const headerOption: IOption[] = [
-    { id: 'friends', label: '친구관리' },
-    { id: 'account', label: '계정관리' },
-  ];
+  const mypageOption: IOption[] =
+    role === 'ADMIN'
+      ? [
+          { id: 'friends', label: '친구관리' },
+          { id: 'account', label: '계정관리' },
+          { id: 'report', label: '신고관리' },
+          { id: 'category', label: '카테고리' },
+        ]
+      : [
+          { id: 'friends', label: '친구관리' },
+          { id: 'account', label: '계정관리' },
+        ];
 
   const [selectedId, setSelectedId] = useState<string>(
     location.pathname.split('/')[2],
@@ -62,6 +75,7 @@ const MypageLayout = () => {
   const isLogin = useAppSelector(userIsLogin);
   const router = useNavigate();
 
+  // 로그인 상태가 아닐 경우, 로그인 상태 일 경우 분기처리
   useEffect((): void => {
     if (!isLogin) {
       router('/');
@@ -86,16 +100,20 @@ const MypageLayout = () => {
   return (
     <>
       <Header />
-      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-10">
+      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-20">
         <div className="inline-flex w-222 h-full items-center relative">
-          {headerOption.map((v, i) => {
+          {mypageOption.map((v, i) => {
             const { id, label } = v;
             return (
               <Link
                 to={
                   id === 'friends'
                     ? '/mypage/friends/list'
-                    : '/mypage/account/profile'
+                    : id === 'account'
+                    ? '/mypage/account/profile'
+                    : id === 'report'
+                    ? '/mypage/report/user'
+                    : '/mypage/category/list'
                 }
                 key={id}
               >
@@ -116,7 +134,13 @@ const MypageLayout = () => {
           })}
           <div
             className={`inline-block bg-main h-0.75 rounded-sm absolute bottom-0 transition-all ${
-              selectedId === 'friends' ? 'w-14 left-0' : 'w-14 left-18'
+              selectedId === 'friends'
+                ? 'w-14 left-0'
+                : selectedId === 'account'
+                ? 'w-14 left-18'
+                : selectedId === 'report'
+                ? 'w-14 left-36'
+                : 'w-14 left-54'
             }`}
           />
         </div>
@@ -126,6 +150,8 @@ const MypageLayout = () => {
           <Switch>
             <Route path="/friends/*" element={<FriendsLayout />} />
             <Route path="/account/*" element={<AccountLayout />} />
+            <Route path="/report/*" element={<ReportLayout />} />
+            <Route path="/category/*" element={<CategoryLayout />} />
           </Switch>
         </div>
       </main>
