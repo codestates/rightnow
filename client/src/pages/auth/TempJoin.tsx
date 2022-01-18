@@ -12,6 +12,7 @@ import userApi from '../../api/userApi';
 import { useAppDispatch, useAppSelector } from '../../config/hooks';
 import { updateAccessToken } from '../../reducers/userSlice';
 import { alert, showAlert, updateUrl } from '../../reducers/componetSlice';
+import { useTitle } from '../../Routes';
 
 interface IUserInfo {
   nickname: string;
@@ -20,6 +21,7 @@ interface IUserInfo {
 }
 
 const TempJoin = () => {
+  useTitle('Right now - 임시계정 회원가입');
   const dispatch = useAppDispatch();
   // ref
   const nicknameRef = useRef<HTMLInputElement>(null);

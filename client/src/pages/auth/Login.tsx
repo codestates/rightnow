@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { updateAccessToken } from '../../reducers/userSlice';
 import kakaoLogo from '../../images/kakao-logo.jpg';
 import googleLogo from '../../images/google-logo.jpg';
+import { useTitle } from '../../Routes';
 
 interface IUserInfo {
   email: string;
@@ -29,6 +30,7 @@ interface IIsDisable {
 }
 
 const Login = () => {
+  useTitle('Right now - 로그인');
   const dispatch = useAppDispatch();
   const router = useNavigate();
   // ref

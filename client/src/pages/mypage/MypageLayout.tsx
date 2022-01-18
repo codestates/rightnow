@@ -21,6 +21,7 @@ import {
 import friendsApi from '../../api/friendsApi';
 import ReportLayout from './report/ReportLayout';
 import CategoryLayout from './category/CategoryLayout';
+import { useTitle } from '../../Routes';
 
 interface IOption {
   id: string;
@@ -41,6 +42,7 @@ interface IData {
 }
 
 const MypageLayout = () => {
+  useTitle('Right now - 마이페이지');
   const location = useLocation();
   const dispatch = useAppDispatch();
   // 유저 role

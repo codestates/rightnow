@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
-interface MessageController {}
+import { CustomRequest } from '../../type/type';
+interface MessageController {
+  uploadImage(req: CustomRequest, res: Response): Promise<void>;
+}
 
-const messageController: MessageController = {};
+const messageController: MessageController = {
+  async uploadImage(req: CustomRequest, res: Response): Promise<void> {
+    res.status(200).send(req.sendData);
+  },
+};
 
 export default messageController;

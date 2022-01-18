@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 module.exports = {
-  getGoogleToken: async (code: any) => {
+  getGoogleToken: async (code: string) => {
     try {
       const response = await axios({
         method: 'POST',
@@ -24,7 +24,7 @@ module.exports = {
     }
   },
 
-  getKakaoToken: async (code: any) => {
+  getKakaoToken: async (code: string) => {
     try {
       const response = await axios({
         method: 'POST',
@@ -40,12 +40,12 @@ module.exports = {
         },
       });
       return response.data.access_token;
-    } catch {
+    } catch (e) {
       return null;
     }
   },
 
-  getGoogleSubId: async (accessToken: any) => {
+  getGoogleSubId: async (accessToken: string) => {
     try {
       const data = await axios({
         method: 'get',
@@ -56,12 +56,12 @@ module.exports = {
         params: { access_token: accessToken },
       });
       return data.data;
-    } catch {
+    } catch (e) {
       return null;
     }
   },
 
-  getKakaoSubId: async (accessToken: any) => {
+  getKakaoSubId: async (accessToken: string) => {
     try {
       const data = await axios({
         method: 'post',
@@ -77,7 +77,7 @@ module.exports = {
     }
   },
 
-  disconnectKakao: async (subId: any) => {
+  disconnectKakao: async (subId: string) => {
     try {
       const response = await axios({
         method: 'POST',
@@ -91,7 +91,7 @@ module.exports = {
         },
       });
       return response.data.id;
-    } catch {
+    } catch (e) {
       return null;
     }
   },

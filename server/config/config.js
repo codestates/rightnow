@@ -19,11 +19,11 @@ module.exports = {
   test: {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '0000',
-    database: process.env.DB_HOST || 'database_test',
+    database: process.env.DB_DATABASE || 'database_test',
     host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'mysql',
-    timezone: '+09:00',
     port: process.env.DB_PORT || 3306,
+    timezone: '+09:00',
     dialectOptions: {
       charset: 'utf8mb4',
       dateStrings: true,
@@ -33,7 +33,7 @@ module.exports = {
   production: {
     username: process.env.DB_USER || 'root',
     password: process.env.PASSWORD || '0000',
-    database: process.env.DB_DATABASE || 'database_production',
+    database: process.env.DB_DATABASE || 'rightnow',
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',

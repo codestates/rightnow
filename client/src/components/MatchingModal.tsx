@@ -8,8 +8,6 @@ import {
   roomJoinCnt,
   roomLocation,
   roomMaxCnt,
-  setJoinCnt,
-  setMaxCnt,
 } from '../reducers/roomSlice';
 
 const Container = styled(ModalTemp)`
@@ -22,8 +20,9 @@ const Container = styled(ModalTemp)`
 
 const LoadingContainer = styled.div`
   display: flex;
-  width: 30rem;
-  height: 25rem;
+  /* width: 30rem; */
+  /* height: 25rem; */
+  min-height: 15rem;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -35,7 +34,7 @@ const LoadingContainer = styled.div`
 
 const RoomTitle = styled.div`
   font-size: 1.5rem;
-  margin-bottom: 0.7rem;
+  margin-bottom: 2rem;
 
   @media screen and (max-width: 768px) {
     font-size: 1.2rem;
@@ -46,17 +45,19 @@ const RoomTitle = styled.div`
 const Loading = styled.div`
   padding: 1.5rem 1rem;
   border-radius: 5px;
-  background: ${(props) => props.theme.color.gray};
-  width: 25rem;
-  min-height: 10rem;
+  background: #e4e4e4;
+  width: 20rem;
+  min-height: 6rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
   grid-auto-rows: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   @media screen and (max-width: 768px) {
-    width: 13rem;
-    min-height: 7rem;
+    width: 15rem;
+    grid-auto-rows: 2rem;
+    min-height: 4rem;
+    padding: 0.9rem 0.8rem;
   }
 `;
 
@@ -69,11 +70,11 @@ const Item = styled.div<{ type: string }>`
   width: 2.5rem;
   height: 2.5rem;
   background: ${(props) =>
-    props.type === 'empty' ? 'gray' : props.theme.color.main};
+    props.type === 'empty' ? '#c1c1c1' : props.theme.color.main};
   border-radius: 1.5rem;
   @media screen and (max-width: 768px) {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.7rem;
+    height: 1.7rem;
   }
 `;
 

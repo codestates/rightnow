@@ -27,6 +27,8 @@ import Header from '../components/layout/Header';
 import { friendAPI } from '../api/friendApi';
 import { CategoryType, FriendType } from '../type';
 import LoginConfirm from '../components/LoginConfirm';
+import { useTitle } from '../Routes';
+import Map from '../components/Map';
 
 const Container = styled.div`
   display: flex;
@@ -87,9 +89,32 @@ const Title = styled.div`
 
 const TitleContainer = styled.div``;
 
+const MainContainer = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  margin-top: 3rem;
+  height: 80%;
+  padding-left: 2rem;
+`;
+
+const MapContainer = styled.div`
+  width: 100%;
+  height: 80%;
+  margin-bottom: 2rem;
+  margin-top: 1.7rem;
+  @media screen and (max-height: 700px) {
+    display: none;
+  }
+  @media screen and (max-width: 992px) {
+    display: none;
+  }
+`;
+
 const OptionContainer = styled.div`
   width: 100%;
-  height: 85%;
+  height: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,20 +135,8 @@ const FrindContainer = styled.div`
 const ButtonContainer = styled.div``;
 
 const Button = styled.button`
-  width: 15rem;
-  height: 2.2rem;
-  border-radius: 3px;
   background: ${(props) => props.theme.color.main};
   color: black;
-  transition: 0.2s;
-
-  &:active {
-    background: rgb(211, 76, 52);
-  }
-
-  &:hover {
-    opacity: 0.95;
-  }
 `;
 
 const CategoryList = styled.div`
@@ -202,9 +215,19 @@ const FriendLabel = styled(Label)`
   margin-right: 1rem;
 `;
 
+const FriendMessage = styled.div`
+  white-space: pre-line;
+  padding: 0.7rem 0;
+  color: ${(props) => props.theme.color.font};
+`;
+
+const MessageContainer = styled.div`
+  padding: 0 0.3rem;
+`;
+
 const FriendList = styled.div`
   height: 12rem;
-  width: 15rem;
+  width: 16rem;
   overflow-y: scroll;
   background: rgba(0, 0, 0, 0.03);
   margin-left: -0.1rem;
@@ -258,7 +281,7 @@ const FriendNick = styled.div``;
 
 const Message = styled.div`
   height: 2rem;
-  margin-top: -2rem;
+  margin-top: -1rem;
   color: ${(props) => props.theme.color.sub.red};
 `;
 
@@ -270,16 +293,11 @@ const Searching = styled(Loading)`
 `;
 
 const CancelBtn = styled.button`
-  width: 10rem;
-  height 2rem;
+  transition: 0.5s;
   color: black;
   background: ${(props) => props.theme.color.sub.yellow};
   margin-top: 2rem;
-  border-radius: 4px;
-
-  &:hover {
-    opacity: 0.85;
-  }
+  border-radius: 6px;
 `;
 
 const initCategory = {
@@ -293,6 +311,7 @@ const initCategory = {
 let socket: any = null;
 
 const Search = () => {
+  useTitle('Right now - 모임 검색');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const email = useAppSelector(userEmail); // 사용자 이메일
@@ -382,7 +401,7 @@ const Search = () => {
   //소켓 연동 - 페이지 들어올 떄 한번만
   useEffect(() => {
     const io = require('socket.io-client');
-    socket = io('http://localhost:4000/search', {
+    socket = io(`${process.env.REACT_APP_SOCKET_URI}/search`, {
       withCredentials: true,
     });
     socket.on('reject_match', (res: any) => {
@@ -637,7 +656,9 @@ const Search = () => {
         {isMatching ? <MatchingModal handleMatching={handleMatching} /> : <></>}
         {isSearching ? (
           <Searching>
-            <CancelBtn onClick={handleMatching}>취소</CancelBtn>
+            <CancelBtn className="w-28 h-9" onClick={handleMatching}>
+              취소
+            </CancelBtn>
           </Searching>
         ) : (
           <></>
@@ -646,73 +667,87 @@ const Search = () => {
           <TitleContainer>
             <Title># 모임 찾기</Title>
           </TitleContainer>
-          <OptionContainer>
-            <Message>{message}</Message>
-            {/* <Dropdown optionList={category} /> */}
-            <CategoryList>
-              <Label htmlFor="category">카테고리</Label>
-              <Select className="" id="category" onChange={handleCategory}>
-                <Option>카테고리를 선택해주세요</Option>
-                {category.length > 0 &&
-                  category.map((item, idx) => (
-                    <Option key={idx} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-              </Select>
-            </CategoryList>
-            <Location>
-              <Label htmlFor="location">현재 위치</Label>
-              <Select id="location" disabled>
-                <Option>{location}</Option>
-              </Select>
-            </Location>
-            <FrindContainer>
-              <FriendLabel>친구와 함께하기</FriendLabel>
-              <FriendList>
+          <MainContainer>
+            <MapContainer className="shadow-md pb-1">
+              <Map type="search" />
+            </MapContainer>
+            <OptionContainer>
+              <Message>{message}</Message>
+              {/* <Dropdown optionList={category} /> */}
+              <CategoryList>
+                <Label htmlFor="category">카테고리</Label>
+                <Select className="" id="category" onChange={handleCategory}>
+                  <Option>카테고리를 선택해주세요</Option>
+                  {category.length > 0 &&
+                    category.map((item, idx) => (
+                      <Option key={idx} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                </Select>
+              </CategoryList>
+              <Location>
+                <Label htmlFor="location">현재 위치</Label>
+                <Select id="location" disabled>
+                  <Option>{location}</Option>
+                </Select>
+              </Location>
+              <FrindContainer>
+                <FriendLabel>친구와 함께하기</FriendLabel>
                 {role === 'USER' ? (
                   visibleFriend.length > 0 ? (
-                    visibleFriend.map((friend: FriendType) => {
-                      // friendList -> visibleFriend 로 변경
-                      return (
-                        <Friend
-                          title={friend.email}
-                          onClick={handleJoin}
-                          key={friend.email}
-                          checked={selectedFriend.includes(friend.email)}
-                        >
-                          <FriendImg>
-                            <Image
-                              src={
-                                // image 정상 추가
-                                friend.profile_image
-                                  ? friend.profile_image.indexOf('kakaocdn') ===
-                                    -1
-                                    ? process.env.REACT_APP_IMAGE_ENDPOINT +
-                                      friend.profile_image
-                                    : friend.profile_image
-                                  : defaultImg
-                              }
-                            />
-                          </FriendImg>
-                          <FriendNick>{friend.nick_name}</FriendNick>
-                        </Friend>
-                      );
-                    })
+                    <FriendList>
+                      {visibleFriend.map((friend: FriendType) => {
+                        return (
+                          <Friend
+                            title={friend.email}
+                            onClick={handleJoin}
+                            key={friend.email}
+                            checked={selectedFriend.includes(friend.email)}
+                          >
+                            <FriendImg>
+                              <Image
+                                src={
+                                  // image 정상 추가
+                                  friend.profile_image
+                                    ? friend.profile_image.indexOf(
+                                        'kakaocdn',
+                                      ) === -1
+                                      ? process.env.REACT_APP_IMAGE_ENDPOINT +
+                                        friend.profile_image
+                                      : friend.profile_image
+                                    : defaultImg
+                                }
+                              />
+                            </FriendImg>
+                            <FriendNick>{friend.nick_name}</FriendNick>
+                          </Friend>
+                        );
+                      })}
+                    </FriendList>
                   ) : (
-                    <div>같이 할 수 있는 친구가 없습니다.</div>
+                    <MessageContainer>
+                      <FriendMessage>
+                        같이 할 수 있는 친구가 없어요🥲
+                      </FriendMessage>
+                    </MessageContainer>
                   )
                 ) : (
-                  <div>친구와 함께 하려면 회원가입을 해주세요</div>
+                  <FriendMessage>
+                    회원가입을 해야 이용할 수 있어요!
+                  </FriendMessage>
                 )}
-              </FriendList>
-            </FrindContainer>
-            <ButtonContainer>
-              <Button className="hover:bg-red-500" onClick={handleJoinRoom}>
-                모임 찾기
-              </Button>
-            </ButtonContainer>
-          </OptionContainer>
+              </FrindContainer>
+              <ButtonContainer>
+                <Button
+                  className="rounded-md w-60 h-9 shadow hover:shadow-md transition-all"
+                  onClick={handleJoinRoom}
+                >
+                  모임 찾기
+                </Button>
+              </ButtonContainer>
+            </OptionContainer>
+          </MainContainer>
         </SearchContainer>
       </Container>
     </>

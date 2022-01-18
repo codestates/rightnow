@@ -2,7 +2,7 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
-import { MessageType } from '../type';
+import { MessageType, UserType } from '../type';
 import Map from './Map';
 import MemberList from './MemberList';
 
@@ -47,26 +47,10 @@ const Chatting = styled.div`
 
 const Container = styled.div`
   height: 100%;
-
-  @media screen and (max-width: 1200px) {
-    & {
-    }
-  }
-  @media screen and (max-width: 992px) {
-    & {
-    }
-  }
-  @media screen and (max-width: 768px) {
-    & {
-    }
-  }
 `;
 
 const ChattingInput = styled.input`
   width: 100%;
-  height: 3rem;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1rem;
   font-size: 1rem;
   max-height: 10rem;
 
@@ -205,12 +189,60 @@ const WarningMessage = styled.div`
 `;
 
 const ChattingForm = styled.form`
+  display: flex;
   margin-top: 1rem;
 `;
 
 const AlwaysScrollToBottom = styled.span`
   height: 0rem;
   width: 0rem;
+`;
+
+const SubmitBtn = styled.button`
+  display: none;
+  @media screen and (max-width: 768px) {
+    display: block;
+    background: ${(props) => props.theme.color.main};
+    width: 5rem;
+    margin-left: 0.5rem;
+    border-radius: 0.5rem;
+    &:hover {
+      background-color: ${(props) => props.theme.color.sub.orange};
+    }
+  }
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  background: white;
+
+  width: 100%;
+  height: 3rem;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  max-height: 10rem;
+`;
+
+const ImageInput = styled.input`
+  display: none;
+`;
+
+const ImageBtn = styled.button`
+  padding: 0rem 0.3rem;
+  margin-right: -0.4rem;
+  border-radius: 6px;
+  &::after {
+    font-family: 'Font Awesome\ 5 Free';
+    content: '\f03e';
+    font-weight: 900;
+    font-size: 2em;
+  }
+`;
+
+const EmptyMessage = styled.div`
+  padding: 0.4rem 1.3rem;
 `;
 
 interface ChattingProps {
@@ -220,6 +252,8 @@ interface ChattingProps {
   handleQuit: MouseEventHandler<HTMLButtonElement>;
   handleInsertMessage: any;
   updateMessage: any;
+  roomMember: Array<UserType>;
+  handleUploadImg: any;
 }
 
 const ChattingRoom = ({
@@ -229,6 +263,8 @@ const ChattingRoom = ({
   handleQuit,
   handleInsertMessage,
   updateMessage,
+  roomMember,
+  handleUploadImg,
 }: ChattingProps) => {
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
@@ -239,6 +275,10 @@ const ChattingRoom = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState<boolean>(false);
+
+  const imgInput = useRef<HTMLInputElement>(null);
+
+  const messageTarget = useRef(new Array(talkContents.length));
 
   useEffect(() => {
     scrollToBottom();
@@ -273,6 +313,40 @@ const ChattingRoom = ({
     setReportNick(nickName);
     setIsShow((prev) => !prev);
   };
+
+  const ClickImgBtn = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    imgInput.current?.click();
+  };
+
+  const scrollTo = (e: React.SyntheticEvent<HTMLDivElement>, idx: number) => {
+    const target = messageTarget.current;
+    if (idx === talkContents.length - 1) {
+      return target[idx].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    return target[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const chattingList = useMemo(
+    () => () =>
+      talkContents.map((messageData: MessageType, idx) => {
+        const target = messageTarget.current;
+        return (
+          <div
+            ref={(el) => (target[idx] = el)}
+            onClick={(e) => scrollTo(e, idx)}
+          >
+            <Message
+              key={idx}
+              messageData={messageData}
+              handleModal={handleModal}
+              updateMessage={updateMessage}
+            ></Message>
+          </div>
+        );
+      }),
+    [talkContents],
+  );
 
   return (
     <Container className="flex flex-col">
@@ -352,28 +426,36 @@ const ChattingRoom = ({
           <ChattingContainer className="drop-shadow">
             <Chatting>
               {talkContents && talkContents.length > 0 ? (
-                talkContents.map((messageData: MessageType, idx) => (
-                  <Message
-                    key={idx}
-                    messageData={messageData}
-                    handleModal={handleModal}
-                    updateMessage={updateMessage}
-                  ></Message>
-                ))
+                chattingList()
               ) : (
-                <div>아직 메시지가 없습니다. 대회를 시작해보세요!</div>
+                <EmptyMessage>
+                  아직 메시지가 없습니다. 대회를 시작해보세요!
+                </EmptyMessage>
               )}
               <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
           </ChattingContainer>
+          <ImageInput
+            ref={imgInput}
+            type="file"
+            accept=".jpg, .jpeg, .png"
+            onChange={handleUploadImg}
+          />
           <ChattingForm onSubmit={handleMessage}>
-            <ChattingInput
-              className="drop-shadow focus:drop-shadow-lg"
-              onChange={handleText}
-              value={text}
-              placeholder="메세지 보내기"
-              autoFocus
-            />
+            <InputContainer className="drop-shadow ">
+              <ChattingInput
+                onChange={handleText}
+                value={text}
+                placeholder="메세지 보내기"
+                autoFocus
+              />
+              <ImageBtn
+                type="button"
+                className="text-neutral-500 hover:bg-zinc-200 active:bg-neutral-400 active:text-neutral-100 transition-all"
+                onClick={ClickImgBtn}
+              ></ImageBtn>
+            </InputContainer>
+            <SubmitBtn type="submit">전송</SubmitBtn>
           </ChattingForm>
         </>
       ) : menu === 'map' ? (
@@ -382,7 +464,7 @@ const ChattingRoom = ({
         </MenuContainer>
       ) : menu === 'member' ? (
         <MenuContainer className="drop-shadow">
-          <MemberList />
+          <MemberList roomMember={roomMember} />
         </MenuContainer>
       ) : (
         <MenuContainer className="drop-shadow">
