@@ -109,8 +109,9 @@ const EditInput = styled.input`
   }
 `;
 
-const ImgMessage = styled.img`
-  width: 30%;
+const ImgMessage = styled.img<{ zoom: boolean }>`
+  transition: all 0.2s;
+  width: ${(props) => (props.zoom ? `100%` : `50%`)};
 `;
 
 interface MessageProps {
@@ -125,6 +126,8 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
     messageData;
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(content);
+  const [zoom, setZoom] = useState<boolean>(false);
+
   /**
    * 수정 중인 메시지 상태 관리
    * @param e
@@ -139,6 +142,10 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
     setNewContent(newContent);
     updateMessage(newContent, id);
     setIsEdit(!isEdit);
+  };
+
+  const handleZoom = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setZoom((prev) => !prev);
   };
 
   /**
@@ -204,7 +211,7 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
               )}
             </Title>
             {message_type === 'IMAGE' ? (
-              <ImgMessage src={content} />
+              <ImgMessage src={content} zoom={zoom} onClick={handleZoom} />
             ) : isEdit ? (
               <EditForm
                 onSubmit={handleUpdate}

@@ -278,6 +278,8 @@ const ChattingRoom = ({
 
   const imgInput = useRef<HTMLInputElement>(null);
 
+  const messageTarget = useRef(new Array(talkContents.length));
+
   useEffect(() => {
     scrollToBottom();
   }, [talkContents]);
@@ -317,16 +319,32 @@ const ChattingRoom = ({
     imgInput.current?.click();
   };
 
+  const scrollTo = (e: React.SyntheticEvent<HTMLDivElement>, idx: number) => {
+    const target = messageTarget.current;
+    if (idx === talkContents.length - 1) {
+      return target[idx].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    return target[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const chattingList = useMemo(
     () => () =>
-      talkContents.map((messageData: MessageType, idx) => (
-        <Message
-          key={idx}
-          messageData={messageData}
-          handleModal={handleModal}
-          updateMessage={updateMessage}
-        ></Message>
-      )),
+      talkContents.map((messageData: MessageType, idx) => {
+        const target = messageTarget.current;
+        return (
+          <div
+            ref={(el) => (target[idx] = el)}
+            onClick={(e) => scrollTo(e, idx)}
+          >
+            <Message
+              key={idx}
+              messageData={messageData}
+              handleModal={handleModal}
+              updateMessage={updateMessage}
+            ></Message>
+          </div>
+        );
+      }),
     [talkContents],
   );
 
