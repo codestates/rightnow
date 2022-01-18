@@ -10,12 +10,18 @@ const cron: any = require('node-cron');
 const db: any = require('../../models/index');
 const jwt: any = require('jsonwebtoken');
 import accessTokenRequestValidation from '../../method/token';
+import { userInfo } from 'os';
 
 const now: any = function (): void {
   return moment().format();
 };
 
 interface AdminValidation {
+  getAllUser(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any>;
   getReportedUser(
     req: CustomRequest,
     res: Response,
@@ -29,6 +35,33 @@ interface AdminValidation {
 }
 
 const adminValidation: AdminValidation = {
+  /*
+  전체유저목록 불러오기
+  */
+  async getAllUser(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    try {
+      const userInfo: any = await db['User'].findAll();
+      for (let i = 0; i < userInfo.length; i++) {
+        delete userInfo[i].dataValues.password;
+      }
+      req.sendData = {
+        data: { userInfo: userInfo },
+        message: 'ok',
+      };
+      next();
+    } catch (e) {
+      console.log(e);
+      req.sendData = {
+        message: 'err',
+      };
+      next();
+    }
+  },
+
   /*
   신고된 유저와 메시지 보기
   */

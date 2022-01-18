@@ -5,11 +5,26 @@ const dotenv: any = require('dotenv');
 dotenv.config();
 
 interface AdminController {
+  getAllUser(req: CustomRequest, res: Response): Promise<void>;
   getReportedUser(req: CustomRequest, res: Response): Promise<void>;
   blockUser(req: CustomRequest, res: Response): Promise<void>;
 }
 
 const adminController: AdminController = {
+  /*
+  전체유저목록 불러오기
+  */
+  async getAllUser(req: CustomRequest, res: Response): Promise<void> {
+    if (req.sendData.message === 'ok') {
+      res.status(200).send({
+        data: { userInfo: req.sendData.data.userInfo },
+        message: 'ok',
+      });
+    } else if (req.sendData.message === 'err') {
+      res.status(500).send({ message: 'err' });
+    }
+  },
+
   /*
   신고된 유저와 메시지 보기
   */
