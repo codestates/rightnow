@@ -109,6 +109,10 @@ const EditInput = styled.input`
   }
 `;
 
+const ImgMessage = styled.img`
+  width: 30%;
+`;
+
 interface MessageProps {
   messageData: MessageType;
   handleModal: any;
@@ -117,7 +121,8 @@ interface MessageProps {
 
 const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
   const email = useAppSelector(userEmail);
-  const { id, User, content, is_update, write_date, isAlarm } = messageData;
+  const { id, User, content, is_update, write_date, isAlarm, message_type } =
+    messageData;
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(content);
   /**
@@ -198,7 +203,9 @@ const Message = ({ messageData, handleModal, updateMessage }: MessageProps) => {
                 </MenuContainer>
               )}
             </Title>
-            {isEdit ? (
+            {message_type === 'IMAGE' ? (
+              <ImgMessage src={content} />
+            ) : isEdit ? (
               <EditForm
                 onSubmit={handleUpdate}
                 className="transition-all"
