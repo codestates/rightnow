@@ -238,12 +238,12 @@ const Room = () => {
       });
     });
     socket.on('msg_insert', (data: any) => {
-      let { sender, message_type } = data;
+      let { sender, message_type, message } = data;
       console.log(message_type);
       let getMessage = {
         id: data.message_id,
         User: sender,
-        content: data.message,
+        content: message,
         is_update: 'N',
         write_date: dateToString(new Date(), '-', true),
         isAlarm: false,
