@@ -530,10 +530,10 @@ const userValidation: UserValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const { email, nick_name } = req.body;
+      const { nick_name } = req.body;
       const type: string = 'update';
 
-      if (!email || !nick_name) {
+      if (!nick_name) {
         res.send('err');
       } else if (!req.headers.authorization) {
         await accessTokenRequestValidation.accessTokenRequest(

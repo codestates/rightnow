@@ -47,6 +47,7 @@ const adminValidation: AdminValidation = {
       const userInfo: any = await db['User'].findAll();
       for (let i = 0; i < userInfo.length; i++) {
         delete userInfo[i].dataValues.password;
+        delete userInfo[i].dataValues.auth_code;
       }
       req.sendData = {
         data: { userInfo: userInfo },
@@ -71,71 +72,28 @@ const adminValidation: AdminValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const type: string = 'adminReported';
-      if (!req.headers.authorization) {
-        await accessTokenRequestValidation.accessTokenRequest(
-          req,
-          res,
-          type,
-          next,
-        );
-        return;
-      } else {
-        jwt.verify(
-          req.headers.authorization,
-          process.env.ACCESS_SECRET,
-          async (err: any, decoded: any) => {
-            if (err) {
-              await accessTokenRequestValidation.accessTokenRequest(
-                req,
-                res,
-                type,
-                next,
-              );
-              return;
-            } else {
-              const adminInfo: any = await db['User'].findOne({
-                where: { email: decoded.email },
-              });
-              if (!adminInfo) {
-                req.sendData = { message: 'token has been tempered' };
-                next();
-              } else {
-                delete adminInfo.dataValues.password;
-                if (adminInfo.role === 'ADMIN') {
-                  let reportedUserInfo: any = await db['Message'].findAll({
-                    include: [
-                      {
-                        model: db['Report_message'],
-                      },
-                      {
-                        model: db['User'],
-                      },
-                    ],
-                  });
-                  reportedUserInfo = reportedUserInfo.map((el: any) => {
-                    return el.dataValues;
-                  });
-                  for (let i = 0; i < reportedUserInfo.length; i++) {
-                    delete reportedUserInfo[i].User.dataValues.password;
-                  }
-
-                  req.sendData = {
-                    data: { reportedUserInfo: reportedUserInfo },
-                    message: 'ok',
-                  };
-                  next();
-                } else {
-                  req.sendData = {
-                    message: 'not admin account',
-                  };
-                  next();
-                }
-              }
-            }
+      let reportedUserInfo: any = await db['Message'].findAll({
+        include: [
+          {
+            model: db['Report_message'],
           },
-        );
+          {
+            model: db['User'],
+          },
+        ],
+      });
+      reportedUserInfo = reportedUserInfo.map((el: any) => {
+        return el.dataValues;
+      });
+      for (let i = 0; i < reportedUserInfo.length; i++) {
+        delete reportedUserInfo[i].User.dataValues.password;
       }
+
+      req.sendData = {
+        data: { reportedUserInfo: reportedUserInfo },
+        message: 'ok',
+      };
+      next();
     } catch (e) {
       console.log(e);
       req.sendData = {
