@@ -375,8 +375,6 @@ const Room = () => {
         const {
           data: { url },
         } = await roomAPI.sendImg(formData);
-        // ! 서버에서 받아온 이미지 url
-        console.log(url);
         socket.emit('msg_insert', {
           email,
           room_id,

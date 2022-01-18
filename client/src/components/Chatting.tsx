@@ -2,7 +2,7 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -317,24 +317,18 @@ const ChattingRoom = ({
     imgInput.current?.click();
   };
 
-  // ! Room.tsx 로 메서드 이동 - 소켓연동 위해
-  // const uploadImg = async (e: React.SyntheticEvent) => {
-  //   const { files } = e.target as HTMLInputElement;
-
-  //   if (files) {
-  //     const formData = new FormData();
-  //     formData.append('file', files[0]);
-  //     try {
-  //       const {
-  //         data: { url },
-  //       } = await roomAPI.sendImg(formData);
-  //       // ! 서버에서 받아온 이미지 url
-  //       console.log(url);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   }
-  // };
+  const chattingList = useMemo(
+    () => () =>
+      talkContents.map((messageData: MessageType, idx) => (
+        <Message
+          key={idx}
+          messageData={messageData}
+          handleModal={handleModal}
+          updateMessage={updateMessage}
+        ></Message>
+      )),
+    [talkContents],
+  );
 
   return (
     <Container className="flex flex-col">
@@ -414,14 +408,7 @@ const ChattingRoom = ({
           <ChattingContainer className="drop-shadow">
             <Chatting>
               {talkContents && talkContents.length > 0 ? (
-                talkContents.map((messageData: MessageType, idx) => (
-                  <Message
-                    key={idx}
-                    messageData={messageData}
-                    handleModal={handleModal}
-                    updateMessage={updateMessage}
-                  ></Message>
-                ))
+                chattingList()
               ) : (
                 <EmptyMessage>
                   아직 메시지가 없습니다. 대회를 시작해보세요!
@@ -430,6 +417,12 @@ const ChattingRoom = ({
               <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
           </ChattingContainer>
+          <ImageInput
+            ref={imgInput}
+            type="file"
+            accept=".jpg, .jpeg, .png"
+            onChange={handleUploadImg}
+          />
           <ChattingForm onSubmit={handleMessage}>
             <InputContainer className="drop-shadow ">
               <ChattingInput
@@ -438,13 +431,8 @@ const ChattingRoom = ({
                 placeholder="메세지 보내기"
                 autoFocus
               />
-              <ImageInput
-                ref={imgInput}
-                type="file"
-                accept="image/*"
-                onChange={handleUploadImg}
-              />
               <ImageBtn
+                type="button"
                 className="text-neutral-500 hover:bg-zinc-200 active:bg-neutral-400 active:text-neutral-100 transition-all"
                 onClick={ClickImgBtn}
               ></ImageBtn>
