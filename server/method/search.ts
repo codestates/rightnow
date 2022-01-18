@@ -12,8 +12,10 @@ import participantValidation from '../API/validation/participant';
 import messageValidation from '../API/validation/message';
 import roomValidation from '../API/validation/room';
 let { findUsers, tempRooms, roomList, attendUsers } = require('../data/cache');
+const dotenv: any = require('dotenv');
+dotenv.config();
 const db: any = require('../models/index');
-const SEARCH_COUNT: number = 5;
+const SEARCH_COUNT: number | any = process.env.SEARCH_COUNT || 5;
 const UUID_FUNC: Function = require('./uuid');
 
 const searchMethod = (socket: any) => {
