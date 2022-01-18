@@ -154,14 +154,77 @@ const adminValidation: AdminValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const { block_emails, block_date } = req.body;
-      for (let i = 0; i < block_emails.length; i++) {
-        await db['User'].update(
-          { block_date: block_date, is_block: 'Y' },
-          { where: { email: block_emails[i] } },
-        );
+      let { block_email, block_day } = req.body;
+      if (block_day === '영구정지') {
+        block_day = '99999';
       }
+      const userInfo: any = await db['User'].findOne({
+        where: { email: block_email },
+      });
+      delete userInfo.dataValues.password;
+      delete userInfo.dataValues.auth_code;
+
+      if (!userInfo) {
+        req.sendData = { message: 'no exists email' };
+        next();
+        return;
+      } else if (userInfo.dataValues.is_block === 'Y') {
+        req.sendData = { message: 'already blocked user' };
+        next();
+        return;
+      }
+
+      const date: any = new Date();
+      date.setDate(date.getDate() + Number(block_day));
+
+      const year = date.getFullYear();
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const day = ('0' + date.getDate()).slice(-2);
+
+      const block_date: string = `${year}-${month}-${day}`;
+
+      let reported_message: any = await db['Report_message'].findAll({
+        include: [
+          {
+            model: db['Message'],
+          },
+        ],
+      });
+      reported_message = reported_message.map((el: any) => {
+        return el.dataValues;
+      });
+
+      let count: number = 0;
+      for (let i = 0; i < reported_message.length; i++) {
+        if (reported_message[i].Message.dataValues.user_email === block_email) {
+          count++;
+          await db['Report_message'].update(
+            { complete: 'Y' },
+            { where: { message_id: reported_message[i].message_id } },
+          );
+        }
+      }
+
+      if (count === 0) {
+        req.sendData = {
+          message: 'user not reported',
+        };
+        next();
+        return;
+      }
+
+      await db['User'].update(
+        { block_date: block_date, is_block: 'Y' },
+        { where: { email: block_email } },
+      );
+
+      userInfo.dataValues.block_date = block_date;
+      userInfo.dataValues.is_block = 'Y';
+
       req.sendData = {
+        data: {
+          blockedUserInfo: userInfo,
+        },
         message: 'ok',
       };
       next();
@@ -172,13 +235,11 @@ const adminValidation: AdminValidation = {
         const month = ('0' + (d.getMonth() + 1)).slice(-2);
         const day = ('0' + d.getDate()).slice(-2);
 
-        for (let i = 0; i < block_emails.length; i++) {
-          if (block_date === `${year}-${month}-${day}`) {
-            await db['User'].update(
-              { block_date: null, is_block: 'N' },
-              { where: { email: block_emails[i] } },
-            );
-          }
+        if (block_date === `${year}-${month}-${day}`) {
+          await db['User'].update(
+            { block_date: null, is_block: 'N' },
+            { where: { email: block_email } },
+          );
         }
       });
     } catch (e) {

@@ -34,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         // references: { model: Message, key: 'id' },
       },
       report_date: { type: DataTypes.DATE, defaultValue: new Date() },
+      complete: { type: DataTypes.STRING, defaultValue: 'N' },
     },
     {
       sequelize,
