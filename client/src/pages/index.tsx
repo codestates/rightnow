@@ -164,7 +164,7 @@ const RendingPage = () => {
             }}
           >
             <Logo width={scrollPosition === 0 ? 90 : 70} />
-            <span className="ml-2">rightnow</span>
+            <span className="ml-2">Rightnow</span>
           </div>
           <div className=" flex items-center space-x-1">
             {location.pathname === '/' &&

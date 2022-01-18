@@ -21,6 +21,7 @@ import {
 import friendsApi from '../../api/friendsApi';
 import ReportLayout from './report/ReportLayout';
 import CategoryLayout from './category/CategoryLayout';
+import UserLayout from './user/UserLayout';
 import { useTitle } from '../../Routes';
 
 interface IOption {
@@ -57,6 +58,7 @@ const MypageLayout = () => {
       ? [
           { id: 'friends', label: '친구관리' },
           { id: 'account', label: '계정관리' },
+          { id: 'user', label: '유저관리' },
           { id: 'report', label: '신고관리' },
           { id: 'category', label: '카테고리' },
         ]
@@ -102,7 +104,7 @@ const MypageLayout = () => {
   return (
     <>
       <Header />
-      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-20">
+      <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-30">
         <div className="inline-flex w-222 h-full items-center relative">
           {mypageOption.map((v, i) => {
             const { id, label } = v;
@@ -115,7 +117,9 @@ const MypageLayout = () => {
                     ? '/mypage/account/profile'
                     : id === 'report'
                     ? '/mypage/report/user'
-                    : '/mypage/category/list'
+                    : id === 'category'
+                    ? '/mypage/category/list'
+                    : '/mypage/user/list'
                 }
                 key={id}
               >
@@ -140,9 +144,11 @@ const MypageLayout = () => {
                 ? 'w-14 left-0'
                 : selectedId === 'account'
                 ? 'w-14 left-18'
-                : selectedId === 'report'
+                : selectedId === 'user'
                 ? 'w-14 left-36'
-                : 'w-14 left-54'
+                : selectedId === 'report'
+                ? 'w-14 left-54'
+                : 'w-14 left-72'
             }`}
           />
         </div>
@@ -152,6 +158,7 @@ const MypageLayout = () => {
           <Switch>
             <Route path="/friends/*" element={<FriendsLayout />} />
             <Route path="/account/*" element={<AccountLayout />} />
+            <Route path="/user/*" element={<UserLayout />} />
             <Route path="/report/*" element={<ReportLayout />} />
             <Route path="/category/*" element={<CategoryLayout />} />
           </Switch>
