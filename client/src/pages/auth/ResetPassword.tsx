@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import AuthContainer from '../../components/layout/AuthContainer';
-import { isValidEmail } from '../../utils/regex';
+import { isNumber, isValidEmail } from '../../utils/regex';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../config/hooks';
@@ -30,6 +30,7 @@ const ResetPassword = () => {
   const router = useNavigate();
   const dispatch = useAppDispatch();
   // ref
+  const emailRef = useRef<HTMLInputElement>(null);
   const authRef = useRef<HTMLInputElement>(null);
   const resetPasswordRef = useRef<HTMLInputElement>(null);
   const reResetPasswordRef = useRef<HTMLInputElement>(null);
@@ -43,7 +44,9 @@ const ResetPassword = () => {
   // 이메일 인증번호
   const [auth, setAuth] = useState<string>('');
   const changeAuth = (e: ChangeEvent<HTMLInputElement>): void => {
-    setAuth(e.target.value);
+    if (isNumber(e.target.value)) {
+      setAuth(e.target.value);
+    }
   };
 
   // 비밀번호 변경
@@ -196,6 +199,7 @@ const ResetPassword = () => {
           auth: false,
           email: false,
         });
+        emailRef.current?.focus();
       }
     };
     userApi(
@@ -207,8 +211,8 @@ const ResetPassword = () => {
 
   // 비밀번호 재설정 요청
   const requestForgetPassword = (): void => {
-    if (password.resetPassword === password.reResetPassword) {
-      if (authNumber === auth) {
+    if (authNumber === auth) {
+      if (password.resetPassword === password.reResetPassword) {
         const body = {
           email: email,
           new_password: password.resetPassword,
@@ -225,10 +229,12 @@ const ResetPassword = () => {
         };
         userApi('updatePasswordForget', body, callback);
       } else {
-        setAuthError('인증번호가 일지하지 않습니다.');
+        setAuthError('새 비밀번호가 일치하지 않습니다.');
+        resetPasswordRef.current?.focus();
       }
     } else {
-      setAuthError('새 비밀번호가 일치하지 않습니다.');
+      setAuthError('인증번호가 일지하지 않습니다.');
+      authRef.current?.focus();
     }
   };
 
@@ -254,6 +260,7 @@ const ResetPassword = () => {
                 pressEnter(e);
               }}
               disabled={isDisable.email}
+              ref={emailRef}
             />
           </div>
           {emailError && (
@@ -297,6 +304,7 @@ const ResetPassword = () => {
                   onKeyDown={(e) => {
                     pressEnter(e);
                   }}
+                  maxLength={6}
                   ref={authRef}
                 />
               </div>

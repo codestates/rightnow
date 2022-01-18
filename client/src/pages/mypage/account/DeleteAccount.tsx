@@ -1,10 +1,13 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { useAppDispatch } from '../../../config/hooks';
+import { useAppDispatch, useAppSelector } from '../../../config/hooks';
 import { showModal } from '../../../reducers/componetSlice';
 import Modal from '../../../components/Modal';
+import { userSocialLogin } from '../../../reducers/userSlice';
 
 const DeleteAccount = () => {
   const dispatch = useAppDispatch();
+  // 로그인 경로(일반 로그인 or 소셜로그인)
+  const socialLogin = useAppSelector(userSocialLogin);
   // 비밀번호 입력
   const [password, setPassword] = useState<string>('');
   const stateHandler = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -15,10 +18,18 @@ const DeleteAccount = () => {
   const [isDisable, setIsDisable] = useState<boolean>(true);
 
   useEffect((): void => {
-    if (password === '') {
-      setIsDisable(true);
+    if (socialLogin === 'original') {
+      if (password === '') {
+        setIsDisable(true);
+      } else {
+        setIsDisable(false);
+      }
     } else {
-      setIsDisable(false);
+      if (password === '계정삭제') {
+        setIsDisable(false);
+      } else {
+        setIsDisable(true);
+      }
     }
   }, [password]);
 
@@ -49,12 +60,16 @@ const DeleteAccount = () => {
       <div className="text-center mt-3">
         <input
           className="border-2 w-80 border-slate-200 h-10 rounded-md pl-2 outline-main mr-2 text-sm"
-          type={'password'}
+          type={socialLogin === 'original' ? 'password' : 'text'}
           value={password}
           onChange={(e) => {
             stateHandler(e);
           }}
-          placeholder="계정삭제를 위해 비밀번호를 입력해주세요."
+          placeholder={
+            socialLogin === 'original'
+              ? '계정삭제를 위해 비밀번호를 입력해주세요.'
+              : "계정삭제를 위해 '계정삭제'를 입력해주세요."
+          }
           onKeyDown={(e) => {
             if (e.code === 'Enter') {
               buttonHandler();
@@ -63,7 +78,9 @@ const DeleteAccount = () => {
         />
         <button
           className={`w-36 h-10 rounded-md ${
-            isDisable ? 'bg-slate-100 text-slate-300' : 'bg-main text-white hover:bg-orange-700'
+            isDisable
+              ? 'bg-slate-100 text-slate-300'
+              : 'bg-main text-white hover:bg-orange-700'
           }`}
           disabled={isDisable}
           onClick={buttonHandler}

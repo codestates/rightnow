@@ -60,7 +60,9 @@ const List = () => {
       friend_email: friendEmail,
     };
     const callback = (code: number, data: string) => {
-      requestFriendsList();
+      setTimeout(() => {
+        requestFriendsList();
+      }, 50);
       dispatch(showAlert(data));
     };
     friendsApi('deleteFriend', body, callback);
@@ -69,7 +71,7 @@ const List = () => {
   return (
     <>
       <div className="text-lg font-semibold">친구 목록</div>
-      <div className="w-135 mt-4">
+      <div className="w-135 mt-2">
         {friendsList.map((obj) => {
           const { email, nick_name, profile_image } = obj;
           return (
@@ -83,9 +85,10 @@ const List = () => {
                   backgroundImage: `url(${
                     profile_image === null
                       ? defaultProfile
-                      : profile_image.indexOf('kakaocdn') === -1
-                      ? imageEndpoint + profile_image
-                      : profile_image
+                      : profile_image.indexOf('kakaocdn') !== -1 ||
+                        profile_image.indexOf('googleusercontent') !== -1
+                      ? profile_image
+                      : imageEndpoint + profile_image
                   })`,
                   backgroundSize: 'cover',
                 }}

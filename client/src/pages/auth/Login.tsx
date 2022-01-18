@@ -34,7 +34,9 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const router = useNavigate();
   // ref
+  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const tempIdRef = useRef<HTMLInputElement>(null);
   const tempPwRef = useRef<HTMLInputElement>(null);
 
   // 사용자의 이메일, 페스워드 state
@@ -136,6 +138,11 @@ const Login = () => {
         dispatch(updateAccessToken(data));
       } else {
         setLoginError(data);
+        if(code === 400) {
+          emailRef.current?.focus();
+        } else if(code === 401) {
+          passwordRef.current?.focus();
+        }
       }
     };
     userApi('login', body, callback);
@@ -153,8 +160,10 @@ const Login = () => {
         dispatch(updateAccessToken(data));
       } else if (code === 400) {
         setTempLoginError('등록되지 않은 임시계정 입니다.');
+        tempIdRef.current?.focus();
       } else if (code === 401) {
         setTempLoginError(data);
+        tempPwRef.current?.focus();
       }
     };
     userApi('login', body, callback);
@@ -185,9 +194,10 @@ const Login = () => {
                     stateHandler(e);
                   }}
                   placeholder="이메일 주소(ID)를 입력하세요"
-                  onKeyDown={(e) => {
+                  onKeyPress={(e) => {
                     pressEnter(e);
                   }}
+                  ref={emailRef}
                 />
               </div>
               <div className="mt-2">
@@ -199,7 +209,7 @@ const Login = () => {
                   onChange={(e) => {
                     stateHandler(e);
                   }}
-                  onKeyDown={(e) => {
+                  onKeyPress={(e) => {
                     pressEnter(e);
                   }}
                   placeholder="비밀번호를 입력하세요"
@@ -320,9 +330,10 @@ const Login = () => {
                     stateHandler(e);
                   }}
                   placeholder="임시 아이디를 입력하세요"
-                  onKeyDown={(e) => {
+                  onKeyPress={(e) => {
                     pressEnter(e);
                   }}
+                  ref={tempIdRef}
                 />
               </div>
               <div className="mt-2">
@@ -334,7 +345,7 @@ const Login = () => {
                   onChange={(e) => {
                     stateHandler(e);
                   }}
-                  onKeyDown={(e) => {
+                  onKeyPress={(e) => {
                     pressEnter(e);
                   }}
                   placeholder="임시 비밀번호를 입력하세요"

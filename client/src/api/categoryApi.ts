@@ -12,18 +12,10 @@ export const categoryAPI = {
   delete: (category_name: string) =>
     api.delete(`/`, { data: { category_name } }),
   create: (name: string, user_num: number) =>
-    api.post(`/create`, {
-      data: {
-        name,
-        user_num,
-      },
-    }),
+    api.post(`/create`, { name, user_num }),
   update: (
     category_name: string,
     new_category_name: string,
     new_user_num: number,
-  ) =>
-    api.patch(`/update`, {
-      data: { category_name, new_category_name, new_user_num },
-    }),
+  ) => api.patch(`/update`, { category_name, new_category_name, new_user_num }),
 };
