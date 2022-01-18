@@ -72,6 +72,7 @@ const roomValidation: RoomValidation = {
           room_id,
         },
       });
+      console.log(participant.dataValues);
       let room = await db.Room.findOne({
         include: [
           {
