@@ -94,7 +94,7 @@ const roomValidation: RoomValidation = {
             },
             where: {
               write_date: {
-                [Op.gte]: new Date(participant.dataValues.enter_date),
+                [Op.gte]: participant.dataValues.enter_date,
               },
             },
             required: false,
