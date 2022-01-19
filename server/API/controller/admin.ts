@@ -34,26 +34,6 @@ const adminController: AdminController = {
         data: { reportedUserInfo: req.sendData.data.reportedUserInfo },
         message: 'ok',
       });
-    } else if (req.sendData.message === 'not admin account') {
-      res.status(404).send({ message: 'not admin account' });
-    } else if (
-      req.sendData.message === 'token has been tempered' ||
-      req.sendData.message === 'refreshToken not provided' ||
-      req.sendData.message === 'invalid refresh token'
-    ) {
-      res
-        .status(400)
-        .json({ message: 'invalid refreshToken, please log in again' });
-    } else if (
-      req.sendData.message === 'ok, give new accessToken and refreshToken'
-    ) {
-      res.status(200).json({
-        data: {
-          reportedUserInfo: req.sendData.data.reportedUserInfo,
-          accessToken: req.sendData.data.accessToken,
-        },
-        message: 'ok',
-      });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
