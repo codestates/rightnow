@@ -73,7 +73,7 @@ const adminValidation: AdminValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      let findUsers = await db.Report_message.findAll({
+      let findUsers = await db['Report_message'].findAll({
         attributes: {
           include: [[db.sequelize.col('Message.User.email'), 'email']],
           exclude: ['id', 'reporter', 'message_id', 'complete', 'report_date'],
@@ -84,10 +84,6 @@ const adminValidation: AdminValidation = {
           include: [
             {
               model: db.User,
-              attributes: [],
-            },
-            {
-              model: db.Report_message,
               attributes: [],
             },
           ],
@@ -103,9 +99,9 @@ const adminValidation: AdminValidation = {
       findUsers = findUsers.map((item: any) => item.dataValues.email);
       let reports = await db.User.findAll({
         where: { email: { [Op.in]: [...findUsers] } },
-        attributes: ['email', 'profile_image', 'is_block'],
+        attributes: ['email', 'profile_image', 'is_block', 'block_date'],
         include: {
-          model: db.Message,
+          model: db['Message'],
           attributes: [['content', 'message']],
           where: {
             id: {
@@ -247,15 +243,5 @@ const adminValidation: AdminValidation = {
     }
   },
 };
-/*
-신고 삭제하기
-*/
-// if (block_day === '삭제') {
-//   db['Report_message'].destroy({
-//     where: {  },
-//   });
 
-//   next();
-//   return;
-// }
 export default adminValidation;
