@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { MessageType, CategoryType, UserType } from '../type';
 import { setParticipant } from '../reducers/roomSlice';
 import LoginConfirm from '../components/LoginConfirm';
+import { showAlert } from '../reducers/componetSlice';
 
 function dateToString(
   date: Date,
@@ -169,29 +170,34 @@ const Room = () => {
 
   useEffect(() => {
     const roomData = async () => {
-      const {
-        data: {
-          data: { Messages, Participants, category_id, location },
-        },
-      } = await roomAPI.getRoomInfo(room_id, email);
-      setTalkContents(Messages);
-      setRoomLocation(location);
-      const members = Participants.map((member: any) => {
-        return member.User;
-      });
-      setMemberList(members);
-      dispatch(setParticipant(Participants));
+      try {
+        const {
+          data: {
+            data: { Messages, Participants, category_id, location },
+          },
+        } = await roomAPI.getRoomInfo(room_id, email);
+        setTalkContents(Messages);
+        setRoomLocation(location);
+        const members = Participants.map((member: any) => {
+          return member.User;
+        });
+        setMemberList(members);
+        dispatch(setParticipant(Participants));
 
-      const {
-        data: {
-          data: { categoryList },
-        },
-      } = await categoryAPI.list();
-      categoryList.filter((cat: CategoryType) => {
-        if (category_id === cat.id) {
-          setCategory(cat.name);
-        }
-      });
+        const {
+          data: {
+            data: { categoryList },
+          },
+        } = await categoryAPI.list();
+        categoryList.filter((cat: CategoryType) => {
+          if (category_id === cat.id) {
+            setCategory(cat.name);
+          }
+        });
+      } catch (error) {
+        dispatch(showAlert('error'));
+        console.log(error);
+      }
     };
     if (room_id) {
       roomData();
@@ -339,8 +345,13 @@ const Room = () => {
    * 모임 나가기
    */
   const handleQuit = async () => {
-    await socket.emit('leave_meeting', { room_id, email });
-    //navigate('/search'); // 모임 검색 페이지로 이동
+    try {
+      await socket.emit('leave_meeting', { room_id, email });
+      //navigate('/search'); // 모임 검색 페이지로 이동
+    } catch (error) {
+      dispatch(showAlert('error'));
+      console.log(error);
+    }
   };
 
   // todo message insert 이벤트 추가 - 현재 ui에 텍스트 입력박스가 안보임 - enter 입력
@@ -379,6 +390,7 @@ const Room = () => {
           message_type: 'IMAGE',
         });
       } catch (err) {
+        dispatch(showAlert('error'));
         console.log(err);
       }
     }

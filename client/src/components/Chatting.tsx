@@ -15,6 +15,7 @@ import ModalTemp from './ModalTemp';
 import { MessageType, UserType } from '../type';
 import Map from './Map';
 import MemberList from './MemberList';
+import { showAlert } from '../reducers/componetSlice';
 
 const ChattingContainer = styled.div`
   height: 100%;
@@ -266,6 +267,7 @@ const ChattingRoom = ({
   roomMember,
   handleUploadImg,
 }: ChattingProps) => {
+  const dispatch = useAppDispatch();
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
   const [isShow, setIsShow] = useState<boolean>(false);
@@ -303,9 +305,15 @@ const ChattingRoom = ({
   };
 
   const handleReport = async (message_id: number) => {
-    const result = await roomAPI.report(message_id, email);
-    console.log(result);
-    handleModal('', -1);
+    try {
+      await roomAPI.report(message_id, email);
+      dispatch(showAlert('report'));
+    } catch (error) {
+      dispatch(showAlert('error'));
+      console.log(error);
+    } finally {
+      handleModal('', -1);
+    }
   };
 
   const handleModal = (nickName: string, id: number) => {
@@ -333,6 +341,7 @@ const ChattingRoom = ({
         const target = messageTarget.current;
         return (
           <div
+            key={idx}
             ref={(el) => (target[idx] = el)}
             onClick={(e) => scrollTo(e, idx)}
           >
