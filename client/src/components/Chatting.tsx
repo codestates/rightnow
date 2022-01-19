@@ -2,7 +2,6 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -111,17 +110,12 @@ const Radio = styled.input`
   position: absolute;
   opacity: 0;
   &:checked + label {
-    &{NavItem} {
-      height: 2.3rem;
-      width: 8rem;
-      margin-top: -0.5rem;
-      line-height: 2.3rem;
-      font-size: 1.1rem;
-      box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
-    }
-    &{NavItem}:hover {
-      cursor: default;
-    }
+    height: 2.3rem;
+    width: 8rem;
+    margin-top: -0.5rem;
+    line-height: 2.3rem;
+    font-size: 1.1rem;
+    box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
   }
 `;
 
@@ -282,16 +276,15 @@ const ChattingRoom = ({
   const messageTarget = useRef(new Array(talkContents.length));
 
   useEffect(() => {
+    const scrollToBottom = () => {
+      if (editMode) {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        scrollRef.current?.scrollIntoView();
+      }
+    };
     scrollToBottom();
-  }, [talkContents]);
-
-  const scrollToBottom = () => {
-    if (editMode) {
-      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      scrollRef.current?.scrollIntoView();
-    }
-  };
+  }, [editMode, talkContents]);
 
   const handleMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -348,27 +341,24 @@ const ChattingRoom = ({
     return target[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const chattingList = useMemo(
-    () => () =>
-      talkContents.map((messageData: MessageType, idx) => {
-        const target = messageTarget.current;
-        return (
-          <div
+  const chattingList = () =>
+    talkContents.map((messageData: MessageType, idx) => {
+      const target = messageTarget.current;
+      return (
+        <div
+          key={idx}
+          ref={(el) => (target[idx] = el)}
+          onClick={(e) => scrollTo(e, idx)}
+        >
+          <Message
             key={idx}
-            ref={(el) => (target[idx] = el)}
-            onClick={(e) => scrollTo(e, idx)}
-          >
-            <Message
-              key={idx}
-              messageData={messageData}
-              handleModal={handleModal}
-              updateMessage={updateMessage}
-            ></Message>
-          </div>
-        );
-      }),
-    [talkContents],
-  );
+            messageData={messageData}
+            handleModal={handleModal}
+            updateMessage={updateMessage}
+          ></Message>
+        </div>
+      );
+    });
 
   return (
     <Container className="flex flex-col">
