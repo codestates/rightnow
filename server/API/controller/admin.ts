@@ -72,8 +72,8 @@ const adminController: AdminController = {
       res.status(404).send({ message: 'no exists email' });
     } else if (req.sendData.message === 'user not reported') {
       res.status(404).send({ message: 'user not reported' });
-    } else if (req.sendData.message === 'already blocked user') {
-      res.status(409).send({ message: 'already blocked user' });
+    } else if (req.sendData.message === 'already blocked message') {
+      res.status(409).send({ message: 'already blocked message' });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }

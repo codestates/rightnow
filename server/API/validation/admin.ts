@@ -198,7 +198,7 @@ const adminValidation: AdminValidation = {
         next();
         return;
       } else if (userInfo.dataValues.is_block === 'Y') {
-        req.sendData = { message: 'already blocked user' };
+        req.sendData = { message: 'already blocked message' };
         next();
         return;
       }
