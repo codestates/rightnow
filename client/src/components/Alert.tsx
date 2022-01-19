@@ -156,6 +156,14 @@ const Alert = () => {
         setTitle('카테고리');
         setSubTitle('카테고리를 삭제하였습니다.');
         break;
+      case 'report':
+        setTitle('신고');
+        setSubTitle('신고가 완료되었습니다.');
+        break;
+      case 'error':
+        setTitle('Error');
+        setSubTitle('에러가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        break;
     }
   }, [alertType]);
 

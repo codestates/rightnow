@@ -342,12 +342,17 @@ const Search = () => {
    */
   useEffect(() => {
     const friendsData = async () => {
-      const {
-        data: {
-          data: { FriendList },
-        },
-      } = await friendAPI.list(email);
-      setFriendList(FriendList);
+      try {
+        const {
+          data: {
+            data: { FriendList },
+          },
+        } = await friendAPI.list(email);
+        setFriendList(FriendList);
+      } catch (error) {
+        console.log(error);
+        dispatch(showAlert('error'));
+      }
     };
     friendsData();
   }, []);
@@ -357,12 +362,17 @@ const Search = () => {
    */
   useEffect(() => {
     const categoryData = async () => {
-      const {
-        data: {
-          data: { categoryList: data },
-        },
-      } = await categoryAPI.list();
-      setCategory(data);
+      try {
+        const {
+          data: {
+            data: { categoryList: data },
+          },
+        } = await categoryAPI.list();
+        setCategory(data);
+      } catch (error) {
+        dispatch(showAlert('error'));
+        console.log(error);
+      }
     };
     categoryData();
   }, []);
@@ -378,10 +388,15 @@ const Search = () => {
       dispatch(setLon(longitude));
       dispatch(setLat(latitude));
       // 가져온 위도 경도로 주소를 조회(서버 api 사용)
-      const {
-        data: { data },
-      } = await roomAPI.location(longitude, latitude);
-      dispatch(setLocation(data));
+      try {
+        const {
+          data: { data },
+        } = await roomAPI.location(longitude, latitude);
+        dispatch(setLocation(data));
+      } catch (error) {
+        dispatch(showAlert('error'));
+        console.log(error);
+      }
     };
     const error = () => {
       // 사용자가 위치 정보를 공유하지 않음
@@ -681,7 +696,7 @@ const Search = () => {
                   {category.length > 0 &&
                     category.map((item, idx) => (
                       <Option key={idx} value={item.id}>
-                        {item.name}
+                        {item.name}: {item.user_num}명
                       </Option>
                     ))}
                 </Select>
