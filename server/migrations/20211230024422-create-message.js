@@ -17,7 +17,7 @@ module.exports = {
       room_id: {
         type: Sequelize.UUID,
         references: { model: 'Rooms', key: 'id' },
-        onDelete: 'cascade',
+        onDelete: 'SET NULL',
         onUpdate: 'cascade',
       },
       content: {

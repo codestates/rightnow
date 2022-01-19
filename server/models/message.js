@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       models.Message.belongsTo(models.Room, {
         foreignKey: 'room_id',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
         foreignKeyConstraint: true,
       });
