@@ -89,6 +89,8 @@ const userValidation: UserValidation = {
                 next();
               } else if (resp === true) {
                 delete userInfo.dataValues.password;
+                delete userInfo.dataValues.auth_code;
+
                 const accessToken: any = jwt.sign(
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
@@ -144,6 +146,8 @@ const userValidation: UserValidation = {
                 next();
               } else if (resp === true) {
                 delete userInfo.dataValues.password;
+                delete userInfo.dataValues.auth_code;
+
                 const accessToken: any = jwt.sign(
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
@@ -502,6 +506,8 @@ const userValidation: UserValidation = {
                 next();
               } else {
                 delete userInfo.dataValues.password;
+                delete userInfo.dataValues.auth_code;
+
                 req.sendData = {
                   data: { userInfo: userInfo.dataValues },
                   message: 'ok',
@@ -565,6 +571,8 @@ const userValidation: UserValidation = {
                 next();
               } else {
                 delete userInfo.dataValues.password;
+                delete userInfo.dataValues.auth_code;
+
                 await db['User'].update(
                   { nick_name },
                   { where: { email: decoded.email } },
