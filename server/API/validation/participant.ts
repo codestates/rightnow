@@ -265,28 +265,52 @@ const participantValidation: ParticipantValidation = {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    let find = await db.Report_message.findAll({
+    // let find = await db.Report_message.findAll({
+    //   attributes: {
+    //     include: [
+    //       [db.sequelize.col('Message.User.email'), 'email'],
+    //       [db.sequelize.col('Message.User.profile_image'), 'profile_image'],
+    //       [db.sequelize.col('Message.User.is_block'), 'is_block'],
+    //     ],
+    //     exclude: ['id', 'reporter', 'message_id', 'complete', 'report_date'],
+    //   },
+    //   include: {
+    //     model: db.Message,
+    //     attributes: {
+    //       //include: [[db.sequelize.col('Report_messages.complete'), 'complete']],
+    //       exclude: [
+    //         'id',
+    //         'user_email',
+    //         'write_date',
+    //         'room_id',
+    //         'message_type',
+    //         'is_update',
+    //       ],
+    //     },
+    //     required: false,
+    //     include: [
+    //       {
+    //         model: db.User,
+    //         attributes: [],
+    //       },
+    //       {
+    //         model: db.Report_message,
+    //         attributes: {
+    //           exclude: ['id', 'message_id'],
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   group: ['Message.User.email'],
+    // });
+    let findUsers = await db.Report_message.findAll({
       attributes: {
-        include: [
-          [db.sequelize.col('Message.User.email'), 'email'],
-          [db.sequelize.col('Message.User.profile_image'), 'profile_image'],
-          [db.sequelize.col('Message.User.is_block'), 'is_block'],
-        ],
+        include: [[db.sequelize.col('Message.User.email'), 'email']],
         exclude: ['id', 'reporter', 'message_id', 'complete', 'report_date'],
       },
       include: {
         model: db.Message,
-        attributes: {
-          //include: [[db.sequelize.col('Report_messages.complete'), 'complete']],
-          exclude: [
-            'id',
-            'user_email',
-            'write_date',
-            'room_id',
-            'message_type',
-            'is_update',
-          ],
-        },
+        attributes: [],
         include: [
           {
             model: db.User,
@@ -294,20 +318,44 @@ const participantValidation: ParticipantValidation = {
           },
           {
             model: db.Report_message,
-            attributes: {
-              exclude: ['id', 'message_id'],
-            },
-            required: false,
+            attributes: [],
           },
         ],
       },
       group: ['Message.User.email'],
     });
-    let data = find.map((item: any) => {
-      let temp = item.dataValues;
-      temp.Message.dataValues.complete =
-        temp.Message.dataValues.Report_messages[0].dataValues.complete;
-      return temp;
+    const subQuery = `(
+      SELECT message_id
+      FROM Report_messages AS Report_message
+      WHERE
+          user_email = User.email
+  )`;
+    findUsers = findUsers.map((item: any) => item.dataValues.email);
+    let reports = await db.User.findAll({
+      where: { email: { [Op.in]: [...findUsers] } },
+      attributes: ['email', 'profile_image', 'is_block'],
+      include: {
+        model: db.Message,
+        attributes: [['content', 'message']],
+        where: {
+          id: {
+            [Op.in]: db.sequelize.literal(subQuery),
+          },
+        },
+        include: {
+          model: db.Report_message,
+          attributes: ['complete', 'reporter', ['report_date', 'date']],
+        },
+      },
+    });
+
+    let data = reports.map((item: any) => {
+      item.dataValues.Messages.map(
+        (message: any) =>
+          (message.dataValues.complete =
+            message.dataValues.Report_messages[0].dataValues.complete),
+      );
+      return item;
     });
     res.send(data);
   },
