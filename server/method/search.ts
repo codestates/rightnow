@@ -1,17 +1,8 @@
-import {
-  CacheUser,
-  Participant,
-  TempRoom,
-  CacheRoomList,
-  ChatCommunicationData,
-  User,
-} from '../type/type';
-import myDate from './myDate';
+import { CacheUser, Participant } from '../type/type';
 import { searchNamespace } from '../routers/socket';
 import participantValidation from '../API/validation/participant';
-import messageValidation from '../API/validation/message';
 import roomValidation from '../API/validation/room';
-let { findUsers, tempRooms, roomList, attendUsers } = require('../data/cache');
+let { findUsers, tempRooms } = require('../data/cache');
 const dotenv: any = require('dotenv');
 dotenv.config();
 const db: any = require('../models/index');
@@ -20,9 +11,7 @@ const UUID_FUNC: Function = require('./uuid');
 
 const searchMethod = (socket: any) => {
   socket.on('disconnect', (data: any) => {
-    try {
-      console.log(socket.id + ' disconnect');
-    } catch {}
+    console.log(socket.id + ' disconnect');
   });
   console.log(socket.id + ' conntect');
 
