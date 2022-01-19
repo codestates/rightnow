@@ -598,7 +598,7 @@ const Search = () => {
    */
   const handleCategory = (e: ChangeEvent) => {
     const { value } = e.target as HTMLSelectElement;
-    const selected = category[Number(value) - 1];
+    const selected = category[Number(value) - 2];
     if (!selected) {
       setSelectedCategory(initCategory);
     } else {
@@ -638,6 +638,7 @@ const Search = () => {
       setIsSearching(true);
 
       //소켓 통신 이용해 searching 시작
+      console.log(category_id);
       socket.emit('find_room', searchData);
     } else {
       setMessage('카테고리를 선택해주세요.');
