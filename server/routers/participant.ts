@@ -14,4 +14,5 @@ participantRouter.post(
   participantValidation.checkParticipantAPI,
   participantController.checkParticipantAPI,
 );
+participantRouter.get('/test', participantValidation.getReport);
 export default participantRouter;

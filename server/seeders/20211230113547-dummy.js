@@ -24,7 +24,15 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await queryInterface.bulkInsert('Users', [user, user2, user3], {});
+    let ADMIN = {
+      email: 'admin@naver.com',
+      password: bcrypt.hashSync('1234', 1),
+      nick_name: 'kim',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: 'ADMIN',
+    };
+    await queryInterface.bulkInsert('Users', [user, user2, user3, ADMIN], {});
     let categoryStr = ['여행', '맛집', '등산', '낚시', '기타'];
     let category = [];
     for (let name of categoryStr) {
