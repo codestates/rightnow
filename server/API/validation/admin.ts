@@ -54,7 +54,6 @@ const adminValidation: AdminValidation = {
         data: { userInfo: userInfo },
         message: 'ok',
       };
-      console.log(userInfo);
       next();
     } catch (e) {
       console.log(e);
