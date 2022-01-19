@@ -31,10 +31,11 @@ module.exports = {
         type: Sequelize.STRING,
       },
       is_block: {
+        defaultValue: 'N',
         type: Sequelize.STRING,
       },
       block_date: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

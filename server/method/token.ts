@@ -38,81 +38,39 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
             };
             next();
           } else {
-            if (type === 'adminReported') {
-              const adminInfo: any = await db['User'].findOne({
-                where: { email: decoded.email },
-              });
-              delete adminInfo.dataValues.password;
-              if (adminInfo.role === 'ADMIN') {
-                const accessToken: any = jwt.sign(
-                  adminInfo.toJSON(),
-                  process.env.ACCESS_SECRET,
-                  {
-                    expiresIn: '15m',
-                  },
-                );
-                let reportedUserInfo: any = await db['Message'].findAll({
-                  include: [
-                    {
-                      model: db['Report_message'],
-                    },
-                    {
-                      model: db['User'],
-                    },
-                  ],
-                });
-                reportedUserInfo = reportedUserInfo.map((el: any) => {
-                  return el.dataValues;
-                });
-                for (let i = 0; i < reportedUserInfo.length; i++) {
-                  delete reportedUserInfo[i].User.dataValues.password;
-                }
-                req.sendData = {
-                  data: {
-                    reportedUserInfo: reportedUserInfo,
-                    accessToken: accessToken,
-                  },
-                  message: 'ok, give new accessToken and refreshToken',
-                };
-                next();
-              } else {
-                req.sendData = {
-                  message: 'not admin account',
-                };
-                next();
-              }
+            const userInfo: any = await db['User'].findOne({
+              where: { email: decoded.email },
+            });
+            delete userInfo.dataValues.password;
+            if (!userInfo) {
+              req.sendData = {
+                message: 'token has been tempered',
+              };
+              next();
             } else {
-              const userInfo: any = await db['User'].findOne({
-                where: { email: decoded.email },
-              });
-              delete userInfo.dataValues.password;
-              if (!userInfo) {
-                req.sendData = {
-                  message: 'token has been tempered',
-                };
-                next();
-              } else {
-                const accessToken: any = jwt.sign(
-                  userInfo.dataValues,
-                  process.env.ACCESS_SECRET,
-                  {
-                    expiresIn: '15m',
-                  },
+              const accessToken: any = jwt.sign(
+                userInfo.dataValues,
+                process.env.ACCESS_SECRET,
+                {
+                  expiresIn: '15m',
+                },
+              );
+              if (type === 'update') {
+                const { nick_name } = req.body;
+                await db['User'].update(
+                  { nick_name },
+                  { where: { email: userInfo.email } },
                 );
-                if (type === 'update') {
-                  const { email, nick_name } = req.body;
-                  await db['User'].update({ nick_name }, { where: { email } });
-                  userInfo.dataValues.nick_name = nick_name;
-                }
-                req.sendData = {
-                  data: {
-                    userInfo: userInfo.dataValues,
-                    accessToken: accessToken,
-                  },
-                  message: 'ok, give new accessToken and refreshToken',
-                };
-                next();
+                userInfo.dataValues.nick_name = nick_name;
               }
+              req.sendData = {
+                data: {
+                  userInfo: userInfo.dataValues,
+                  accessToken: accessToken,
+                },
+                message: 'ok, give new accessToken and refreshToken',
+              };
+              next();
             }
           }
         },

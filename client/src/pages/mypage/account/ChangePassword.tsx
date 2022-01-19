@@ -118,7 +118,7 @@ const ChangePassword = () => {
   return (
     <>
       <div className="text-lg font-semibold">비밀번호 변경</div>
-      <div className="mt-8 pl-4 space-y-6 relative">
+      <div className="mt-5 pl-4 space-y-6 relative">
         <div className="flex items-center space-x-12 text-sm">
           <span>현재 비밀번호</span>
           <input

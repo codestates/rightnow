@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       role: { type: DataTypes.STRING, defaultValue: 'USER' },
       social_login: { type: DataTypes.STRING, defaultValue: 'original' },
       auth_code: { type: DataTypes.STRING, defaultValue: '' },
-      is_block: DataTypes.STRING,
+      is_block: { type: DataTypes.STRING, defaultValue: 'N' },
       block_date: DataTypes.STRING,
     },
     {

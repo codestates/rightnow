@@ -530,10 +530,10 @@ const userValidation: UserValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const { email, nick_name } = req.body;
+      const { nick_name } = req.body;
       const type: string = 'update';
 
-      if (!email || !nick_name) {
+      if (!nick_name) {
         res.send('err');
       } else if (!req.headers.authorization) {
         await accessTokenRequestValidation.accessTokenRequest(
@@ -773,13 +773,33 @@ const userValidation: UserValidation = {
     try {
       const { message_id, reporter_email } = req.body;
       if (message_id && reporter_email) {
+        const report: any = await db['Report_message'].findOne({
+          where: { message_id: message_id, reporter: reporter_email },
+        });
+        const report2: any = await db['Report_message'].findOne({
+          where: { message_id: message_id, complete: 'Y' },
+        });
+        if (report) {
+          req.sendData = {
+            message: 'already exists report',
+          };
+          next();
+          return;
+        }
+        if (report2) {
+          req.sendData = {
+            message: 'already blocked user',
+          };
+          next();
+          return;
+        }
+
         const userInfo: any = await db['User'].findOne({
           where: { email: reporter_email },
         });
         const message: any = await db['Message'].findOne({
           where: { id: message_id },
         });
-
         if (userInfo && message) {
           db['Report_message'].create({
             message_id: Number(message_id),

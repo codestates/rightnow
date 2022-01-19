@@ -10,6 +10,7 @@ import { userRole } from '../../../reducers/userSlice';
 interface IOption {
   id: string;
   label: string;
+  index: number;
 }
 
 interface IData {
@@ -26,19 +27,17 @@ interface IData {
 }
 
 const FriendsLayout = () => {
-
   const role = useAppSelector(userRole);
 
   const options: IOption[] = [
     {
       id: 'list',
       label: '친구 목록',
+      index: 0,
     },
-    { id: 'add', label: '친구 추가' },
-    { id: 'request', label: '친구 요청' },
+    { id: 'add', label: '친구 추가', index: 1 },
+    { id: 'request', label: '친구 요청', index: 2 },
   ];
-
-
 
   return (
     <>

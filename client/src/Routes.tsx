@@ -17,14 +17,15 @@ import {
   logout,
   updateAccessToken,
   deleteAccessToken,
-  userEmail,
+  userProfile,
 } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
 import Search from './pages/Search';
 import {
-  componetSlice,
+  mypageMenu,
   showAlert,
+  showMypage,
   updateUrl,
   url,
 } from './reducers/componetSlice';
@@ -54,7 +55,12 @@ function Routes() {
   const accessToken = useAppSelector(userAccessToken);
   const isLogin = useAppSelector(userIsLogin);
   const prevPage = useAppSelector(url);
-  const email = useAppSelector(userEmail);
+  const profile_image = useAppSelector(userProfile);
+  const isVisibleMypageMenu = useAppSelector(mypageMenu);
+
+  useEffect(() => {
+    console.log(profile_image);
+  }, [profile_image]);
 
   useEffect(() => {
     if (accessToken) {
@@ -77,28 +83,38 @@ function Routes() {
   useEffect(() => {
     if (location.search) {
       const kakaoAuthCode = location.search.split('code=')[1];
-      // const googleAuthCode = location.search.split('code=')[1];
-      // const googleAuthCode = location.search.split('code=')[1].split('&')[0];
+      const googleSearch = location.search.split('message=')[1];
       if (kakaoAuthCode) {
         const body = {
           code: kakaoAuthCode,
         };
-
         const callback = (code: number, data: string): void => {
-          if (code === 201) {
+          if (code === 200) {
             dispatch(updateAccessToken(data));
           }
         };
         userApi('kakaoLogin', body, callback);
       }
-      // if (googleAuthCode) {
-      //   console.log('google')
-      //   const body = {
-      //     code: googleAuthCode,
-      //   };
-      //   const callback = (code: number, data: IData): void => {};
-      //   userApi('googleLogin', body, callback);
-      // }
+      if (googleSearch) {
+        const message = googleSearch.split('&')[0];
+        if (message === 'ok') {
+          const callback = (code: number, data: IData) => {
+            if (code === 200) {
+              if (data.accessToken) {
+                dispatch(updateAccessToken(data.accessToken));
+              }
+            } else if (code === 400) {
+              dispatch(showAlert('invalidRefreshToken'));
+            } else if (code === 404) {
+              dispatch(updateUrl('temperedToken'));
+              dispatch(deleteAccessToken());
+            }
+          };
+          userApi('getUserInfo', undefined, callback, accessToken);
+        } else {
+          dispatch(showAlert('accessDenied'));
+        }
+      }
     }
   }, []);
 
@@ -149,6 +165,21 @@ function Routes() {
     }
     setFirst(false);
   }, [isLogin]);
+
+  // 평소에 enter를 누를 시 알림 창 제거
+  useEffect(() => {
+    document.body.addEventListener('keypress', (e) => {
+      if (e.code === 'Enter') {
+        dispatch(showAlert(''));
+      }
+    });
+  }, []);
+
+  document.body.addEventListener('click', () => {
+    if (isVisibleMypageMenu) {
+      dispatch(showMypage(false));
+    }
+  });
 
   return (
     <>

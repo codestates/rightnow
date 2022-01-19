@@ -109,6 +109,8 @@ export const userProfile = (state: RootState) =>
 export const userInformation = (state: RootState) => state.user.userInfo;
 export const userAccessToken = (state: RootState) => state.user.accessToken;
 export const userRole = (state: RootState) => state.user.userInfo.role;
+export const userSocialLogin = (state: RootState) =>
+  state.user.userInfo.social_login;
 export const userRequestFriendList = (state: RootState) =>
   state.user.requestFriend.list;
 export const userRequestFriendCount = (state: RootState) =>

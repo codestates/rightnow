@@ -88,7 +88,7 @@ export default function userApi(
         .catch((err) => {
           if (err.response.status === 422) {
             callback(err.response.status, '인증번호를 확인해 주세요.');
-          } else if (err.response.status === 400) {
+          } else if (err.response.status === 409) {
             callback(err.response.status, '등록된 이메일 입니다.');
           }
         });
@@ -174,7 +174,7 @@ export default function userApi(
       axios
         .post(`http://${endpoint}/oauth/callback/kakao`, body)
         .then((res) => {
-          if (res.status === 201) {
+          if (res.status === 200) {
             callback(res.status, res.data.data.accessToken)
           }
         })

@@ -6,7 +6,11 @@ import {
   updateUrl,
 } from '../reducers/componetSlice';
 import { useNavigate } from 'react-router-dom';
-import { deleteAccessToken, userEmail } from '../reducers/userSlice';
+import {
+  deleteAccessToken,
+  userEmail,
+  userSocialLogin,
+} from '../reducers/userSlice';
 import { useAppSelector, useAppDispatch } from '../config/hooks';
 import userApi from '../api/userApi';
 
@@ -15,8 +19,10 @@ interface IProps {
 }
 
 const Modal = ({ password }: IProps) => {
-  const router = useNavigate();
   const dispatch = useAppDispatch();
+  // 로그인 경로(일반 로그인 or 소셜로그인)
+  const socialLogin = useAppSelector(userSocialLogin);
+  // 유저 이메일
   const email = useAppSelector(userEmail);
   // 모달 창의 타입지정
   const modalType: string = useAppSelector(modal);
@@ -31,21 +37,36 @@ const Modal = ({ password }: IProps) => {
       closeModal();
       dispatch(deleteAccessToken());
     } else if (modalType === 'signout') {
-      const body = {
-        email: email,
-        password: password,
-        social_login: 'original',
-      };
-      const callback = (code: number) => {
-        if (code === 200) {
-          dispatch(updateUrl('deleteAccount'));
-          dispatch(deleteAccessToken());
-        } else if (code === 404) {
-          dispatch(showAlert('signoutWrongPassword'));
-        }
-      };
-      closeModal();
-      userApi('signout', body, callback);
+      if (socialLogin === 'original') {
+        const body = {
+          email: email,
+          password: password,
+          social_login: socialLogin,
+        };
+        const callback = (code: number) => {
+          if (code === 200) {
+            dispatch(updateUrl('deleteAccount'));
+            dispatch(deleteAccessToken());
+          } else if (code === 404) {
+            dispatch(showAlert('signoutWrongPassword'));
+          }
+        };
+        closeModal();
+        userApi('signout', body, callback);
+      } else {
+        const body = {
+          email: email,
+          social_login: socialLogin,
+        };
+        const callback = (code: number) => {
+          if (code === 200) {
+            dispatch(updateUrl('deleteAccount'));
+            dispatch(deleteAccessToken());
+          }
+        };
+        closeModal();
+        userApi('signout', body, callback);
+      }
     }
   };
   useEffect((): void => {
@@ -69,7 +90,7 @@ const Modal = ({ password }: IProps) => {
     <>
       <div
         className={`w-full absolute top-0 left-0 bg-black bg-opacity-20 flex justify-center items-center ${
-          modalType ? 'z-20 opacity-100 h-full' : '-z-10 opacity-0 h-0'
+          modalType ? 'z-50 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         // onClick={closeModal}
       >

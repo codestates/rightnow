@@ -38,6 +38,14 @@ const Alert = () => {
         setTitle('프로필 설정');
         setSubTitle('회원정보를 수정 하였습니다.');
         break;
+      case 'updateProfile':
+        setTitle('프로필 설정');
+        setSubTitle('프로필 사진을 수정 하였습니다.');
+        break;
+      case 'profileTypeError':
+        setTitle('프로필 설정');
+        setSubTitle('png, jpg, jpeg 형식의 파일만 첨부할 수 있습니다.');
+        break;
       case 'updatePasswordKnow':
         setTitle('비밀번호 변경');
         setSubTitle('비밀번호를 변경 하였습니다.');
@@ -124,6 +132,46 @@ const Alert = () => {
         setTitle('친구 목록');
         setSubTitle('친구를 삭제하였습니다.');
         break;
+      case 'accessDenied':
+        setTitle('구글 로그인');
+        setSubTitle('문제가 발생하였습니다. 다른 경로로 접속하여 주세요.');
+        break;
+      case 'createCategory':
+        setTitle('카테고리');
+        setSubTitle('카테고리를 생성하였습니다.');
+        break;
+      case 'updateCategory':
+        setTitle('카테고리');
+        setSubTitle('변경사항이 저장 되었습니다.');
+        break;
+      case 'updateCategoryError':
+        setTitle('카테고리');
+        setSubTitle('이름과 인원 수를 다시 확인해주세요.');
+        break;
+      case 'alreadyCreateCategory':
+        setTitle('카테고리');
+        setSubTitle('이미 생성 된 카테고리입니다.');
+        break;
+      case 'deleteCategory':
+        setTitle('카테고리');
+        setSubTitle('카테고리를 삭제하였습니다.');
+        break;
+      case 'report':
+        setTitle('신고');
+        setSubTitle('신고가 완료되었습니다.');
+        break;
+      case 'alreadyReported':
+        setTitle('신고');
+        setSubTitle('이미 신고한 메시지입니다.');
+        break;
+      case 'alreadyBlocked':
+        setTitle('신고');
+        setSubTitle('정지된 회원입니다.');
+        break;
+      case 'error':
+        setTitle('Error');
+        setSubTitle('에러가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        break;
     }
   }, [alertType]);
 
@@ -139,7 +187,7 @@ const Alert = () => {
     <>
       <div
         className={`w-full absolute top-0 left-0 bg-opacity-100 flex justify-center items-start ${
-          alertType ? 'z-20 opacity-100 h-full' : '-z-10 opacity-0 h-0'
+          alertType ? 'z-50 opacity-100 h-full' : '-z-10 opacity-0 h-0'
         }`}
         onClick={closeAlert}
       >

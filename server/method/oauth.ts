@@ -40,7 +40,7 @@ module.exports = {
         },
       });
       return response.data.access_token;
-    } catch {
+    } catch (e) {
       return null;
     }
   },
@@ -56,7 +56,7 @@ module.exports = {
         params: { access_token: accessToken },
       });
       return data.data;
-    } catch {
+    } catch (e) {
       return null;
     }
   },
@@ -91,7 +91,7 @@ module.exports = {
         },
       });
       return response.data.id;
-    } catch {
+    } catch (e) {
       return null;
     }
   },

@@ -83,7 +83,7 @@ const Request = () => {
   return (
     <>
       <div className="text-lg font-semibold">친구 요청</div>
-      <div className="w-135 mt-4">
+      <div className="w-135 mt-2">
         {requestUserList.map((obj) => {
           const { email, nick_name, profile_image } = obj;
           return (
@@ -97,15 +97,16 @@ const Request = () => {
                   backgroundImage: `url(${
                     profile_image === null
                       ? defaultProfile
-                      : profile_image.indexOf('kakaocdn') === -1
-                      ? imageEndpoint + profile_image
-                      : profile_image
+                      : profile_image.indexOf('kakaocdn') !== -1 ||
+                        profile_image.indexOf('googleusercontent') !== -1
+                      ? profile_image
+                      : imageEndpoint + profile_image
                   })`,
                   backgroundSize: 'cover',
                 }}
               />
               <div className="ml-5 font-semibold text-sub">{nick_name}</div>
-              <div className="absolute right-0 flex items-center space-x-2">
+              <div className="absolute right-0 flex items-center space-x-1">
                 <div
                   className=" bg-main py-1.5 px-4 text-sm text-white rounded-md text-center hover:bg-orange-700 cursor-pointer"
                   onClick={() => {

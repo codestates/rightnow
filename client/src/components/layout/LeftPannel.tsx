@@ -1,13 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../../config/hooks';
 import { userRequestFriendCount } from '../../reducers/userSlice';
-// import Link from "next/link";
-// import { useRouter } from "next/router";
 
 interface IOption {
   id: string;
   label: string;
+  index: number;
 }
 
 interface IProps {
@@ -17,30 +16,42 @@ interface IProps {
 
 const LeftPannel = ({ options, type }: IProps) => {
   const location = useLocation();
-
   // user의 친구 요청 수
-  const requestFriendCount = useAppSelector((userRequestFriendCount))
+  const requestFriendCount = useAppSelector(userRequestFriendCount);
   // 사용자가 선택한 id
   const [selectedId, setSelectedId] = useState<string>(
     location.pathname.split('/')[3],
   );
+  // 사용자가 선택한 id 인덱스
+  const [selectedIdIndex, setSelectedIdIndex] = useState<number>(0);
   useEffect(() => {
+    const idx = options.findIndex((v) => {
+      return v.id === location.pathname.split('/')[3];
+    });
     setSelectedId(location.pathname.split('/')[3]);
+    setSelectedIdIndex(options[idx].index);
   }, [location]);
   return (
     <div className="w-56 text-sm text-gray-600 text-left space-y-1 relative">
-      {options.map((v, i) => {
-        const { id, label } = v;
+      {options.map((lefpannelOption, idx) => {
+        const { id, label, index } = lefpannelOption;
         return (
           <Link
             to={
               type === 'account'
                 ? `/mypage/account/${id}`
-                : `/mypage/friends/${id}`
+                : type === 'friends'
+                ? `/mypage/friends/${id}`
+                : type === 'report'
+                ? `/mypage/report/${id}`
+                : type === 'category'
+                ? `/mypage/category/${id}`
+                : `/mypage/user/${id}`
             }
             key={id}
             onClick={() => {
               setSelectedId(id);
+              setSelectedIdIndex(index);
             }}
           >
             <div
@@ -53,13 +64,12 @@ const LeftPannel = ({ options, type }: IProps) => {
                   ? 'text-red-500 hover:bg-gray-100 hover:font-semibold'
                   : 'text-sub hover:bg-gray-100 hover:font-semibold'
               }`}
-              onClick={() => {
-                setSelectedId(id);
-              }}
             >
               <span>{label}</span>
               {id === 'request' && requestFriendCount !== 0 && (
-                <div className=" bg-main text-white rounded-full inline-flex justify-center items-center min-w-5 px-1 ml-2">{requestFriendCount}</div>
+                <div className=" bg-main text-white rounded-full inline-flex justify-center items-center min-w-5 px-1 ml-2">
+                  {requestFriendCount}
+                </div>
               )}
             </div>
           </Link>
@@ -70,16 +80,10 @@ const LeftPannel = ({ options, type }: IProps) => {
           selectedId === 'deleteAccount' ? 'bg-gray-100' : 'bg-main'
         }`}
         style={{
-          top:
-            selectedId === 'profile' || selectedId === 'list'
-              ? -1
-              : selectedId === 'changePassword' || selectedId === 'add'
-              ? 34
-              : 69,
+          top: selectedIdIndex === 0 ? -1 : selectedIdIndex === 1 ? 34 : 69,
         }}
       />
     </div>
   );
 };
-
 export default LeftPannel;

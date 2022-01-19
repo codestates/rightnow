@@ -2,7 +2,6 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -12,9 +11,10 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
-import { MessageType, UserType } from '../type';
+import { ErrorResponse, MessageType, UserType } from '../type';
 import Map from './Map';
 import MemberList from './MemberList';
+import { showAlert } from '../reducers/componetSlice';
 
 const ChattingContainer = styled.div`
   height: 100%;
@@ -110,18 +110,12 @@ const Radio = styled.input`
   position: absolute;
   opacity: 0;
   &:checked + label {
-    &{NavItem} {
-      height: 2.3rem;
-      width: 8rem;
-      margin-top: -0.5rem;
-      /* font-weight: 600; */
-      line-height: 2.3rem;
-      font-size: 1.1rem;
-      box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
-    }
-    &{NavItem}:hover {
-      cursor: default;
-    }
+    height: 2.3rem;
+    width: 8rem;
+    margin-top: -0.5rem;
+    line-height: 2.3rem;
+    font-size: 1.1rem;
+    box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
   }
 `;
 
@@ -266,6 +260,7 @@ const ChattingRoom = ({
   roomMember,
   handleUploadImg,
 }: ChattingProps) => {
+  const dispatch = useAppDispatch();
   const [menu, setMenu] = useState<string>('talk'); // 메뉴 클릭, 대화, 모임위치, 나가기
   const email = useAppSelector(userEmail);
   const [isShow, setIsShow] = useState<boolean>(false);
@@ -278,17 +273,18 @@ const ChattingRoom = ({
 
   const imgInput = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [talkContents]);
+  const messageTarget = useRef(new Array(talkContents.length));
 
-  const scrollToBottom = () => {
-    if (editMode) {
-      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      scrollRef.current?.scrollIntoView();
-    }
-  };
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (editMode) {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        scrollRef.current?.scrollIntoView();
+      }
+    };
+    scrollToBottom();
+  }, [editMode, talkContents]);
 
   const handleMessage = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -301,9 +297,29 @@ const ChattingRoom = ({
   };
 
   const handleReport = async (message_id: number) => {
-    const result = await roomAPI.report(message_id, email);
-    console.log(result);
-    handleModal('', -1);
+    try {
+      await roomAPI.report(message_id, email);
+      dispatch(showAlert('report'));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const {
+          response: {
+            status,
+            data: { message },
+          },
+        } = error as ErrorResponse;
+        if (status === 409) {
+          if (message === 'already exists report') {
+            return dispatch(showAlert('alreadyReported'));
+          } else if (message === 'already blocked user') {
+            return dispatch(showAlert('alreadyBlocked'));
+          }
+        }
+      }
+      return dispatch(showAlert('error'));
+    } finally {
+      handleModal('', -1);
+    }
   };
 
   const handleModal = (nickName: string, id: number) => {
@@ -317,18 +333,32 @@ const ChattingRoom = ({
     imgInput.current?.click();
   };
 
-  const chattingList = useMemo(
-    () => () =>
-      talkContents.map((messageData: MessageType, idx) => (
-        <Message
+  const scrollTo = (e: React.SyntheticEvent<HTMLDivElement>, idx: number) => {
+    const target = messageTarget.current;
+    if (idx === talkContents.length - 1) {
+      return target[idx].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    return target[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const chattingList = () =>
+    talkContents.map((messageData: MessageType, idx) => {
+      const target = messageTarget.current;
+      return (
+        <div
           key={idx}
-          messageData={messageData}
-          handleModal={handleModal}
-          updateMessage={updateMessage}
-        ></Message>
-      )),
-    [talkContents],
-  );
+          ref={(el) => (target[idx] = el)}
+          onClick={(e) => scrollTo(e, idx)}
+        >
+          <Message
+            key={idx}
+            messageData={messageData}
+            handleModal={handleModal}
+            updateMessage={updateMessage}
+          ></Message>
+        </div>
+      );
+    });
 
   return (
     <Container className="flex flex-col">

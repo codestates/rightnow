@@ -44,7 +44,6 @@ const ImageContainer = styled.div``;
 const ProfileImg = styled.div<{ url: string }>`
   width: 3rem;
   height: 3rem;
-  background-color: red;
   background-size: auto 100%;
   background-position: center;
   background-image: url(${(props) => props.url});

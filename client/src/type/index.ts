@@ -33,3 +33,12 @@ export interface FriendType {
   nick_name: string;
   email: string;
 }
+
+export interface ErrorResponse extends Error {
+  response: {
+    data: {
+      message: string;
+    };
+    status: number;
+  };
+}
