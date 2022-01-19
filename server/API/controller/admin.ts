@@ -17,7 +17,7 @@ const adminController: AdminController = {
   async getAllUser(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
       res.status(200).send({
-        data: { userInfo: req.sendData.data.userInfo },
+        data: { userInfo: req.sendData.data.reportedUserInfo },
         message: 'ok',
       });
     } else if (req.sendData.message === 'err') {
