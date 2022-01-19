@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 const moment: any = require('moment');
+import { Op } from 'sequelize';
 
 import { CustomRequest } from '../../type/type';
 const dotenv: any = require('dotenv');
@@ -72,96 +73,62 @@ const adminValidation: AdminValidation = {
     next: NextFunction,
   ): Promise<any> {
     try {
-      let reportedUserInfo: any = await db['Message'].findAll({
-        include: [
-          {
-            model: db['Report_message'],
-          },
-          {
-            model: db['User'],
-          },
-        ],
+      let findUsers = await db.Report_message.findAll({
+        attributes: {
+          include: [[db.sequelize.col('Message.User.email'), 'email']],
+          exclude: ['id', 'reporter', 'message_id', 'complete', 'report_date'],
+        },
+        include: {
+          model: db.Message,
+          attributes: [],
+          include: [
+            {
+              model: db.User,
+              attributes: [],
+            },
+            {
+              model: db.Report_message,
+              attributes: [],
+            },
+          ],
+        },
+        group: ['Message.User.email'],
       });
-      reportedUserInfo = reportedUserInfo.map((el: any) => {
-        return el.dataValues;
+      const subQuery = `(
+        SELECT message_id
+        FROM Report_messages AS Report_message
+        WHERE
+            user_email = User.email
+    )`;
+      findUsers = findUsers.map((item: any) => item.dataValues.email);
+      let reports = await db.User.findAll({
+        where: { email: { [Op.in]: [...findUsers] } },
+        attributes: ['email', 'profile_image', 'is_block'],
+        include: {
+          model: db.Message,
+          attributes: [['content', 'message']],
+          where: {
+            id: {
+              [Op.in]: db.sequelize.literal(subQuery),
+            },
+          },
+          include: {
+            model: db.Report_message,
+            attributes: ['complete', 'reporter', ['report_date', 'date']],
+          },
+        },
       });
-      console.log(reportedUserInfo);
-      let chk_emails: any = [];
-      let chk_messages: any = [];
-      let result: any = [];
 
-      for (let i = 0; i < reportedUserInfo.length; i++) {
-        if (!chk_emails.includes(reportedUserInfo[i].user_email)) {
-          chk_emails.push(reportedUserInfo[i].user_email);
-          chk_messages.push([reportedUserInfo[i].content]);
-
-          result.push({
-            reportedUser: reportedUserInfo[i].user_email,
-            nick_name: reportedUserInfo[i].User.dataValues.nick_name,
-            profile_image: reportedUserInfo[i].User.dataValues.profile_image,
-            role: reportedUserInfo[i].User.dataValues.role,
-            is_block: reportedUserInfo[i].User.dataValues.is_block,
-            block_date: reportedUserInfo[i].User.dataValues.block_date,
-            aboutReport: [
-              {
-                message: reportedUserInfo[i].content,
-                complete:
-                  reportedUserInfo[i].Report_messages[0].dataValues.complete,
-                aboutReporters: [
-                  {
-                    reporter:
-                      reportedUserInfo[i].Report_messages[0].dataValues
-                        .reporter,
-                    date: reportedUserInfo[i].Report_messages[0].dataValues
-                      .report_date,
-                  },
-                ],
-              },
-            ],
-          });
-        } else {
-          if (
-            chk_messages[
-              chk_emails.indexOf(reportedUserInfo[i].user_email)
-            ].includes(reportedUserInfo[i].content)
-          ) {
-            result[
-              chk_emails.indexOf(reportedUserInfo[i].user_email)
-            ].aboutReport[
-              chk_messages[
-                chk_emails.indexOf(reportedUserInfo[i].user_email)
-              ].indexOf(reportedUserInfo[i].content)
-            ].aboutReporters.push({
-              reporter:
-                reportedUserInfo[i].Report_messages[0].dataValues.reporter,
-              date: reportedUserInfo[i].Report_messages[0].dataValues
-                .report_date,
-            });
-          } else {
-            chk_messages[
-              chk_emails.indexOf(reportedUserInfo[i].user_email)
-            ].push(reportedUserInfo[i].content);
-            result[
-              chk_emails.indexOf(reportedUserInfo[i].user_email)
-            ].aboutReport.push({
-              message: reportedUserInfo[i].content,
-              complete:
-                reportedUserInfo[i].Report_messages[0].dataValues.complete,
-              aboutReporters: [
-                {
-                  reporter:
-                    reportedUserInfo[i].Report_messages[0].dataValues.reporter,
-                  date: reportedUserInfo[i].Report_messages[0].dataValues
-                    .report_date,
-                },
-              ],
-            });
-          }
-        }
-      }
-
+      let data = reports.map((item: any) => {
+        item.dataValues.Messages.map(
+          (message: any) =>
+            (message.dataValues.complete =
+              message.dataValues.Report_messages[0].dataValues.complete),
+        );
+        return item;
+      });
       req.sendData = {
-        data: { reportedUserInfo: result },
+        data: { reportedUserInfo: data },
         message: 'ok',
       };
       next();
