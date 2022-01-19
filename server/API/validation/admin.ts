@@ -54,6 +54,7 @@ const adminValidation: AdminValidation = {
         data: { userInfo: userInfo },
         message: 'ok',
       };
+      console.log(userInfo);
       next();
     } catch (e) {
       console.log(e);
@@ -90,12 +91,14 @@ const adminValidation: AdminValidation = {
         },
         group: ['Message.User.email'],
       });
+
       const subQuery = `(
         SELECT message_id
         FROM Report_messages AS Report_message
         WHERE
-            user_email = User.email
+            message_id IN (SELECT id FROM Messages WHERE user_email = ${'`User`'}.${'`email`'})
     )`;
+
       findUsers = findUsers.map((item: any) => item.dataValues.email);
       let reports = await db.User.findAll({
         where: { email: { [Op.in]: [...findUsers] } },
