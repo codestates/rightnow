@@ -297,6 +297,7 @@ const participantValidation: ParticipantValidation = {
             attributes: {
               exclude: ['id', 'message_id'],
             },
+            required: false,
           },
         ],
       },
