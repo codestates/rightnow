@@ -598,7 +598,8 @@ const Search = () => {
    */
   const handleCategory = (e: ChangeEvent) => {
     const { value } = e.target as HTMLSelectElement;
-    const selected = category[Number(value) - 2];
+    const selected = category[Number(value) - 1];
+    console.log(selected);
     if (!selected) {
       setSelectedCategory(initCategory);
     } else {
@@ -631,7 +632,6 @@ const Search = () => {
       lon,
       lat,
     }; // 모임을 참가할 때 필요한 데이터들
-
     // 원하는 모임 조건 선택(조건은 임시)
     if (category_id !== -1) {
       // 모임 찾기
