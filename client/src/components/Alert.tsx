@@ -160,6 +160,14 @@ const Alert = () => {
         setTitle('신고');
         setSubTitle('신고가 완료되었습니다.');
         break;
+      case 'alreadyReported':
+        setTitle('신고');
+        setSubTitle('이미 신고한 메시지입니다.');
+        break;
+      case 'alreadyBlocked':
+        setTitle('신고');
+        setSubTitle('정지된 회원입니다.');
+        break;
       case 'error':
         setTitle('Error');
         setSubTitle('에러가 발생했습니다. 잠시 후 다시 시도해주세요.');

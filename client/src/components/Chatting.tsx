@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../config/hooks';
 import { userEmail } from '../reducers/userSlice';
 import Message from './Message';
 import ModalTemp from './ModalTemp';
-import { MessageType, UserType } from '../type';
+import { ErrorResponse, MessageType, UserType } from '../type';
 import Map from './Map';
 import MemberList from './MemberList';
 import { showAlert } from '../reducers/componetSlice';
@@ -115,7 +115,6 @@ const Radio = styled.input`
       height: 2.3rem;
       width: 8rem;
       margin-top: -0.5rem;
-      /* font-weight: 600; */
       line-height: 2.3rem;
       font-size: 1.1rem;
       box-shadow: inset 0 3px 5px 0 rgba(0, 0, 0, 0.05);
@@ -308,9 +307,23 @@ const ChattingRoom = ({
     try {
       await roomAPI.report(message_id, email);
       dispatch(showAlert('report'));
-    } catch (error) {
-      dispatch(showAlert('error'));
-      console.log(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const {
+          response: {
+            status,
+            data: { message },
+          },
+        } = error as ErrorResponse;
+        if (status === 409) {
+          if (message === 'already exists report') {
+            return dispatch(showAlert('alreadyReported'));
+          } else if (message === 'already blocked user') {
+            return dispatch(showAlert('alreadyBlocked'));
+          }
+        }
+      }
+      return dispatch(showAlert('error'));
     } finally {
       handleModal('', -1);
     }
