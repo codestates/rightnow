@@ -533,6 +533,7 @@ const Search = () => {
       }
     });
     socket.on('waiting_group', (res: any) => {
+      console.log(res);
       socket.emit('waiting_group', res);
     });
     //친구정보를 전달하고 현재 matching 진행중인 유저를 체크
