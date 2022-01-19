@@ -85,12 +85,83 @@ const adminValidation: AdminValidation = {
       reportedUserInfo = reportedUserInfo.map((el: any) => {
         return el.dataValues;
       });
+      console.log(reportedUserInfo);
+      let chk_emails: any = [];
+      let chk_messages: any = [];
+      let result: any = [];
+
       for (let i = 0; i < reportedUserInfo.length; i++) {
-        delete reportedUserInfo[i].User.dataValues.password;
+        if (!chk_emails.includes(reportedUserInfo[i].user_email)) {
+          chk_emails.push(reportedUserInfo[i].user_email);
+          chk_messages.push([reportedUserInfo[i].content]);
+
+          result.push({
+            reportedUser: reportedUserInfo[i].user_email,
+            nick_name: reportedUserInfo[i].User.dataValues.nick_name,
+            profile_image: reportedUserInfo[i].User.dataValues.profile_image,
+            role: reportedUserInfo[i].User.dataValues.role,
+            is_block: reportedUserInfo[i].User.dataValues.is_block,
+            block_date: reportedUserInfo[i].User.dataValues.block_date,
+            aboutReport: [
+              {
+                message: reportedUserInfo[i].content,
+                complete:
+                  reportedUserInfo[i].Report_messages[0].dataValues.complete,
+                aboutReporters: [
+                  {
+                    reporter:
+                      reportedUserInfo[i].Report_messages[0].dataValues
+                        .reporter,
+                    date: reportedUserInfo[i].Report_messages[0].dataValues
+                      .report_date,
+                  },
+                ],
+              },
+            ],
+          });
+        } else {
+          if (
+            chk_messages[
+              chk_emails.indexOf(reportedUserInfo[i].user_email)
+            ].includes(reportedUserInfo[i].content)
+          ) {
+            result[
+              chk_emails.indexOf(reportedUserInfo[i].user_email)
+            ].aboutReport[
+              chk_messages[
+                chk_emails.indexOf(reportedUserInfo[i].user_email)
+              ].indexOf(reportedUserInfo[i].content)
+            ].aboutReporters.push({
+              reporter:
+                reportedUserInfo[i].Report_messages[0].dataValues.reporter,
+              date: reportedUserInfo[i].Report_messages[0].dataValues
+                .report_date,
+            });
+          } else {
+            chk_messages[
+              chk_emails.indexOf(reportedUserInfo[i].user_email)
+            ].push(reportedUserInfo[i].content);
+            result[
+              chk_emails.indexOf(reportedUserInfo[i].user_email)
+            ].aboutReport.push({
+              message: reportedUserInfo[i].content,
+              complete:
+                reportedUserInfo[i].Report_messages[0].dataValues.complete,
+              aboutReporters: [
+                {
+                  reporter:
+                    reportedUserInfo[i].Report_messages[0].dataValues.reporter,
+                  date: reportedUserInfo[i].Report_messages[0].dataValues
+                    .report_date,
+                },
+              ],
+            });
+          }
+        }
       }
 
       req.sendData = {
-        data: { reportedUserInfo: reportedUserInfo },
+        data: { reportedUserInfo: result },
         message: 'ok',
       };
       next();
@@ -132,15 +203,6 @@ const adminValidation: AdminValidation = {
         return;
       }
 
-      const date: any = new Date();
-      date.setDate(date.getDate() + Number(block_day));
-
-      const year = date.getFullYear();
-      const month = ('0' + (date.getMonth() + 1)).slice(-2);
-      const day = ('0' + date.getDate()).slice(-2);
-
-      const block_date: string = `${year}-${month}-${day}`;
-
       let reported_message: any = await db['Report_message'].findAll({
         include: [
           {
@@ -170,6 +232,15 @@ const adminValidation: AdminValidation = {
         next();
         return;
       }
+
+      const date: any = new Date();
+      date.setDate(date.getDate() + Number(block_day));
+
+      const year = date.getFullYear();
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const day = ('0' + date.getDate()).slice(-2);
+
+      const block_date: string = `${year}-${month}-${day}`;
 
       await db['User'].update(
         { block_date: block_date, is_block: 'Y' },
@@ -209,5 +280,15 @@ const adminValidation: AdminValidation = {
     }
   },
 };
+/*
+신고 삭제하기
+*/
+// if (block_day === '삭제') {
+//   db['Report_message'].destroy({
+//     where: {  },
+//   });
 
+//   next();
+//   return;
+// }
 export default adminValidation;
