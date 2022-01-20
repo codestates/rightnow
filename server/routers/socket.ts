@@ -30,7 +30,7 @@ http.listen(socketPort, () => {
 const io: Server | any = require('socket.io')(http, {
   origins: ['https://codebaker-rightnow.netlify.app'],
 
-  handlePreflightRequest: (req, res) => {
+  handlePreflightRequest: (req: any, res: any) => {
     res.writeHead(200, {
       'Access-Control-Allow-Origin': 'https://codebaker-rightnow.netlify.app',
       'Access-Control-Allow-Methods': 'GET,POST',
