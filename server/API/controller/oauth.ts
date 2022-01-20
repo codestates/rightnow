@@ -30,6 +30,13 @@ const oauthController: OAuthController = {
       res.status(404).send({ message: 'invalid accessToken' });
     } else if (req.sendData.message === 'Invalid authorization code') {
       res.status(404).send({ message: 'Invalid authorization code' });
+    } else if (req.sendData.message === 'block user') {
+      res.status(404).send({
+        data: {
+          block_date: req.sendData.data.block_date,
+        },
+        message: 'block user',
+      });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }
@@ -51,6 +58,10 @@ const oauthController: OAuthController = {
       res.redirect(`http://localhost:3000/load?message=err&login=google`);
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
+    } else if (req.sendData.message === 'block user') {
+      res.redirect(
+        `http://localhost:3000/load?message=block_user&block_date=${req.sendData.data.block_date}&login=google`,
+      );
     }
   },
 };

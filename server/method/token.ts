@@ -28,6 +28,7 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
       req.sendData = { message: 'refreshToken not provided' };
       next();
     } else {
+      console.log('refresh' + refreshToken);
       jwt.verify(
         refreshToken,
         process.env.REFRESH_SECRET,
