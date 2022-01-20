@@ -16,21 +16,10 @@ const cookieParser: Function = require('cookie-parser');
 const app: Express = express();
 const port: number = 80;
 
-app.use(function (req, res, next) {
-  res.header(
-    'Access-Control-Allow-Origin',
-    'https://codebaker-rightnow.netlify.app',
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
-  );
-  next();
-});
 app.use(
   cors({
     credentials: true,
-    origin: 'https://codebaker-rightnow.netlify.app/',
+    origin: 'https://codebaker-rightnow.netlify.app',
   }),
 );
 app.use('/image/user', express.static('./image/user'));
