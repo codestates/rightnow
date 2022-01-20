@@ -25,6 +25,8 @@ export default function userApi(
             callback(err.response.status, '비밀번호를 확인해 주세요.');
           } else if (err.response.status === 400) {
             callback(err.response.status, '등록되지 않는 이메일 입니다.');
+          } else if (err.response.status === 404) {
+            callback(err.response.status, err.response.data.data.block_date);
           }
         });
       break;
@@ -175,11 +177,13 @@ export default function userApi(
         .post(`http://${endpoint}/oauth/callback/kakao`, body)
         .then((res) => {
           if (res.status === 200) {
-            callback(res.status, res.data.data.accessToken)
+            callback(res.status, res.data.data.accessToken);
           }
         })
         .catch((err) => {
-          console.log(err.response);
+          if (err.response.status === 404) {
+            callback(err.response.status, err.response.data.data.block_date);
+          }
         });
       break;
     case 'googleLogin':
@@ -189,7 +193,9 @@ export default function userApi(
           console.log(res);
         })
         .catch((err) => {
-          console.log(err.response);
+          if (err.response.status === 404) {
+            callback(err.response.status, err.response.data.data.block_date);
+          }
         });
       break;
   }
