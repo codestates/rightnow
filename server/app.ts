@@ -19,7 +19,7 @@ const port: number = 80;
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: 'https://codebaker-rightnow.netlify.app/',
   }),
 );
 app.use('/image/user', express.static('./image/user'));
