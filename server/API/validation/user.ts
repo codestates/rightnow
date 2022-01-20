@@ -796,7 +796,7 @@ const userValidation: UserValidation = {
         }
         if (report2) {
           req.sendData = {
-            message: 'already blocked user',
+            message: 'already blocked message',
           };
           next();
           return;
