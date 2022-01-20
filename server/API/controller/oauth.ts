@@ -1,3 +1,4 @@
+import { NONAME } from 'dns';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../type/type';
 
@@ -51,9 +52,9 @@ const oauthController: OAuthController = {
     if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
-        domain: 'https://codebaker-rightnow.netlify.app/',
         secure: true,
         sameSite: 'none',
+        domain: 'https://nspark.shop/',
       });
       res.redirect(
         `${process.env.GOOGLE_CLIENT_URL}load?message=ok&login=google`,
