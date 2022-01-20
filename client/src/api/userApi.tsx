@@ -175,7 +175,7 @@ export default function userApi(
         .post(`http://${endpoint}/oauth/callback/kakao`, body)
         .then((res) => {
           if (res.status === 200) {
-            callback(res.status, res.data.data.accessToken)
+            callback(res.status, res.data.data.accessToken);
           }
         })
         .catch((err) => {

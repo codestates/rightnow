@@ -126,6 +126,7 @@ const oauthValidation: OAuthValidation = {
   ): Promise<any> {
     try {
       const googleAccessToken: string = await getGoogleToken(req.query.code);
+      console.log(googleAccessToken);
       if (googleAccessToken) {
         const data: any = await getGoogleSubId(googleAccessToken);
         if (data) {
