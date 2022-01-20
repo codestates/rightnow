@@ -9,6 +9,7 @@ module.exports = {
       nick_name: 'park',
       createdAt: new Date(),
       updatedAt: new Date(),
+      role: 'USER',
     };
     let user2 = {
       email: 'skatn@naver.com',
@@ -16,6 +17,7 @@ module.exports = {
       nick_name: 'lee',
       createdAt: new Date(),
       updatedAt: new Date(),
+      role: 'USER',
     };
     let user3 = {
       email: 'slsl@naver.com',
@@ -23,6 +25,7 @@ module.exports = {
       nick_name: 'kim',
       createdAt: new Date(),
       updatedAt: new Date(),
+      role: 'USER',
     };
     let ADMIN = {
       email: 'admin@naver.com',
@@ -32,18 +35,41 @@ module.exports = {
       updatedAt: new Date(),
       role: 'ADMIN',
     };
-    await queryInterface.bulkInsert('Users', [user, user2, user3, ADMIN], {});
-    let categoryStr = ['여행', '맛집', '등산', '낚시', '기타'];
-    let category = [];
-    for (let name of categoryStr) {
-      category.push({
-        name,
-        user_num: 10,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+    let boo = false;
+    let userlist = [];
+    for (let i = 0; i < 20; i++) userlist.push('userrr' + i + '@naver.com');
+    if (boo) {
+      await queryInterface.bulkInsert('Users', [user, user2, user3, ADMIN], {});
+      let categoryStr = ['여행', '맛집', '등산', '낚시', '기타'];
+      let category = [];
+      for (let name of categoryStr) {
+        category.push({
+          name,
+          user_num: 10,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+      return queryInterface.bulkInsert('Categories', category, {});
+    } else {
+      await queryInterface.bulkInsert(
+        'Users',
+        [
+          ...userlist.map((email) => {
+            return {
+              email,
+              password: bcrypt.hashSync('1234', 1),
+              nick_name: 'kim',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              role: 'ADMIN',
+            };
+          }),
+        ],
+        {},
+      );
     }
-    return queryInterface.bulkInsert('Categories', category, {});
+    return;
   },
 
   down: async (queryInterface, Sequelize) => {
