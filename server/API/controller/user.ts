@@ -31,7 +31,8 @@ const userController: UserController = {
     } else if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
-        domain: 'http://rightnow.p-e.kr',
+        secure: true,
+        sameSite: 'none',
       });
       res.status(200).send({
         data: { accessToken: req.sendData.data.accessToken },
