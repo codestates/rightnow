@@ -19,7 +19,7 @@ const port: number = 80;
 app.use(
   cors({
     credentials: true,
-    origin: 'http://codebaker-rightnow.s3-website.ap-northeast-2.amazonaws.com',
+    origin: true,
   }),
 );
 app.use('/image/user', express.static('./image/user'));
