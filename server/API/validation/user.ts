@@ -95,7 +95,7 @@ const userValidation: UserValidation = {
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15m',
+                    expiresIn: '15s',
                   },
                 );
                 const refreshToken: any = jwt.sign(
@@ -152,7 +152,7 @@ const userValidation: UserValidation = {
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15m',
+                    expiresIn: '15s',
                   },
                 );
                 const refreshToken: any = jwt.sign(
@@ -247,7 +247,7 @@ const userValidation: UserValidation = {
             newUser,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
 
@@ -304,7 +304,7 @@ const userValidation: UserValidation = {
               newUser,
               process.env.ACCESS_SECRET,
               {
-                expiresIn: '15m',
+                expiresIn: '15s',
               },
             );
 
@@ -787,16 +787,16 @@ const userValidation: UserValidation = {
         const report2: any = await db['Report_message'].findOne({
           where: { message_id: message_id, complete: 'Y' },
         });
-        if (report) {
+        if (report2) {
           req.sendData = {
-            message: 'already exists report',
+            message: 'already blocked user',
           };
           next();
           return;
         }
-        if (report2) {
+        if (report) {
           req.sendData = {
-            message: 'already blocked user',
+            message: 'already exists report',
           };
           next();
           return;
@@ -812,6 +812,7 @@ const userValidation: UserValidation = {
           db['Report_message'].create({
             message_id: Number(message_id),
             reporter: reporter_email,
+            report_date: new Date(),
           });
           req.sendData = { message: 'ok' };
           next();

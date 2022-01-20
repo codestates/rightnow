@@ -49,7 +49,7 @@ const oauthValidation: OAuthValidation = {
           const auth_code: string = data.id;
 
           const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email, social_login: 'kakao' },
+            where: { email: email },
             defaults: {
               password: '',
               profile_image: profile_image_url,
@@ -58,7 +58,15 @@ const oauthValidation: OAuthValidation = {
             },
           });
           let userInfo: any = user;
-
+          if (user.dataValues.is_block === 'Y') {
+            res.status(404).send({
+              data: {
+                block_date: user.dataValues.block_date,
+              },
+              message: 'block user',
+            });
+            return;
+          }
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
@@ -66,7 +74,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(
@@ -126,7 +134,7 @@ const oauthValidation: OAuthValidation = {
           const auth_code: string = data.sub;
 
           const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email, social_login: 'google' },
+            where: { email: email },
             defaults: {
               password: '',
               profile_image: profile_image_url,
@@ -134,6 +142,15 @@ const oauthValidation: OAuthValidation = {
               auth_code: auth_code,
             },
           });
+          if (user.dataValues.is_block === 'Y') {
+            res.status(404).send({
+              data: {
+                block_date: user.dataValues.block_date,
+              },
+              message: 'block user',
+            });
+            return;
+          }
           let userInfo: any = user;
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
@@ -142,7 +159,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(

@@ -71,7 +71,6 @@ const userController: UserController = {
         .status(201)
         .cookie('refreshToken', req.sendData.data.refreshToken, {
           httpOnly: true,
-          sameSite: 'none',
         })
         .send({
           data: { accessToken: req.sendData.data.accessToken },
