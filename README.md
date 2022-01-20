@@ -5,8 +5,8 @@
 
 ![](https://cdn.discordapp.com/attachments/919801014239002675/928634523980271626/rightnow_logo.png)
 
-👉🏻 [rightnow 사이트 바로가기]()  
-👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)  
+👉🏻 [rightnow 사이트 바로가기](){:target="_blank"}  
+👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki){:target="_blank"}  
 
 <br>
 
