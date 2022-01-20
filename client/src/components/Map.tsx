@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
 import {
   roomLat,
-  roomLocation,
   roomLon,
   roomParticipant,
   setParticipant,
@@ -71,7 +70,7 @@ const Map = ({ type }: MapProps) => {
           position: markerPosition,
           image: markerImage,
         });
-        marker.setMap(map);
+        return marker.setMap(map);
       });
     };
     const getMap = async () => {

@@ -331,8 +331,6 @@ const Search = () => {
   const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
   const [search, setSearch] = useState(null); // search setTimeout 로직
   const [isMaster, setIsMaster] = useState(false); // group일 경우 그룹장인지 판단위해
-  const maxCnt = useAppSelector(roomMaxCnt); // matching 에 전달할 최대인원수 - modal 전달
-  const joinCnt = useAppSelector(roomJoinCnt); // ); //현재 matching된 인원 수 - modal 전달
   const location = useAppSelector(roomLocation);
   const lat = useAppSelector(roomLat);
   const lon = useAppSelector(roomLon);
@@ -554,7 +552,7 @@ const Search = () => {
         email_list: [...friendList],
       });
     }
-  }, [socket, friendList]);
+  }, [friendList]);
   /**
    * 선택한 친구들이 정해진 인원보다 많은지 검사
    * 상황에 따라 메지시를 모여줌

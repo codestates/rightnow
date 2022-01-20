@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../config/hooks';
 import defaultImg from '../images/profile.png';
-import { roomParticipant } from '../reducers/roomSlice';
 import { UserType } from '../type';
 
 const Container = styled.div`
@@ -56,9 +54,6 @@ const ProfileName = styled.div`
 `;
 
 const MemberList = ({ roomMember }: any) => {
-  // const participant = useAppSelector(roomParticipant);
-  // const memberList: Array<UserType> =
-  //   participant && participant.map((member) => member.User);
   const memberList: Array<UserType> = roomMember;
   return (
     <Container>

@@ -1,8 +1,7 @@
 import React, { MouseEventHandler, ReactNode, useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import ModalTemp from '../components/ModalTemp';
-import { useAppDispatch, useAppSelector } from '../config/hooks';
+import { useAppSelector } from '../config/hooks';
 import {
   roomCategory,
   roomJoinCnt,
@@ -97,46 +96,17 @@ interface ModalProps {
 }
 
 const MatchingModal = ({ handleMatching }: ModalProps) => {
-  const dispatch = useAppDispatch();
-
   const location = useAppSelector(roomLocation);
   const category = useAppSelector(roomCategory);
   const joinCnt = useAppSelector(roomJoinCnt); // 모인 인원
   const maxCnt = useAppSelector(roomMaxCnt); // 채워져야 하는 인원
-  const navigate = useNavigate();
   console.log(maxCnt);
   /**
    * 사람이 모이는게 보이게 함(테스트용)
    */
   useEffect(() => {
     console.log(joinCnt);
-    //const increase = setInterval(() => setJoinCnt(joinCnt + 1), 1000);
-    //return () => clearInterval(increase);
   }, [joinCnt]);
-
-  /**
-   * 채워져야 하는 인원
-   */
-  useEffect(() => {
-    //dispatch(setMaxCnt(11));
-  }, []);
-
-  /**
-   * 현재 모인 인원
-   */
-  useEffect(() => {
-    //dispatch(setJoinCnt(1));
-  }, []);
-
-  /**
-   * 모인 인원을 확인하다가 모임이 다 차면 채팅 방으로 넘어감
-   */
-  // useEffect(() => {
-  //   if (maxCnt !== 0 && joinCnt === maxCnt) {
-  //     navigate('/room');
-  //   }
-  //   JoinDisplay();
-  // }, [joinCnt]);
 
   /**
    * joinCnt(모인 인원)와 maxCnt(모임의 최대 인원)로 현재 채워진 인원을 표시함
