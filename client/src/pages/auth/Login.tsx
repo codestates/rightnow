@@ -12,10 +12,11 @@ import { isValidEmail } from '../../utils/regex';
 import userApi from '../../api/userApi';
 import { useAppDispatch } from '../../config/hooks';
 import { useNavigate } from 'react-router-dom';
-import { updateAccessToken } from '../../reducers/userSlice';
+import { updateAccessToken, updateBlockDate } from '../../reducers/userSlice';
 import kakaoLogo from '../../images/kakao-logo.jpg';
 import googleLogo from '../../images/google-logo.jpg';
 import { useTitle } from '../../Routes';
+import { showAlert } from '../../reducers/componetSlice';
 
 interface IUserInfo {
   email: string;
@@ -137,11 +138,16 @@ const Login = () => {
       if (code === 200) {
         dispatch(updateAccessToken(data));
       } else {
-        setLoginError(data);
-        if(code === 400) {
+        if (code === 400) {
+          setLoginError(data);
           emailRef.current?.focus();
-        } else if(code === 401) {
+        } else if (code === 401) {
+          setLoginError(data);
           passwordRef.current?.focus();
+        } else if (code === 404) {
+          emailRef.current?.focus();
+          dispatch(updateBlockDate(data));
+          dispatch(showAlert('loginBlock'));
         }
       }
     };
@@ -164,6 +170,10 @@ const Login = () => {
       } else if (code === 401) {
         setTempLoginError(data);
         tempPwRef.current?.focus();
+      } else if (code === 404) {
+        emailRef.current?.focus();
+        dispatch(updateBlockDate(data));
+        dispatch(showAlert('loginBlock'));
       }
     };
     userApi('login', body, callback);
