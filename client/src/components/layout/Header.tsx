@@ -127,19 +127,40 @@ const Header = () => {
             >
               {mypageOption.map((option, idx) => {
                 const { id, label, to } = option;
-                return (
-                  <Link
-                    to={to}
-                    key={id}
-                    onClick={() => {
-                      dispatch(showMypage(false));
-                    }}
-                  >
-                    <p className="hover:bg-gray-100 cursor-pointer px-2 py-2">
-                      {label}
-                    </p>
-                  </Link>
-                );
+                if (id === 'user') {
+                  return (
+                    <>
+                      <div className="flex justify-center mt-2 mb-1">
+                        <div className=" inline-flex w-28 h-1 border-t-1" />
+                      </div>
+                      <Link
+                        to={to}
+                        key={id}
+                        onClick={() => {
+                          dispatch(showMypage(false));
+                        }}
+                      >
+                        <p className="hover:bg-gray-100 cursor-pointer px-2 py-2">
+                          {label}
+                        </p>
+                      </Link>
+                    </>
+                  );
+                } else {
+                  return (
+                    <Link
+                      to={to}
+                      key={id}
+                      onClick={() => {
+                        dispatch(showMypage(false));
+                      }}
+                    >
+                      <p className="hover:bg-gray-100 cursor-pointer px-2 py-2">
+                        {label}
+                      </p>
+                    </Link>
+                  );
+                }
               })}
               <div className="flex justify-center mt-2 mb-1">
                 <div className=" inline-flex w-28 h-1 border-t-1" />

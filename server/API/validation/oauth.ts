@@ -47,18 +47,37 @@ const oauthValidation: OAuthValidation = {
             ? data.kakao_account.profile.profile_image_url
             : null;
           const auth_code: string = data.id;
-
-          const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email, social_login: 'kakao' },
-            defaults: {
-              password: '',
-              profile_image: profile_image_url,
-              nick_name: nick_name,
-              auth_code: auth_code,
-            },
-          });
-          let userInfo: any = user;
-
+          const findUser: any = await db['User'].findOne({ where: { email } });
+          let user = null;
+          if (!findUser) {
+            const [data, created]: any = await db['User'].findOrCreate({
+              where: { email: email, social_login: 'kakao' },
+              defaults: {
+                password: '',
+                profile_image: profile_image_url,
+                nick_name: nick_name,
+                auth_code: auth_code,
+              },
+            });
+            user = data;
+          }
+          let userInfo: any = user || findUser;
+          if (
+            findUser
+              ? findUser.dataValues.is_block === 'Y'
+              : user.dataValues.is_block === 'Y'
+          ) {
+            req.sendData = {
+              data: {
+                block_date: findUser
+                  ? findUser.dataValues.block_date
+                  : user.dataValues.block_date,
+              },
+              message: 'block user',
+            };
+            next();
+            return;
+          }
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
@@ -66,7 +85,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(
@@ -117,6 +136,7 @@ const oauthValidation: OAuthValidation = {
   ): Promise<any> {
     try {
       const googleAccessToken: string = await getGoogleToken(req.query.code);
+      console.log(googleAccessToken);
       if (googleAccessToken) {
         const data: any = await getGoogleSubId(googleAccessToken);
         if (data) {
@@ -125,16 +145,39 @@ const oauthValidation: OAuthValidation = {
           const profile_image_url: string = data.picture ? data.picture : null;
           const auth_code: string = data.sub;
 
-          const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email, social_login: 'google' },
-            defaults: {
-              password: '',
-              profile_image: profile_image_url,
-              nick_name: nick_name,
-              auth_code: auth_code,
-            },
-          });
-          let userInfo: any = user;
+          const findUser: any = await db['User'].findOne({ where: { email } });
+          let user = null;
+          if (!findUser) {
+            const [data, created]: any = await db['User'].findOrCreate({
+              where: { email: email, social_login: 'google' },
+              defaults: {
+                password: '',
+                profile_image: profile_image_url,
+                nick_name: nick_name,
+                auth_code: auth_code,
+              },
+            });
+            user = data;
+          }
+          if (
+            findUser
+              ? findUser.dataValues.is_block === 'Y'
+              : user.dataValues.is_block === 'Y'
+          ) {
+            req.sendData = {
+              data: {
+                block_date: findUser
+                  ? findUser.dataValues.block_date
+                  : user.dataValues.block_date,
+              },
+              message: 'block user',
+            };
+            next();
+            return;
+          }
+
+          let userInfo: any = user || findUser;
+
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
@@ -142,7 +185,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(

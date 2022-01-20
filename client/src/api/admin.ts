@@ -9,12 +9,11 @@ const api = axios.create({
 });
 
 export const adminAPI = {
-  getList: (accessToken: string) =>
-    api.get('/report/user', {
-      headers: {
-        Authorization: accessToken,
-      },
+  getList: () => api.get('/report/user'),
+  userBlock: (block_email: string, block_day: string) =>
+    api.post('/block/user', {
+      block_email,
+      block_day,
     }),
-  userBlock: () => {},
   getUserList: () => api.get('/user'),
 };
