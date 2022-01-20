@@ -42,6 +42,7 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
               where: { email: decoded.email },
             });
             delete userInfo.dataValues.password;
+            delete userInfo.dataValues.auth_code;
             if (!userInfo) {
               req.sendData = {
                 message: 'token has been tempered',

@@ -1,17 +1,8 @@
-import {
-  CacheUser,
-  Participant,
-  TempRoom,
-  CacheRoomList,
-  ChatCommunicationData,
-  User,
-} from '../type/type';
-import myDate from './myDate';
+import { CacheUser, Participant } from '../type/type';
 import { searchNamespace } from '../routers/socket';
 import participantValidation from '../API/validation/participant';
-import messageValidation from '../API/validation/message';
 import roomValidation from '../API/validation/room';
-let { findUsers, tempRooms, roomList, attendUsers } = require('../data/cache');
+let { findUsers, tempRooms } = require('../data/cache');
 const dotenv: any = require('dotenv');
 dotenv.config();
 const db: any = require('../models/index');
@@ -20,9 +11,7 @@ const UUID_FUNC: Function = require('./uuid');
 
 const searchMethod = (socket: any) => {
   socket.on('disconnect', (data: any) => {
-    try {
-      console.log(socket.id + ' disconnect');
-    } catch {}
+    console.log(socket.id + ' disconnect');
   });
   console.log(socket.id + ' conntect');
 
@@ -207,7 +196,7 @@ const searchMethod = (socket: any) => {
       return;
     }
     if (data.type === 'GROUP') {
-      // todo 그룹 중 모임을 searching 중인 사람이 있는 경우 - 매칭 취소 ! 완료 ! 테스트 필요
+      // 그룹 중 모임을 searching 중인 사람이 있는 경우 - 매칭 취소 ! 완료 ! 테스트 완료
       for (let user of data.email_list) {
         let findGroup = findUsers.get(user);
         if (findGroup) {
@@ -252,6 +241,12 @@ const searchMethod = (socket: any) => {
           ...data,
           status: 'search',
         });
+        let attendMatchPage = socket.adapter.rooms.get(email);
+        if (attendMatchPage) {
+          searchNamespace.to(email).emit('reject_match', {
+            message: 'group mathcing start',
+          });
+        }
       }
     }
     searchNamespace.to(data.email).emit('search_room', data);

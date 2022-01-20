@@ -60,6 +60,8 @@ const oauthValidation: OAuthValidation = {
           let userInfo: any = user;
 
           delete userInfo.dataValues.password;
+          delete userInfo.dataValues.auth_code;
+
           const accessToken: string = jwt.sign(
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
@@ -134,6 +136,7 @@ const oauthValidation: OAuthValidation = {
           });
           let userInfo: any = user;
           delete userInfo.dataValues.password;
+          delete userInfo.dataValues.auth_code;
 
           const accessToken: string = jwt.sign(
             userInfo.dataValues,

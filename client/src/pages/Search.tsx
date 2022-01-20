@@ -460,6 +460,9 @@ const Search = () => {
         dispatch(showAlert('cannotCancel'));
         return;
       }
+      if (res.message === 'group mathcing start') {
+        setIsSearching(true);
+      }
     });
 
     //
@@ -531,6 +534,7 @@ const Search = () => {
       }
     });
     socket.on('waiting_group', (res: any) => {
+      console.log(res);
       socket.emit('waiting_group', res);
     });
     //친구정보를 전달하고 현재 matching 진행중인 유저를 체크
@@ -597,6 +601,7 @@ const Search = () => {
   const handleCategory = (e: ChangeEvent) => {
     const { value } = e.target as HTMLSelectElement;
     const selected = category[Number(value) - 1];
+    console.log(selected);
     if (!selected) {
       setSelectedCategory(initCategory);
     } else {
@@ -629,13 +634,13 @@ const Search = () => {
       lon,
       lat,
     }; // 모임을 참가할 때 필요한 데이터들
-
     // 원하는 모임 조건 선택(조건은 임시)
     if (category_id !== -1) {
       // 모임 찾기
       setIsSearching(true);
 
       //소켓 통신 이용해 searching 시작
+      console.log(category_id);
       socket.emit('find_room', searchData);
     } else {
       setMessage('카테고리를 선택해주세요.');

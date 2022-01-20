@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       models.Room.hasMany(models.Message, {
         foreignKey: 'room_id',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
         hooks: true,
       });

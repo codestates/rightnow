@@ -90,13 +90,16 @@ const adminValidation: AdminValidation = {
         },
         group: ['Message.User.email'],
       });
+
       const subQuery = `(
         SELECT message_id
         FROM Report_messages AS Report_message
         WHERE
-            user_email = User.email
+            message_id IN (SELECT id FROM Messages WHERE user_email = ${'`User`'}.${'`email`'})
     )`;
+
       findUsers = findUsers.map((item: any) => item.dataValues.email);
+
       let reports = await db.User.findAll({
         where: { email: { [Op.in]: [...findUsers] } },
         attributes: ['email', 'profile_image', 'is_block', 'block_date'],
@@ -114,7 +117,6 @@ const adminValidation: AdminValidation = {
           },
         },
       });
-
       let data = reports.map((item: any) => {
         item.dataValues.Messages.map(
           (message: any) =>
@@ -123,6 +125,7 @@ const adminValidation: AdminValidation = {
         );
         return item;
       });
+
       req.sendData = {
         data: { reportedUserInfo: data },
         message: 'ok',
