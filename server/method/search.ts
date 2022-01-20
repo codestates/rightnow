@@ -196,7 +196,7 @@ const searchMethod = (socket: any) => {
       return;
     }
     if (data.type === 'GROUP') {
-      // todo 그룹 중 모임을 searching 중인 사람이 있는 경우 - 매칭 취소 ! 완료 ! 테스트 필요
+      // 그룹 중 모임을 searching 중인 사람이 있는 경우 - 매칭 취소 ! 완료 ! 테스트 완료
       for (let user of data.email_list) {
         let findGroup = findUsers.get(user);
         if (findGroup) {
@@ -241,6 +241,12 @@ const searchMethod = (socket: any) => {
           ...data,
           status: 'search',
         });
+        let attendMatchPage = socket.adapter.rooms.get(email);
+        if (attendMatchPage) {
+          searchNamespace.to(email).emit('reject_match', {
+            message: 'group mathcing start',
+          });
+        }
       }
     }
     searchNamespace.to(data.email).emit('search_room', data);
