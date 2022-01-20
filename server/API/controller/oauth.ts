@@ -18,7 +18,8 @@ const oauthController: OAuthController = {
     if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
-        domain: 'http://rightnow.p-e.kr',
+        secure: true,
+        sameSite: 'none',
       });
       console.log(req.sendData.data.userInfo);
       res.status(200).send({
