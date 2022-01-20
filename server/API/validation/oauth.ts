@@ -59,12 +59,13 @@ const oauthValidation: OAuthValidation = {
           });
           let userInfo: any = user;
           if (user.dataValues.is_block === 'Y') {
-            res.status(404).send({
+            req.sendData = {
               data: {
                 block_date: user.dataValues.block_date,
               },
               message: 'block user',
-            });
+            };
+            next();
             return;
           }
           delete userInfo.dataValues.password;
@@ -143,14 +144,16 @@ const oauthValidation: OAuthValidation = {
             },
           });
           if (user.dataValues.is_block === 'Y') {
-            res.status(404).send({
+            req.sendData = {
               data: {
                 block_date: user.dataValues.block_date,
               },
               message: 'block user',
-            });
+            };
+            next();
             return;
           }
+
           let userInfo: any = user;
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
