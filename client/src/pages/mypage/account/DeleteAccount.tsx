@@ -71,7 +71,7 @@ const DeleteAccount = () => {
               : "계정삭제를 위해 '계정삭제'를 입력해주세요."
           }
           onKeyDown={(e) => {
-            if (e.code === 'Enter') {
+            if (e.code === 'Enter' && !isDisable) {
               buttonHandler();
             }
           }}

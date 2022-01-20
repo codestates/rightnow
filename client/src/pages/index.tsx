@@ -227,7 +227,7 @@ const RendingPage = () => {
       >
         <div id="loading" />
       </div> */}
-      <div className="pt-60 flex justify-center" id={'header'}>
+      <div className="pt-60 bg-red-600 flex justify-center" id={'header'}>
         <div className=" w-278 flex justify-between">
           <div
             className=" font-sans font-bold space-y-10 text-gray-100"
