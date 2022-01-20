@@ -28,10 +28,15 @@ http.listen(socketPort, () => {
 });
 
 const io: Server | any = require('socket.io')(http, {
-  cors: {
-    origin: 'https://codebaker-rightnow.netlify.app',
-    methods: ['GET', 'POST'],
-    credentials: true,
+  origins: ['https://codebaker-rightnow.netlify.app'],
+
+  handlePreflightRequest: (req, res) => {
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': 'https://codebaker-rightnow.netlify.app',
+      'Access-Control-Allow-Methods': 'GET,POST',
+      'Access-Control-Allow-Credentials': true,
+    });
+    res.end();
   },
 });
 
