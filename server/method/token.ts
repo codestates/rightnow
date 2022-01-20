@@ -25,9 +25,11 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
   ) {
     const refreshToken: any = req.cookies.refreshToken;
     if (!refreshToken) {
+      console.log('refresh' + refreshToken);
       req.sendData = { message: 'refreshToken not provided' };
       next();
     } else {
+      console.log('refresh' + refreshToken);
       jwt.verify(
         refreshToken,
         process.env.REFRESH_SECRET,

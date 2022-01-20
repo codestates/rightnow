@@ -61,7 +61,7 @@ const oauthValidation: OAuthValidation = {
             });
             user = data;
           }
-          let userInfo: any = user;
+          let userInfo: any = user || findUser;
           if (
             findUser
               ? findUser.dataValues.is_block === 'Y'
@@ -136,6 +136,7 @@ const oauthValidation: OAuthValidation = {
   ): Promise<any> {
     try {
       const googleAccessToken: string = await getGoogleToken(req.query.code);
+      console.log(googleAccessToken);
       if (googleAccessToken) {
         const data: any = await getGoogleSubId(googleAccessToken);
         if (data) {
@@ -175,7 +176,9 @@ const oauthValidation: OAuthValidation = {
             next();
             return;
           }
-          let userInfo: any = user;
+
+          let userInfo: any = user || findUser;
+          
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
