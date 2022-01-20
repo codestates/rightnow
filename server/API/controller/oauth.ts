@@ -46,11 +46,12 @@ const oauthController: OAuthController = {
 
   /*
   구글 소셜로그인
-  */
+  */ //
   async googleLogin(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
+        domain: 'https://codebaker-rightnow.netlify.app/',
         secure: true,
         sameSite: 'none',
       });
