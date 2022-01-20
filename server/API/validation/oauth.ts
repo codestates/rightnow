@@ -66,7 +66,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(
@@ -142,7 +142,7 @@ const oauthValidation: OAuthValidation = {
             userInfo.dataValues,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15m',
+              expiresIn: '15s',
             },
           );
           const refreshToken: string = jwt.sign(
