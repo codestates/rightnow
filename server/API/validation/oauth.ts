@@ -164,7 +164,6 @@ const oauthValidation: OAuthValidation = {
               ? findUser.dataValues.is_block === 'Y'
               : user.dataValues.is_block === 'Y'
           ) {
-
             req.sendData = {
               data: {
                 block_date: findUser
@@ -176,12 +175,9 @@ const oauthValidation: OAuthValidation = {
             next();
             return;
           }
-<<<<<<< HEAD
 
           let userInfo: any = user || findUser;
-=======
-          let userInfo: any = user;
->>>>>>> 5ddf44d0858fd5076ae6b30ee01a9e12518aae11
+
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
