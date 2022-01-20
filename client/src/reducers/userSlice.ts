@@ -88,6 +88,9 @@ export const userSlice = createSlice({
     updateRequestFriendCount: (state, action: PayloadAction<number>) => {
       state.requestFriend.count = action.payload;
     },
+    updateBlockDate: (state, action: PayloadAction<string>) => {
+      state.userInfo.block_date = action.payload;
+    },
   },
 });
 
@@ -100,6 +103,7 @@ export const {
   updateProfile,
   updateRequestFriendList,
   updateRequestFriendCount,
+  updateBlockDate,
 } = userSlice.actions;
 export const userEmail = (state: RootState) => state.user.userInfo.email;
 export const userIsLogin = (state: RootState) => state.user.isLogin;
@@ -109,6 +113,8 @@ export const userProfile = (state: RootState) =>
 export const userInformation = (state: RootState) => state.user.userInfo;
 export const userAccessToken = (state: RootState) => state.user.accessToken;
 export const userRole = (state: RootState) => state.user.userInfo.role;
+export const userIsBlock = (state: RootState) => state.user.userInfo.is_block;
+export const userBlockDate = (state: RootState) => state.user.userInfo.block_date;
 export const userSocialLogin = (state: RootState) =>
   state.user.userInfo.social_login;
 export const userRequestFriendList = (state: RootState) =>

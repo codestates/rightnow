@@ -47,21 +47,31 @@ const oauthValidation: OAuthValidation = {
             ? data.kakao_account.profile.profile_image_url
             : null;
           const auth_code: string = data.id;
-
-          const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email },
-            defaults: {
-              password: '',
-              profile_image: profile_image_url,
-              nick_name: nick_name,
-              auth_code: auth_code,
-            },
-          });
+          const findUser: any = await db['User'].findOne({ where: { email } });
+          let user = null;
+          if (!findUser) {
+            const [data, created]: any = await db['User'].findOrCreate({
+              where: { email: email },
+              defaults: {
+                password: '',
+                profile_image: profile_image_url,
+                nick_name: nick_name,
+                auth_code: auth_code,
+              },
+            });
+            user = data;
+          }
           let userInfo: any = user;
-          if (user.dataValues.is_block === 'Y') {
+          if (
+            findUser
+              ? findUser.dataValues.is_block === 'Y'
+              : user.dataValues.is_block === 'Y'
+          ) {
             req.sendData = {
               data: {
-                block_date: user.dataValues.block_date,
+                block_date: findUser
+                  ? findUser.dataValues.block_date
+                  : user.dataValues.block_date,
               },
               message: 'block user',
             };
@@ -134,20 +144,31 @@ const oauthValidation: OAuthValidation = {
           const profile_image_url: string = data.picture ? data.picture : null;
           const auth_code: string = data.sub;
 
-          const [user, created]: any = await db['User'].findOrCreate({
-            where: { email: email },
-            defaults: {
-              password: '',
-              profile_image: profile_image_url,
-              nick_name: nick_name,
-              auth_code: auth_code,
-            },
-          });
+          const findUser: any = await db['User'].findOne({ where: { email } });
+          let user = null;
+          if (!findUser) {
+            const [data, created]: any = await db['User'].findOrCreate({
+              where: { email: email, social_login: 'google' },
+              defaults: {
+                password: '',
+                profile_image: profile_image_url,
+                nick_name: nick_name,
+                auth_code: auth_code,
+              },
+            });
+            user = data;
+          }
+          if (
+            findUser
+              ? findUser.dataValues.is_block === 'Y'
+              : user.dataValues.is_block === 'Y'
+          ) {
 
-          if (user.dataValues.is_block === 'Y') {
             req.sendData = {
               data: {
-                block_date: user.dataValues.block_date,
+                block_date: findUser
+                  ? findUser.dataValues.block_date
+                  : user.dataValues.block_date,
               },
               message: 'block user',
             };

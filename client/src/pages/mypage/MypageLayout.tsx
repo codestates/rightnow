@@ -106,6 +106,9 @@ const MypageLayout = () => {
       <Header />
       <header className="mt-0 text-center bg-white h-10 shadow-md fixed top-16 w-screen z-30">
         <div className="inline-flex w-222 h-full items-center relative">
+          {role === 'ADMIN' && (
+            <div className="h-5 border-l-2 absolute left-34" />
+          )}
           {mypageOption.map((v, i) => {
             const { id, label } = v;
             return (
