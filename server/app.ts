@@ -19,7 +19,7 @@ const port: number = 80;
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000',
+    origin: true,
   }),
 );
 app.use('/image/user', express.static('./image/user'));
