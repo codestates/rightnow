@@ -20,6 +20,7 @@ const oauthController: OAuthController = {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
+        domain: '.nspartk.shop',
       });
       console.log(req.sendData.data.userInfo);
       res.status(200).send({
@@ -54,7 +55,7 @@ const oauthController: OAuthController = {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: '.nspark.shop',
+        domain: '.nspartk.shop',
       });
       res.redirect(
         `${process.env.GOOGLE_CLIENT_URL}load?message=ok&login=google`,
