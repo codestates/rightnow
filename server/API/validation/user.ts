@@ -812,6 +812,7 @@ const userValidation: UserValidation = {
           db['Report_message'].create({
             message_id: Number(message_id),
             reporter: reporter_email,
+            report_date: new Date(),
           });
           req.sendData = { message: 'ok' };
           next();
