@@ -18,6 +18,8 @@ import {
   updateAccessToken,
   deleteAccessToken,
   userProfile,
+  userIsBlock,
+  updateBlockDate,
 } from './reducers/userSlice';
 import MypageLayout from './pages/mypage/MypageLayout';
 import AuthLayout from './pages/auth/AuthLayout';
@@ -31,7 +33,6 @@ import {
 } from './reducers/componetSlice';
 import Alert from './components/Alert';
 import Load from './pages/Load';
-import { SettingsOutlined } from '@material-ui/icons';
 
 interface IData {
   userInfo: IUserInfo;
@@ -57,10 +58,7 @@ function Routes() {
   const prevPage = useAppSelector(url);
   const profile_image = useAppSelector(userProfile);
   const isVisibleMypageMenu = useAppSelector(mypageMenu);
-
-  useEffect(() => {
-    console.log(profile_image);
-  }, [profile_image]);
+  const isBlock = useAppSelector(userIsBlock);
 
   useEffect(() => {
     if (accessToken) {
@@ -78,6 +76,10 @@ function Routes() {
       };
       userApi('getUserInfo', undefined, callback, accessToken);
     }
+    // 사용 중 유저가 블럭 되면 로그아웃 시킨다.
+    if (isBlock === 'Y') {
+      dispatch(showAlert('blockedUser'));
+    }
   }, [location]);
 
   useEffect(() => {
@@ -91,6 +93,10 @@ function Routes() {
         const callback = (code: number, data: string): void => {
           if (code === 200) {
             dispatch(updateAccessToken(data));
+          } else if (code === 404) {
+            dispatch(updateBlockDate(data));
+            dispatch(showAlert('loginBlock'));
+            router('/auth/login')
           }
         };
         userApi('kakaoLogin', body, callback);
@@ -111,7 +117,13 @@ function Routes() {
             }
           };
           userApi('getUserInfo', undefined, callback, accessToken);
-        } else {
+        } else if(message === 'block_user') {
+          const data = googleSearch.split('&')[1].split('&')[0].split('=')[1];
+          router('/auth/login')
+          dispatch(updateBlockDate(data));
+          dispatch(showAlert('loginBlock'));
+        } else if (message === 'err') {
+          router('/')
           dispatch(showAlert('accessDenied'));
         }
       }

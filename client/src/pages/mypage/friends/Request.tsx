@@ -8,6 +8,7 @@ import {
   userEmail,
 } from '../../../reducers/userSlice';
 import { showAlert } from '../../../reducers/componetSlice';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 interface IUserInfo {
   email: string;
@@ -31,6 +32,8 @@ interface IData {
 const Request = () => {
   const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
   const dispatch = useAppDispatch();
+  // 로딩 중 유무
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   // 로그인 중인 유저의 이메일
   const email = useAppSelector(userEmail);
   // 친구요청을 보낸 사람들 목록
@@ -54,6 +57,9 @@ const Request = () => {
         });
         setRequestUserList(newData);
         dispatch(updateRequestFriendList(friendList));
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
       }
     };
     friendsApi('getFriendRequestList', {}, callback, email);
@@ -82,52 +88,64 @@ const Request = () => {
 
   return (
     <>
-      <div className="text-lg font-semibold">친구 요청</div>
-      <div className="w-135 mt-2">
-        {requestUserList.map((obj) => {
-          const { email, nick_name, profile_image } = obj;
-          return (
-            <div
-              className="flex relative items-center border-b-1 py-2"
-              key={email}
-            >
-              <div
-                className={'h-10 w-10 rounded-full'}
-                style={{
-                  backgroundImage: `url(${
-                    profile_image === null
-                      ? defaultProfile
-                      : profile_image.indexOf('kakaocdn') !== -1 ||
-                        profile_image.indexOf('googleusercontent') !== -1
-                      ? profile_image
-                      : imageEndpoint + profile_image
-                  })`,
-                  backgroundSize: 'cover',
-                }}
-              />
-              <div className="ml-5 font-semibold text-sub">{nick_name}</div>
-              <div className="absolute right-0 flex items-center space-x-1">
+      {isLoading ? (
+        <div className="flex justify-center items-center h-96">
+          <CircularProgress color="secondary" />
+        </div>
+      ) : (
+        <>
+          <div className="text-lg font-semibold">
+            {requestUserList.length === 0
+              ? '친구 요청이 없습니다.'
+              : `친구 요청(${requestUserList.length})`}
+          </div>
+          <div className="w-135 mt-2">
+            {requestUserList.map((obj) => {
+              const { email, nick_name, profile_image } = obj;
+              return (
                 <div
-                  className=" bg-main py-1.5 px-4 text-sm text-white rounded-md text-center hover:bg-orange-700 cursor-pointer"
-                  onClick={() => {
-                    requestResponse(email, 'accept');
-                  }}
+                  className="flex relative items-center border-b-1 py-2"
+                  key={email}
                 >
-                  수락
+                  <div
+                    className={'h-10 w-10 rounded-full'}
+                    style={{
+                      backgroundImage: `url(${
+                        profile_image === null
+                          ? defaultProfile
+                          : profile_image.indexOf('kakaocdn') !== -1 ||
+                            profile_image.indexOf('googleusercontent') !== -1
+                          ? profile_image
+                          : imageEndpoint + profile_image
+                      })`,
+                      backgroundSize: 'cover',
+                    }}
+                  />
+                  <div className="ml-5 font-semibold text-sub">{nick_name}</div>
+                  <div className="absolute right-0 flex items-center space-x-1">
+                    <div
+                      className=" bg-main py-1.5 px-4 text-sm text-white rounded-md text-center hover:bg-orange-700 cursor-pointer"
+                      onClick={() => {
+                        requestResponse(email, 'accept');
+                      }}
+                    >
+                      수락
+                    </div>
+                    <div
+                      className=" border-1 border-main py-1.5 px-4 text-sm text-main rounded-md text-center hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        requestResponse(email, 'reject');
+                      }}
+                    >
+                      거절
+                    </div>
+                  </div>
                 </div>
-                <div
-                  className=" border-1 border-main py-1.5 px-4 text-sm text-main rounded-md text-center hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    requestResponse(email, 'reject');
-                  }}
-                >
-                  거절
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </>
   );
 };

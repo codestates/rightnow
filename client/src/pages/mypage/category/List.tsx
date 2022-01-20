@@ -16,6 +16,13 @@ import SportsBasketballIcon from '@material-ui/icons/SportsBasketball';
 import SportsSoccerIcon from '@material-ui/icons/SportsSoccer';
 import SportsTennisIcon from '@material-ui/icons/SportsTennis';
 import GroupIcon from '@material-ui/icons/Group';
+import CardTravelIcon from '@material-ui/icons/CardTravel';
+import FilterHdrIcon from '@material-ui/icons/FilterHdr';
+import PoolIcon from '@material-ui/icons/Pool';
+import FastfoodIcon from '@material-ui/icons/Fastfood';
+import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
+import DirectionsBoatIcon from '@material-ui/icons/DirectionsBoat';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 interface ICategory {
   id: number;
@@ -27,6 +34,9 @@ interface ICategory {
 
 const List = () => {
   const dispatch = useAppDispatch();
+  // 로딩 중 유무
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   // 알림 창 존재 유무
   const isExistAlert = useAppSelector(alert) !== '';
   // 카테고리
@@ -74,8 +84,14 @@ const List = () => {
     });
     if (temp_data.length !== 0) {
       setCategory(temp_data);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     } else {
       setCategory([]);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   };
 
@@ -124,160 +140,186 @@ const List = () => {
 
   return (
     <>
-      <div className="text-lg font-semibold pl-1">카테고리 목록</div>
-      <div className=" w-160 text-sm text-sub mt-2">
-        <div className="flex items-center w-full relative mb-1 font-semibold">
-          <div className="w-2/5 pl-10">이름</div>
-          <div className="w-1/4 pl-1">인원 수</div>
-          <div className="w-1/3">최종 수정 날짜</div>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-96">
+          <CircularProgress color="secondary" />
         </div>
-        {category.map((obj) => {
-          const { name, user_num, updatedAt, id } = obj;
-          return (
-            <div
-              className="rounded-full transition-all hover:bg-lightMain"
-              key={id}
-              onMouseOver={(e) => {
-                e.stopPropagation();
-                setSelectedId(id);
-              }}
-            >
-              <div className="flex items-center w-full relative py-1 border-b-1">
-                <div className="w-2/5 pl-8 py-1 pr-1">
-                  <input
-                    type="text"
-                    id={'name-' + id}
-                    className={`py-1 pl-1 w-full border-2 ${
-                      selectId === id
-                        ? 'rounded-md outline-main border-sub'
-                        : 'border-transparent bg-transparent'
-                    }`}
-                    value={name}
-                    onChange={(e) => {
-                      textChangeHandler(e, id);
-                    }}
-                    onKeyPress={pressEnter}
-                    disabled={selectId === id ? false : true}
-                  />
-                </div>
-                <div className="w-1/4 py-1 pr-2">
-                  <input
-                    type="text"
-                    id={'user_num-' + id}
-                    className={`py-1 pl-1 w-full border-2 ${
-                      selectId === id
-                        ? 'rounded-md outline-main border-sub'
-                        : 'border-transparent bg-transparent'
-                    }`}
-                    value={user_num}
-                    onChange={(e) => {
-                      textChangeHandler(e, id);
-                    }}
-                    onKeyPress={pressEnter}
-                    disabled={selectId === id ? false : true}
-                  />
-                </div>
-                <div className="w-1/3">{updatedAt}</div>
-                <div className="absolute left-1 ">
-                  {name === '축구' ? (
-                    <SportsSoccerIcon />
-                  ) : name === '농구' ? (
-                    <SportsBasketballIcon />
-                  ) : name === '테니스' ? (
-                    <SportsTennisIcon />
-                  ) : name === '배드민턴' ? (
-                    <SportsTennisIcon />
-                  ) : name === '야구' ? (
-                    <SportsBaseballIcon />
-                  ) : name === '영화' ? (
-                    <MovieIcon />
-                  ) : name === '게임' ? (
-                    <SportsEsportsIcon />
-                  ) : name === '미팅' ? (
-                    <GroupIcon />
-                  ) : (
-                    <StyleIcon />
-                  )}
-                </div>
-                {selectId === id ? (
-                  <div
-                    className={`absolute right-10 transition-all ${
-                      selectedId === id ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onClick={updateCategory}
-                  >
-                    <div className="relative group">
-                      <IconButton size="small">
-                        <SaveIcon className="text-sub" />
-                      </IconButton>
-                      <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
-                        저장
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className={`absolute right-10 transition-all ${
-                      selectedId === id ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onClick={() => {
-                      setSelectId(id);
-                      setSelectedName(name);
-                    }}
-                  >
-                    <div className="relative group">
-                      <IconButton size="small">
-                        <EditIcon className="text-sub" />
-                      </IconButton>
-                      <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
-                        수정
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {selectId === id ? (
-                  <div
-                    className={`absolute right-1 transition-all ${
-                      selectedId === id ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onClick={() => {
-                      setSelectId(-1);
-                      setSelectedName('');
-                    }}
-                  >
-                    <div className="relative group">
-                      <IconButton size="small">
-                        <CancelIcon className="text-sub" />
-                      </IconButton>
-                      <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
-                        취소
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className={`absolute right-1 transition-all ${
-                      selectedId === id ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onClick={() => {
-                      deleteCategory(name);
-                    }}
-                  >
-                    <div className="relative group">
-                      <IconButton size="small">
-                        <DeleteForeverIcon className="text-sub" />
-                      </IconButton>
-                      <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
-                        삭제
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+      ) : (
+        <>
+          <div className="text-lg font-semibold pl-1">
+            {category.length === 0
+              ? '카테고리 목록'
+              : `카테고리 목록(${category.length})`}
+          </div>
+          <div className=" w-160 text-sm text-sub mt-2">
+            <div className="flex items-center w-full relative mb-1 font-semibold">
+              <div className="w-2/5 pl-10">이름</div>
+              <div className="w-1/4 pl-1">인원 수</div>
+              <div className="w-1/3">최종 수정 날짜</div>
             </div>
-          );
-        })}
-      </div>
+            {category.map((obj) => {
+              const { name, user_num, updatedAt, id } = obj;
+              return (
+                <div
+                  className="rounded-full transition-all hover:bg-lightMain"
+                  key={id}
+                  onMouseOver={(e) => {
+                    e.stopPropagation();
+                    setSelectedId(id);
+                  }}
+                >
+                  <div className="flex items-center w-full relative py-1 border-b-1">
+                    <div className="w-2/5 pl-8 py-1 pr-1">
+                      <input
+                        type="text"
+                        id={'name-' + id}
+                        className={`py-1 pl-1 w-full border-2 ${
+                          selectId === id
+                            ? 'rounded-md outline-main border-sub'
+                            : 'border-transparent bg-transparent'
+                        }`}
+                        value={name}
+                        onChange={(e) => {
+                          textChangeHandler(e, id);
+                        }}
+                        onKeyPress={pressEnter}
+                        disabled={selectId === id ? false : true}
+                      />
+                    </div>
+                    <div className="w-1/4 py-1 pr-2">
+                      <input
+                        type="text"
+                        id={'user_num-' + id}
+                        className={`py-1 pl-1 w-full border-2 ${
+                          selectId === id
+                            ? 'rounded-md outline-main border-sub'
+                            : 'border-transparent bg-transparent'
+                        }`}
+                        value={user_num}
+                        onChange={(e) => {
+                          textChangeHandler(e, id);
+                        }}
+                        onKeyPress={pressEnter}
+                        disabled={selectId === id ? false : true}
+                      />
+                    </div>
+                    <div className="w-1/3">{updatedAt}</div>
+                    <div className="absolute left-1 ">
+                      {name === '축구' ? (
+                        <SportsSoccerIcon />
+                      ) : name === '농구' ? (
+                        <SportsBasketballIcon />
+                      ) : name === '테니스' ? (
+                        <SportsTennisIcon />
+                      ) : name === '배드민턴' ? (
+                        <SportsTennisIcon />
+                      ) : name === '야구' ? (
+                        <SportsBaseballIcon />
+                      ) : name === '영화' ? (
+                        <MovieIcon />
+                      ) : name === '등산' ? (
+                        <FilterHdrIcon />
+                      ) : name === '여행' ? (
+                        <CardTravelIcon />
+                      ) : name === '맛집' ? (
+                        <FastfoodIcon />
+                      ) : name === '운동' ? (
+                        <FitnessCenterIcon />
+                      ) : name === '헬스' ? (
+                        <FitnessCenterIcon />
+                      ) : name === '수영' ? (
+                        <PoolIcon />
+                      ) : name === '낚시' ? (
+                        <DirectionsBoatIcon />
+                      ) : name === '게임' ? (
+                        <SportsEsportsIcon />
+                      ) : name === '미팅' ? (
+                        <GroupIcon />
+                      ) : (
+                        <StyleIcon />
+                      )}
+                    </div>
+                    {selectId === id ? (
+                      <div
+                        className={`absolute right-10 transition-all ${
+                          selectedId === id ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onClick={updateCategory}
+                      >
+                        <div className="relative group">
+                          <IconButton size="small">
+                            <SaveIcon className="text-sub" />
+                          </IconButton>
+                          <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
+                            저장
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`absolute right-10 transition-all ${
+                          selectedId === id ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onClick={() => {
+                          setSelectId(id);
+                          setSelectedName(name);
+                        }}
+                      >
+                        <div className="relative group">
+                          <IconButton size="small">
+                            <EditIcon className="text-sub" />
+                          </IconButton>
+                          <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
+                            수정
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {selectId === id ? (
+                      <div
+                        className={`absolute right-1 transition-all ${
+                          selectedId === id ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onClick={() => {
+                          setSelectId(-1);
+                          setSelectedName('');
+                        }}
+                      >
+                        <div className="relative group">
+                          <IconButton size="small">
+                            <CancelIcon className="text-sub" />
+                          </IconButton>
+                          <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
+                            취소
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`absolute right-1 transition-all ${
+                          selectedId === id ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onClick={() => {
+                          deleteCategory(name);
+                        }}
+                      >
+                        <div className="relative group">
+                          <IconButton size="small">
+                            <DeleteForeverIcon className="text-sub" />
+                          </IconButton>
+                          <div className="absolute -bottom-5 left-0.25 text-xs bg-sub text-white px-0.5 py-0.5 rounded-sm transition-all opacity-0 group-hover:opacity-100">
+                            삭제
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </>
   );
 };

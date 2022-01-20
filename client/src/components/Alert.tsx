@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { alert, showAlert } from '../reducers/componetSlice';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
-import { deleteAccessToken } from '../reducers/userSlice';
+import { deleteAccessToken, userBlockDate } from '../reducers/userSlice';
 
 const Alert = () => {
   const dispatch = useAppDispatch();
@@ -11,12 +11,20 @@ const Alert = () => {
   const [title, setTitle] = useState<string>('');
   // 부제목
   const [subTitle, setSubTitle] = useState<string>('');
+  // 정지 기간
+  const blockDate = useAppSelector(userBlockDate);
 
   useEffect(() => {
     switch (alertType) {
       case 'login':
         setTitle('로그인');
         setSubTitle('로그인 하였습니다');
+        break;
+      case 'loginBlock':
+        setTitle('로그인');
+        setSubTitle(
+          `신고 처리가 접수되었습니다. 해당 계정은 ${blockDate}까지 이용 할 수 없습니다.`,
+        );
         break;
       case 'signup':
         setTitle('회원가입');
@@ -172,6 +180,18 @@ const Alert = () => {
         setTitle('Error');
         setSubTitle('에러가 발생했습니다. 잠시 후 다시 시도해주세요.');
         break;
+      case 'blockUser':
+        setTitle('신고관리');
+        setSubTitle('유저를 정지 시켰습니다.');
+        break;
+      case 'already blocked':
+        setTitle('신고관리');
+        setSubTitle('이미 정지 된 유저입니다.');
+        break;
+      case 'blockedUser':
+        setTitle('로그아웃');
+        setSubTitle('신고가 접수되어 로그아웃 됩니다.');
+        break;
     }
   }, [alertType]);
 
@@ -179,6 +199,9 @@ const Alert = () => {
     dispatch(showAlert(''));
     // 토큰만료일 경우 확인을 누르면 로그아웃시킴
     if (alertType === 'invalidRefreshToken') {
+      dispatch(deleteAccessToken());
+    }
+    if (alertType === 'blockedUser') {
       dispatch(deleteAccessToken());
     }
   };
@@ -200,8 +223,8 @@ const Alert = () => {
           }}
         >
           <div className="text-lg font-bold">{title}</div>
-          <div className="text-sm mt-2 relative top-0">{subTitle}</div>
-          <div className="text-right space-x-2 absolute bottom-4 right-6">
+          <div className="text-sm mt-2 relative top-0 leading-6">{subTitle}</div>
+          <div className="text-right space-x-2 absolute bottom-3 right-6">
             <button
               className={`w-20 h-8 rounded-md bg-main text-white text-sm hover:bg-orange-700`}
               onClick={closeAlert}

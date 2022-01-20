@@ -51,7 +51,7 @@ const oauthValidation: OAuthValidation = {
           let user = null;
           if (!findUser) {
             const [data, created]: any = await db['User'].findOrCreate({
-              where: { email: email },
+              where: { email: email, social_login: 'kakao' },
               defaults: {
                 password: '',
                 profile_image: profile_image_url,
@@ -144,6 +144,7 @@ const oauthValidation: OAuthValidation = {
           const nick_name: string = data.email.split('@')[0];
           const profile_image_url: string = data.picture ? data.picture : null;
           const auth_code: string = data.sub;
+
           const findUser: any = await db['User'].findOne({ where: { email } });
           let user = null;
           if (!findUser) {
@@ -176,6 +177,7 @@ const oauthValidation: OAuthValidation = {
           }
 
           let userInfo: any = user || findUser;
+
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 

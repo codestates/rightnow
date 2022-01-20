@@ -66,11 +66,15 @@ const Proflie = () => {
       formData.append('file', uploadFile);
 
       axios
-        .put(`http://localhost/user/upload/image/${email}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+        .put(
+          `http://${process.env.REACT_APP_ENDPOINT}/user/upload/image/${email}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        })
+        )
         .then((res) => {
           dispatch(updateProfile(res.data.data.profile_image));
           dispatch(showAlert('updateProfile'));
@@ -88,7 +92,6 @@ const Proflie = () => {
   // 회원정보 수정요청
   const requestModifyUserInfo = (): void => {
     const body = {
-      email: email,
       nick_name: nickname,
     };
     const callback = (code: number, data: string) => {
@@ -232,7 +235,7 @@ const Proflie = () => {
           }`}
         >
           <div
-            className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden"
+            className="inline-block w-56 h-56 rounded-full border-2 border-slate-300 overflow-hidden bg-red-200"
             style={{
               backgroundImage: `url(${
                 profile === null
@@ -245,14 +248,17 @@ const Proflie = () => {
               backgroundSize: 'cover',
             }}
           />
-          <form className="text-right mt-5">
+          <form className="text-right mt-5 cursor-pointer">
             <button
-              className={`w-36 h-10 rounded-md border-2 border-slate-500 text-slate-500 text-sm font-semibold relative`}
+              className={`w-36 h-10 rounded-md border-2 border-slate-500 text-slate-500 text-sm font-semibold relative hover:bg-gray-100`}
+              onClick={() => {
+                document.getElementById('profile-upload')?.click();
+              }}
             >
               사진 업로드
               <label htmlFor="profile-upload" />
               <input
-                className="bg-red-200 w-36 h-10 overflow-hidden absolute top-0 left-0 z-10 opacity-0"
+                className="w-36 h-10 overflow-hidden absolute top-0 left-0 -z-10 opacity-0"
                 type="file"
                 id="profile-upload"
                 accept="image/*"
