@@ -51,7 +51,7 @@ const oauthValidation: OAuthValidation = {
           let user = null;
           if (!findUser) {
             const [data, created]: any = await db['User'].findOrCreate({
-              where: { email: email },
+              where: { email: email, social_login: 'kakao' },
               defaults: {
                 password: '',
                 profile_image: profile_image_url,
