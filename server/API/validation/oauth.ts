@@ -143,6 +143,7 @@ const oauthValidation: OAuthValidation = {
               auth_code: auth_code,
             },
           });
+
           if (user.dataValues.is_block === 'Y') {
             req.sendData = {
               data: {
@@ -153,7 +154,6 @@ const oauthValidation: OAuthValidation = {
             next();
             return;
           }
-
           let userInfo: any = user;
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
