@@ -61,7 +61,7 @@ const oauthValidation: OAuthValidation = {
             });
             user = data;
           }
-          let userInfo: any = user;
+          let userInfo: any = user || findUser;
           if (
             findUser
               ? findUser.dataValues.is_block === 'Y'
@@ -175,7 +175,7 @@ const oauthValidation: OAuthValidation = {
             return;
           }
 
-          let userInfo: any = user;
+          let userInfo: any = user || findUser;
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 
