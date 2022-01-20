@@ -242,8 +242,8 @@ const userController: UserController = {
       res.status(400).send({ message: 'incorrect parameters supplied' });
     } else if (req.sendData.message === 'already exists report') {
       res.status(409).send({ message: 'already exists report' });
-    } else if (req.sendData.message === 'already blocked message') {
-      res.status(409).send({ message: 'already blocked message' });
+    } else if (req.sendData.message === 'already blocked user') {
+      res.status(409).send({ message: 'already blocked user' });
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     }

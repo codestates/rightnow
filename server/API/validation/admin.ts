@@ -150,9 +150,6 @@ const adminValidation: AdminValidation = {
   ): Promise<any> {
     try {
       let { block_email, block_day } = req.body;
-      if (block_day === '영구정지') {
-        block_day = '99999';
-      }
       const userInfo: any = await db['User'].findOne({
         where: { email: block_email },
       });
@@ -165,6 +162,17 @@ const adminValidation: AdminValidation = {
         return;
       } else if (userInfo.dataValues.is_block === 'Y') {
         req.sendData = { message: 'already blocked message' };
+        next();
+        return;
+      }
+
+      if (block_day === '영구정지') {
+        req.sendData = {
+          data: {
+            blockedUserInfo: userInfo,
+          },
+          message: 'ok',
+        };
         next();
         return;
       }
