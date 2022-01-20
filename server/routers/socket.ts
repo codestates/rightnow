@@ -40,9 +40,9 @@ http.listen(socketPort, () => {
 
 const io: Server | any = require('socket.io')(http, {
   cors: {
-    origin: 'https://codebaker-rightnow.netlify.app',
+    //origin: 'https://codebaker-rightnow.netlify.app',
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Access-Control-Allow-Origin'],
+    //allowedHeaders: ['Access-Control-Allow-Origin'],
     credentials: true,
   },
 });
