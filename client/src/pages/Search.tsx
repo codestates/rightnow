@@ -462,6 +462,9 @@ const Search = () => {
         dispatch(showAlert('cannotCancel'));
         return;
       }
+      if (res.message === 'group mathcing start') {
+        setIsSearching(true);
+      }
     });
 
     //
