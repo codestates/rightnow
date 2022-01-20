@@ -15,19 +15,15 @@ import { Socket, Server, Namespace } from 'socket.io';
 import { Http2Server } from 'http2';
 import searchMethod from '../method/search';
 import chatMethod from '../method/chat';
+import cors from 'cors';
 // const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
-socketRouter.use(function (req, res, next) {
-  res.header(
-    'Access-Control-Allow-Origin',
-    'https://codebaker-rightnow.netlify.app',
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
-  );
-  next();
-});
+socketRouter.use(
+  cors({
+    credentials: true,
+    origin: 'https://codebaker-rightnow.netlify.app',
+  }),
+);
 const http: Http2Server = require('http').createServer(socketRouter);
 const socketPort: number = 4000;
 // const UUID_FUNC: Function = require('../method/uuid');
@@ -38,14 +34,7 @@ http.listen(socketPort, () => {
   console.log('listening on *:' + socketPort);
 });
 
-const io: Server | any = require('socket.io')(http, {
-  cors: {
-    //origin: 'https://codebaker-rightnow.netlify.app',
-    methods: ['GET', 'POST'],
-    //allowedHeaders: ['Access-Control-Allow-Origin'],
-    credentials: true,
-  },
-});
+const io: Server | any = require('socket.io')(http);
 
 //client 에서  주소/search 로 보내줘야 함
 const searchNamespace: Namespace = io.of('/search');
