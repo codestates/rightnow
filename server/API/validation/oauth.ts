@@ -144,6 +144,7 @@ const oauthValidation: OAuthValidation = {
           const nick_name: string = data.email.split('@')[0];
           const profile_image_url: string = data.picture ? data.picture : null;
           const auth_code: string = data.sub;
+
           const findUser: any = await db['User'].findOne({ where: { email } });
           let user = null;
           if (!findUser) {
@@ -163,6 +164,7 @@ const oauthValidation: OAuthValidation = {
               ? findUser.dataValues.is_block === 'Y'
               : user.dataValues.is_block === 'Y'
           ) {
+
             req.sendData = {
               data: {
                 block_date: findUser
@@ -176,6 +178,7 @@ const oauthValidation: OAuthValidation = {
           }
 
           let userInfo: any = user || findUser;
+          
           delete userInfo.dataValues.password;
           delete userInfo.dataValues.auth_code;
 

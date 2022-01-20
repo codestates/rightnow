@@ -28,6 +28,7 @@ code {
 #header {
   /* background: url('./images/bg_slilder-1.jpg'); */
   background: url('./images/people4.jpg');
+  /* background: url('./images/background2.jpg'); */
   background-attachment: fixed;
   background-size: cover;
   height: 670px;
