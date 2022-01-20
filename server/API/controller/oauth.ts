@@ -50,17 +50,21 @@ const oauthController: OAuthController = {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
       });
-      res.redirect(`http://localhost:3000/load?message=ok&login=google`);
+      res.redirect(
+        `http://${process.env.GOOGLE_CLIENT_URL}load?message=ok&login=google`,
+      );
     } else if (
       req.sendData.message === 'invalid accessToken' ||
       req.sendData.message === 'Invalid authorization code'
     ) {
-      res.redirect(`http://localhost:3000/load?message=err&login=google`);
+      res.redirect(
+        `http://${process.env.GOOGLE_CLIENT_URL}load?message=err&login=google`,
+      );
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     } else if (req.sendData.message === 'block user') {
       res.redirect(
-        `http://localhost:3000/load?message=block_user&block_date=${req.sendData.data.block_date}&login=google`,
+        `http://${process.env.GOOGLE_CLIENT_URL}load?message=block_user&block_date=${req.sendData.data.block_date}&login=google`,
       );
     }
   },
