@@ -30,6 +30,7 @@ app.use(function (req, res, next) {
 app.use(
   cors({
     credentials: true,
+    origin: 'https://codebaker-rightnow.netlify.app/',
   }),
 );
 app.use('/image/user', express.static('./image/user'));
