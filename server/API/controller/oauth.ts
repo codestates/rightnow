@@ -54,7 +54,7 @@ const oauthController: OAuthController = {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: 'nspark.shop',
+        domain: '.nspark.shop',
       });
       res.redirect(
         `${process.env.GOOGLE_CLIENT_URL}load?message=ok&login=google`,
