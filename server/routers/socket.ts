@@ -42,7 +42,7 @@ http.listen(socketPort, () => {
 const io: Server | any = require('socket.io')(http, {
   cors: {
     origin: 'https://codebaker-rightnow.netlify.app',
-    methods: ['GET', 'POST'],
+    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
     credentials: true,
   },
 });
