@@ -50,7 +50,7 @@ const ProfileImg = styled.div<{ url: string }>`
 `;
 
 const ProfileName = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
 `;
 
 const MemberList = ({ roomMember }: any) => {
@@ -67,8 +67,7 @@ const MemberList = ({ roomMember }: any) => {
                     // image 정상 추가
                     member.profile_image
                       ? member.profile_image.indexOf('kakaocdn') === -1
-                        ? process.env.REACT_APP_IMAGE_ENDPOINT +
-                          member.profile_image
+                        ? process.env.REACT_APP_IMAGE_ENDPOINT + member.profile_image
                         : member.profile_image
                       : defaultImg
                   }
