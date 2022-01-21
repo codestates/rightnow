@@ -13,7 +13,7 @@ const Slider = ({ images }: IProps) => {
   const [imageIdx, setImageIdx] = useState<number>(0);
 
   return (
-    <div className="w-135 relative left-72 overflow-hidden">
+    <div className="w-135 relative overflow-hidden">
       <div
         className="flex relative"
         style={{
@@ -41,11 +41,7 @@ const Slider = ({ images }: IProps) => {
           return (
             <div
               key={idx}
-              className={`w-3 h-3 rounded-full cursor-pointer bg-main ${
-                imageIdx === idx
-                  ? 'bg-main'
-                  : 'bg-orange-200 hover:bg-orange-300'
-              }`}
+              className={`w-3 h-3 rounded-full cursor-pointer bg-main ${imageIdx === idx ? 'bg-main' : 'bg-orange-200 hover:bg-orange-300'}`}
               onClick={() => {
                 setImageIdx(idx);
               }}
