@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
-const url = `http://${endpoint}/friend`;
+const url = `${endpoint}/friend`;
 axios.defaults.withCredentials = true;
 
 export default function friendsApi(
@@ -90,7 +90,7 @@ export default function friendsApi(
     // 친구 삭제
     case 'deleteFriend':
       axios
-        .delete('http://localhost/friend', {
+        .delete(url, {
           data: body,
         })
         .then((res) => {
