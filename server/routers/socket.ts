@@ -17,6 +17,7 @@ import searchMethod from '../method/search';
 import chatMethod from '../method/chat';
 // const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
+const cors: any = require('cors');
 // socketRouter.use(function (req, res, next) {
 //   res.header(
 //     'Access-Control-Allow-Origin',
@@ -29,24 +30,41 @@ const socketRouter: Router = express.Router();
 //   res.header('Access-Control-Allow-Credentials', 'true');
 //   next();
 // });
-const http: Http2Server = require('http').createServer(socketRouter);
+socketRouter.use(
+  cors({
+    origin: 'https://codebaker-rightnow.netlify.app',
+    credentials: true,
+    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
+  }),
+);
+const httpServer: any = require('http');
+const http: Http2Server | any = httpServer.createServer(socketRouter);
 const socketPort: number = 4000;
 // const UUID_FUNC: Function = require('../method/uuid');
 // const SEARCH_COUNT: number = 5;
 // let { findUsers, tempRooms, roomList, attendUsers } = require('../data/cache');
 
+// http.listen(socketPort, () => {
+//   console.log('listening on *:' + socketPort);
+// });
+
+// const io: Server | any = require('socket.io')(http, {
+//   cors: {
+//     origin: 'https://codebaker-rightnow.netlify.app',
+//     methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
+//     credentials: true,
+//   },
+// });
+const io = new Server(http);
+// , {
+//   cors: {
+//     origin: 'https://codebaker-rightnow.netlify.app',
+//     credentials: true,
+//   },
+// }
 http.listen(socketPort, () => {
   console.log('listening on *:' + socketPort);
 });
-
-const io: Server | any = require('socket.io')(http, {
-  cors: {
-    origin: true,
-    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
-    credentials: true,
-  },
-});
-
 //client 에서  주소/search 로 보내줘야 함
 const searchNamespace: Namespace = io.of('/search');
 
