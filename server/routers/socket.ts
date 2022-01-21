@@ -17,6 +17,18 @@ import searchMethod from '../method/search';
 import chatMethod from '../method/chat';
 // const db: any = require('../models/index');
 const socketRouter: Router = express.Router();
+// socketRouter.use(function (req, res, next) {
+//   res.header(
+//     'Access-Control-Allow-Origin',
+//     'https://codebaker-rightnow.netlify.app',
+//   );
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin, X-Requested-With, Content-Type, Accept',
+//   );
+//   res.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 const http: Http2Server = require('http').createServer(socketRouter);
 const socketPort: number = 4000;
 // const UUID_FUNC: Function = require('../method/uuid');

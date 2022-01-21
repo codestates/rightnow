@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Folding, BounceBall } from './Spinner';
+import { BounceBall } from './Spinner';
 
 const Container = styled.div`
   position: absolute;

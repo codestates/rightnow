@@ -1,8 +1,7 @@
 @tailwind base;
 
 .font-sans-kr {
-  font-family: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+  font-family: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
@@ -11,8 +10,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -21,13 +19,16 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+#root {
+  height: 100%;
 }
 
 #header {
   /* background: url('./images/bg_slilder-1.jpg'); */
-  background: url('./images/people4.jpg');
+  /* background: url('./images/people4.jpg'); */
   /* background: url('./images/background2.jpg'); */
   background-attachment: fixed;
   background-size: cover;
@@ -65,6 +66,14 @@ code {
   background-size: cover;
   width: 4600px;
   height: 400px;
+}
+#bounce-1.is-Viewport {
+  opacity: 0;
+  animation-name: bounce;
+  animation-duration: 0.8s;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
 }
 
 .bounce-1 {
@@ -161,6 +170,17 @@ code {
     left: 0px;
   }
 }
+
+#left-slide-2.is-inViewport {
+  position: relative;
+  opacity: 0;
+  left: -150px;
+  animation-name: left-slide-2;
+  animation-duration: 1.2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
 .left-slide-2 {
   position: relative;
   opacity: 0;
@@ -180,6 +200,16 @@ code {
     left: 0px;
     opacity: 1;
   }
+}
+
+#right-slide-1.is-Viewport {
+  position: relative;
+  opacity: 0;
+  left: 250px;
+  animation-name: right-slide-1;
+  animation-duration: 1.2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
 }
 
 .right-slide-1 {
@@ -240,8 +270,7 @@ code {
   width: 15px;
   height: 15px;
   background-color: #24ecff;
-  box-shadow: 0 0 0 5px #24ecff33, 0 0 0 10px #24ecff22, 0 0 0 20px #24ecff11,
-    0 0 20px #24ecff, 0 0 50px #24ecff;
+  box-shadow: 0 0 0 5px #24ecff33, 0 0 0 10px #24ecff22, 0 0 0 20px #24ecff11, 0 0 20px #24ecff, 0 0 50px #24ecff;
 }
 
 @keyframes indicator1 {
@@ -270,8 +299,7 @@ code {
   width: 15px;
   height: 15px;
   background-color: #93ff2d;
-  box-shadow: 0 0 0 5px #93ff2d33, 0 0 0 10px #93ff2d22, 0 0 0 20px #93ff2d11,
-    0 0 20px #93ff2d, 0 0 50px #93ff2d;
+  box-shadow: 0 0 0 5px #93ff2d33, 0 0 0 10px #93ff2d22, 0 0 0 20px #93ff2d11, 0 0 20px #93ff2d, 0 0 50px #93ff2d;
 }
 
 @keyframes indicator2 {
@@ -302,8 +330,7 @@ code {
   width: 15px;
   height: 15px;
   background-color: #e41cf8;
-  box-shadow: 0 0 0 5px #e41cf833, 0 0 0 10px #e41cf822, 0 0 0 20px #e41cf811,
-    0 0 20px #e41cf8, 0 0 50px #e41cf8;
+  box-shadow: 0 0 0 5px #e41cf833, 0 0 0 10px #e41cf822, 0 0 0 20px #e41cf811, 0 0 20px #e41cf8, 0 0 50px #e41cf8;
 }
 
 .round-container p {
