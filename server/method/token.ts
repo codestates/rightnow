@@ -55,7 +55,7 @@ const accessTokenRequestValidation: AccessTokenRequestValidation = {
                 userInfo.dataValues,
                 process.env.ACCESS_SECRET,
                 {
-                  expiresIn: '15s',
+                  expiresIn: '15m',
                 },
               );
               if (type === 'update') {

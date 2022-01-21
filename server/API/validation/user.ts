@@ -103,7 +103,7 @@ const userValidation: UserValidation = {
                   userInfo,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15s',
+                    expiresIn: '15m',
                   },
                 );
                 const refreshToken: any = jwt.sign(
