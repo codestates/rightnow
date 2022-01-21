@@ -20,7 +20,7 @@ app.use(
   cors({
     credentials: true,
     origin: 'https://codebaker-rightnow.netlify.app',
-    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT'],
+    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
   }),
 );
 app.use('/image/user', express.static('./image/user'));
