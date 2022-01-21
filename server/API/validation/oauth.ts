@@ -49,6 +49,7 @@ const oauthValidation: OAuthValidation = {
           const auth_code: string = data.id;
           const findUser: any = await db['User'].findOne({ where: { email } });
           let user = null;
+
           if (!findUser) {
             const [data, created]: any = await db['User'].findOrCreate({
               where: { email: email, social_login: 'kakao' },

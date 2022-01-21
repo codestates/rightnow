@@ -416,6 +416,7 @@ const Search = () => {
     const io = require('socket.io-client');
     socket = io(`${process.env.REACT_APP_SOCKET_URI}/search`, {
       withCredentials: true,
+      transports: ['websocket'],
     });
     socket.on('reject_match', (res: any) => {
       if (res.message === 'invalid access') {

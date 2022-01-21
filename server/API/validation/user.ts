@@ -65,12 +65,20 @@ const userValidation: UserValidation = {
     try {
       if (req.body.type === 'TEMP') {
         const { nick_name, password } = req.body;
-        const userInfo: any = await db['User'].findOne({
+        let userInfo: any = await db['User'].findAll({
           where: { nick_name },
         });
+        userInfo = userInfo.map((el: any) => {
+          return el.dataValues;
+        });
+        userInfo = userInfo.filter((el: any) => {
+          return el.email.indexOf('@') === -1;
+        })[0];
+        console.log(userInfo);
         if (!userInfo) {
           req.sendData = { message: 'no exists email' };
           next();
+          return;
         } else {
           if (userInfo.is_block === 'Y') {
             req.sendData = {
@@ -88,18 +96,18 @@ const userValidation: UserValidation = {
                 req.sendData = { message: 'incorrect password' };
                 next();
               } else if (resp === true) {
-                delete userInfo.dataValues.password;
-                delete userInfo.dataValues.auth_code;
+                delete userInfo.password;
+                delete userInfo.auth_code;
 
                 const accessToken: any = jwt.sign(
-                  userInfo.dataValues,
+                  userInfo,
                   process.env.ACCESS_SECRET,
                   {
                     expiresIn: '15s',
                   },
                 );
                 const refreshToken: any = jwt.sign(
-                  userInfo.dataValues,
+                  userInfo,
                   process.env.REFRESH_SECRET,
                   {
                     expiresIn: '30d',

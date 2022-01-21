@@ -19,7 +19,8 @@ const port: number = 80;
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: 'https://codebaker-rightnow.netlify.app',
+    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
   }),
 );
 app.use('/image/user', express.static('./image/user'));
@@ -35,7 +36,7 @@ app.use('/user', userRouter);
 app.use('/friend', friendRouter);
 app.use('/oauth', oauthRouter);
 
-app.use(socketRouter);
+//app.use(socketRouter);
 app.get('/', (req: Request, res: Response): void => {
   res.send('It is RightNow Server !');
 });

@@ -208,6 +208,7 @@ const Room = () => {
     const io = require('socket.io-client');
     socket = io(`${process.env.REACT_APP_SOCKET_URI}/chat`, {
       withCredentials: true,
+      transports: ['websocket'],
     });
     socket.on('reject', (data: any) => {
       console.log(data.message);

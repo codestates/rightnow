@@ -1,3 +1,4 @@
+import { NONAME } from 'dns';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../type/type';
 
@@ -17,6 +18,9 @@ const oauthController: OAuthController = {
     if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: '.nspartk.shop',
       });
       console.log(req.sendData.data.userInfo);
       res.status(200).send({
@@ -44,23 +48,30 @@ const oauthController: OAuthController = {
 
   /*
   구글 소셜로그인
-  */
+  */ //
   async googleLogin(req: CustomRequest, res: Response): Promise<void> {
     if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: '.nspartk.shop',
       });
-      res.redirect(`http://localhost:3000/load?message=ok&login=google`);
+      res.redirect(
+        `${process.env.GOOGLE_CLIENT_URL}load?message=ok&login=google`,
+      );
     } else if (
       req.sendData.message === 'invalid accessToken' ||
       req.sendData.message === 'Invalid authorization code'
     ) {
-      res.redirect(`http://localhost:3000/load?message=err&login=google`);
+      res.redirect(
+        `${process.env.GOOGLE_CLIENT_URL}load?message=err&login=google`,
+      );
     } else if (req.sendData.message === 'err') {
       res.status(500).send({ message: 'err' });
     } else if (req.sendData.message === 'block user') {
       res.redirect(
-        `http://localhost:3000/load?message=block_user&block_date=${req.sendData.data.block_date}&login=google`,
+        `${process.env.GOOGLE_CLIENT_URL}load?message=block_user&block_date=${req.sendData.data.block_date}&login=google`,
       );
     }
   },

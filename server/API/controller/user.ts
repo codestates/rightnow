@@ -31,6 +31,9 @@ const userController: UserController = {
     } else if (req.sendData.message === 'ok') {
       res.cookie('refreshToken', req.sendData.data.refreshToken, {
         httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: '.nspartk.shop',
       });
       res.status(200).send({
         data: { accessToken: req.sendData.data.accessToken },
@@ -71,6 +74,9 @@ const userController: UserController = {
         .status(201)
         .cookie('refreshToken', req.sendData.data.refreshToken, {
           httpOnly: true,
+          secure: true,
+          sameSite: 'none',
+          domain: '.nspartk.shop',
         })
         .send({
           data: { accessToken: req.sendData.data.accessToken },
