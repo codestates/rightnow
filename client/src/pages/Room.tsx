@@ -210,6 +210,8 @@ const Room = () => {
       withCredentials: true,
       transports: ['websocket'],
       upgrade: false,
+      rejectUnauthorized: false,
+      forceNew: true,
     });
     socket.on('reject', (data: any) => {
       console.log(data.message);

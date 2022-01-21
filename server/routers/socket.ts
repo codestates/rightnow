@@ -55,7 +55,13 @@ const socketPort: number = 4000;
 //     credentials: true,
 //   },
 // });
-const io = new Server(http);
+const io = new Server(http, {
+  cors: {
+    origin: 'https://codebaker-rightnow.netlify.app',
+    credentials: true,
+    methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
+  },
+});
 // , {
 //   cors: {
 //     origin: 'https://codebaker-rightnow.netlify.app',
@@ -66,6 +72,7 @@ http.listen(socketPort, () => {
   console.log('listening on *:' + socketPort);
 });
 //client 에서  주소/search 로 보내줘야 함
+
 const searchNamespace: Namespace = io.of('/search');
 
 const chatNamespace: Namespace = io.of('/chat');
@@ -73,6 +80,5 @@ const chatNamespace: Namespace = io.of('/chat');
 searchNamespace.on('connection', searchMethod);
 
 chatNamespace.on('connection', chatMethod);
-
 export default socketRouter;
 export { chatNamespace, searchNamespace };

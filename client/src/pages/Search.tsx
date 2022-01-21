@@ -418,6 +418,7 @@ const Search = () => {
       withCredentials: true,
       transports: ['websocket'],
       upgrade: false,
+      cors: { origin: 'https://dreamy-visvesvaraya-220c2f.netlify.app' },
     });
     socket.on('reject_match', (res: any) => {
       if (res.message === 'invalid access') {
@@ -602,7 +603,7 @@ const Search = () => {
    */
   const handleCategory = (e: ChangeEvent) => {
     const { value } = e.target as HTMLSelectElement;
-    const selected = category[Number(value) - 1];
+    const selected = category[Number(value) - 2];
     console.log(selected);
     if (!selected) {
       setSelectedCategory(initCategory);
