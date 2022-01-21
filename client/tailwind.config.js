@@ -9,6 +9,9 @@ module.exports = {
       serif: ['Merriweather', 'serif'],
     },
     extend: {
+      screens: {
+        title: '1600px',
+      },
       spacing: {
         '8xl': '96rem',
         '9xl': '128rem',
@@ -73,6 +76,7 @@ module.exports = {
       },
       fontSize: {
         logo: '2rem',
+        0: '0rem',
       },
       transitionProperty: {
         height: 'height',

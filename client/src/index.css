@@ -126,6 +126,9 @@ code {
   animation-fill-mode: forwards;
 }
 
+.temp-button:hover {
+}
+
 @keyframes bounce {
   0% {
     opacity: 0.3;
@@ -147,6 +150,21 @@ code {
     transform: scale(0.9);
   }
 
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-once {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
   100% {
     opacity: 1;
     transform: scale(1);
@@ -359,4 +377,21 @@ code {
     left: 0px;
     opacity: 1;
   }
+}
+
+.hidden {
+  opacity: 0;
+}
+
+#rending-container::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+#rending-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+}
+
+#rending-container::-webkit-scrollbar-track {
+  margin: 0.1rem;
 }
