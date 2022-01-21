@@ -36,7 +36,7 @@ app.use('/user', userRouter);
 app.use('/friend', friendRouter);
 app.use('/oauth', oauthRouter);
 
-app.use(socketRouter);
+//app.use(socketRouter);
 app.get('/', (req: Request, res: Response): void => {
   res.send('It is RightNow Server !');
 });
