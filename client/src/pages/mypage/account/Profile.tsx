@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
+import React, { ChangeEvent, useEffect, useState, KeyboardEvent, useRef } from 'react';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import { useAppSelector, useAppDispatch } from '../../../config/hooks';
@@ -20,6 +20,9 @@ const Proflie = () => {
   const imageEndpoint = process.env.REACT_APP_IMAGE_ENDPOINT;
 
   const dispatch = useAppDispatch();
+
+  //ref
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // 유저 프로파일 이미지
   const profile = useAppSelector(userProfile);
@@ -67,7 +70,7 @@ const Proflie = () => {
 
       axios
         .put(
-          `http://${process.env.REACT_APP_ENDPOINT}/user/upload/image/${email}`,
+          `${process.env.REACT_APP_ENDPOINT}/user/upload/image/${email}`,
           formData,
           {
             headers: {
@@ -76,11 +79,14 @@ const Proflie = () => {
           },
         )
         .then((res) => {
+          console.log(res)
           dispatch(updateProfile(res.data.data.profile_image));
           dispatch(showAlert('updateProfile'));
           document.getElementById('profile-upload')?.blur();
         })
         .catch((err) => {
+          console.log(err.response)
+          console.log(err)
           if (err.response.status === 400) {
             window.location.reload();
             dispatch(showAlert('profileTypeError'));
@@ -251,14 +257,12 @@ const Proflie = () => {
           <form className="text-right mt-5 cursor-pointer">
             <button
               className={`w-36 h-10 rounded-md border-2 border-slate-500 text-slate-500 text-sm font-semibold relative hover:bg-gray-100`}
-              onClick={() => {
-                document.getElementById('profile-upload')?.click();
-              }}
             >
               사진 업로드
               <label htmlFor="profile-upload" />
               <input
-                className="w-36 h-10 overflow-hidden absolute top-0 left-0 -z-10 opacity-0"
+                ref={inputRef}
+                className="w-36 h-10 overflow-hidden absolute top-0 left-0 z-20 opacity-0"
                 type="file"
                 id="profile-upload"
                 accept="image/*"
