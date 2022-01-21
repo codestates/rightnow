@@ -4,6 +4,7 @@ import {
   Routes as Switch,
   useLocation,
   useNavigate,
+  Navigate
 } from 'react-router-dom';
 import RendingPage from './pages/index';
 import Room from './pages/Room';
@@ -33,6 +34,7 @@ import {
 } from './reducers/componetSlice';
 import Alert from './components/Alert';
 import Load from './pages/Load';
+import Policy from './pages/Policy';
 
 interface IData {
   userInfo: IUserInfo;
@@ -96,7 +98,7 @@ function Routes() {
           } else if (code === 404) {
             dispatch(updateBlockDate(data));
             dispatch(showAlert('loginBlock'));
-            router('/auth/login')
+            router('/auth/login');
           }
         };
         userApi('kakaoLogin', body, callback);
@@ -111,19 +113,21 @@ function Routes() {
               }
             } else if (code === 400) {
               dispatch(showAlert('invalidRefreshToken'));
+              router('/auth/login');
             } else if (code === 404) {
               dispatch(updateUrl('temperedToken'));
               dispatch(deleteAccessToken());
+              router('/auth/login');
             }
           };
           userApi('getUserInfo', undefined, callback, accessToken);
-        } else if(message === 'block_user') {
+        } else if (message === 'block_user') {
           const data = googleSearch.split('&')[1].split('&')[0].split('=')[1];
-          router('/auth/login')
+          router('/auth/login');
           dispatch(updateBlockDate(data));
           dispatch(showAlert('loginBlock'));
         } else if (message === 'err') {
-          router('/')
+          router('/');
           dispatch(showAlert('accessDenied'));
         }
       }
@@ -202,6 +206,7 @@ function Routes() {
         <Route path="/room" element={<Room />} />
         <Route path="/search" element={<Search />} />
         <Route path="/load" element={<Load />} />
+        <Route path="/policy" element={<Policy />} />
       </Switch>
       <Alert />
     </>

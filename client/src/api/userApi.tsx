@@ -14,7 +14,7 @@ export default function userApi(
     // 로그인 요청
     case 'login':
       axios
-        .post(`http://${endpoint}/user/login`, body)
+        .post(`${endpoint}/user/login`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status, res.data.data.accessToken);
@@ -33,7 +33,7 @@ export default function userApi(
     // 회원가입 이메일인증 요청
     case 'emailAuthSignup':
       axios
-        .post(`http://${endpoint}/user/email/auth`, body)
+        .post(`${endpoint}/user/email/auth`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status, res.data.data);
@@ -48,7 +48,7 @@ export default function userApi(
     // 비밀번호 찾기 이메일인증 요청
     case 'emailAuthForgetPassword':
       axios
-        .post(`http://${endpoint}/user/email/auth`, body)
+        .post(`${endpoint}/user/email/auth`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status, res.data.data);
@@ -63,7 +63,7 @@ export default function userApi(
     // 회원정보 불러오기 요청
     case 'getUserInfo':
       axios
-        .get(`http://${endpoint}/user/info`, {
+        .get(`${endpoint}/user/info`, {
           headers: {
             Authorization: accessToken,
           },
@@ -81,7 +81,7 @@ export default function userApi(
     // 회원가입 요청
     case 'signup':
       axios
-        .post(`http://${endpoint}/user/signup`, body)
+        .post(`${endpoint}/user/signup`, body)
         .then((res) => {
           if (res.status === 201) {
             callback(res.status, res.data.data.accessToken);
@@ -98,7 +98,7 @@ export default function userApi(
     // 잊어버린 비밀번호 재설정 요청
     case 'updatePasswordForget':
       axios
-        .patch(`http://${endpoint}/user/update/password`, body)
+        .patch(`${endpoint}/user/update/password`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status);
@@ -111,7 +111,7 @@ export default function userApi(
     // 비밀번호 수정 요청
     case 'updatePasswordKnow':
       axios
-        .patch(`http://${endpoint}/user/update/password`, body)
+        .patch(`${endpoint}/user/update/password`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status);
@@ -126,7 +126,7 @@ export default function userApi(
     // 유저 개인정보 수정
     case 'updateUserInfo':
       axios
-        .patch(`http://${endpoint}/user/update`, body, {
+        .patch(`${endpoint}/user/update`, body, {
           headers: {
             Authorization: accessToken,
           },
@@ -150,7 +150,7 @@ export default function userApi(
       break;
     case 'signout':
       axios
-        .post(`http://${endpoint}/user/signout`, body)
+        .post(`${endpoint}/user/signout`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status);
@@ -164,7 +164,7 @@ export default function userApi(
       break;
     case 'logout':
       axios
-        .post(`http://${endpoint}/user/logout`)
+        .post(`${endpoint}/user/logout`)
         .then((res) => {
           // console.log(res);
         })
@@ -174,7 +174,7 @@ export default function userApi(
       break;
     case 'kakaoLogin':
       axios
-        .post(`http://${endpoint}/oauth/callback/kakao`, body)
+        .post(`${endpoint}/oauth/callback/kakao`, body)
         .then((res) => {
           if (res.status === 200) {
             callback(res.status, res.data.data.accessToken);
@@ -188,7 +188,7 @@ export default function userApi(
       break;
     case 'googleLogin':
       axios
-        .post(`http://${endpoint}/oauth/callback/google`, body)
+        .post(`${endpoint}/oauth/callback/google`, body)
         .then((res) => {
           console.log(res);
         })

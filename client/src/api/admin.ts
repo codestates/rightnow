@@ -4,7 +4,7 @@ const ENDPOINT = process.env.REACT_APP_ENDPOINT;
 axios.defaults.withCredentials = true;
 
 const api = axios.create({
-  baseURL: `http://${ENDPOINT}/admin`,
+  baseURL: `${ENDPOINT}/admin`,
   params: {},
 });
 

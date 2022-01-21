@@ -13,8 +13,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    overflow: hidden;
-    height: 100vh;
+    height: 99vh;
   }
 `;
 

@@ -30,8 +30,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "react-scripts build",
-    "build": "aws s3 sync ./build s3://final-project-rightnow",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
