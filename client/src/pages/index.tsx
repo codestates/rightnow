@@ -27,103 +27,17 @@ const RendingPage = () => {
   useTitle('Right now');
   const isLogin = useAppSelector(userIsLogin);
   const scrollRef = useRef(new Array(5));
-  // 스크린샷 더미데이터
-  const images = [
-    {
-      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
-      alt: 'default',
-    },
-    {
-      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
-      alt: 'default',
-    },
-    {
-      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
-      alt: 'default',
-    },
-    {
-      url: 'https://media.vlpt.us/images/j20park/post/9091046f-6732-43fb-a8e3-e44c17e5820f/Web-Development.jpg',
-      alt: 'default',
-    },
-  ];
 
   const location = useLocation();
   const router = useNavigate();
-  // const [loadingOpacity, setLoadingOpacity] = useState<string>('opacity-100');
-  // const [loadingZIndex, setLoadingZIndex] = useState<string>('z-30');
 
-  // useEffect((): void => {
-  //   setTimeout(() => {
-  //     setLoadingOpacity('opacity-0');
-  //   }, 1000);
-  //   setTimeout(() => {
-  //     setLoadingZIndex('-z-20');
-  //   }, 1500);
-  // }, []);
-
-  // 스크롤 위치
-  const [scrollPosition, setScrollPosition] = useState<number>(0);
-
-  // 스크롤 위치가 바닥인지 판단
-  const [isScrollFloor, setIsScrollFloor] = useState<boolean>(false);
-
-  const handleScroll = (): void => {
-    // 스크롤 위치
-    const position = window.scrollY;
-    setScrollPosition(position);
-
-    // if (window.scrollY + window.innerHeight > 850) {
-    //   document.getElementById('left-slide-2')?.classList.add('left-slide-2');
-    //   document.getElementById('right-slide-1')?.classList.add('right-slide-1');
-    // }
-
-    // if (window.scrollY + window.innerHeight > 1550) {
-    //   document.getElementById('bounce-5')?.classList.add('bounce-1');
-    //   document.getElementById('bounce-6')?.classList.add('bounce-1');
-    // }
-
-    // if (window.scrollY + window.innerHeight > 2230) {
-    //   document.getElementById('bounce-7')?.classList.add('bounce-1');
-    //   document.getElementById('bounce-8')?.classList.add('bounce-1');
-    // }
-
-    // if (window.scrollY + window.innerHeight > 2570) {
-    //   document.getElementById('slider')?.classList.add('slide');
-    // }
-
-    // if (window.scrollY + window.innerHeight > 2960) {
-    //   document.getElementById('bounce-9')?.classList.add('bounce-1');
-    //   document.getElementById('bounce-10')?.classList.add('bounce-1');
-    // }
-
-    // if (window.scrollY + window.innerHeight > 3200) {
-    //   document.getElementById('team')?.classList.add('bounce-1');
-    //   document.getElementById('bounce-12')?.classList.add('bounce-2');
-    //   document.getElementById('bounce-13')?.classList.add('bounce-3');
-    //   document.getElementById('bounce-14')?.classList.add('bounce-4');
-    //   document.getElementById('bounce-15')?.classList.add('bounce-5');
-    //   document.getElementById('bounce-16')?.classList.add('bounce-6');
-    // }
-
-    // 스크롤이 바닥까지 내려갔는지 확인
-    if (
-      Math.ceil(window.scrollY) + window.innerHeight >=
-      document.body.offsetHeight - 20
-    ) {
-      setIsScrollFloor(true);
-    } else {
-      setIsScrollFloor(false);
-    }
-  };
-
-  // useEffect(() => {
-  //   handleScroll();
-  // }, []);
+  const [isTop, setIsTop] = useState<boolean>(false);
 
   useEffect(() => {
     const inViewport = (entries: any, observer: any) => {
       for (let entry of entries) {
         if (entry.target.classList.contains('section1')) {
+          setIsTop(true);
           document
             .getElementById('sub-title')
             ?.classList.toggle('left-slide-2', entry.isIntersecting);
@@ -134,6 +48,8 @@ const RendingPage = () => {
             .querySelector('#to-top')
             ?.classList.toggle('hidden', entry.isIntersecting);
         } else if (entry.target.classList.contains('section2')) {
+          setIsTop(false);
+
           document
             .getElementById('left-slide-2')
             ?.classList.toggle('left-slide-2', entry.isIntersecting);
@@ -141,6 +57,8 @@ const RendingPage = () => {
             .getElementById('right-slide-1')
             ?.classList.toggle('left-slide-2', entry.isIntersecting);
         } else if (entry.target.classList.contains('section3')) {
+          setIsTop(false);
+
           document
             .getElementById('bounce-5')
             ?.classList.toggle('bounce-1', entry.isIntersecting);
@@ -148,12 +66,16 @@ const RendingPage = () => {
             .getElementById('bounce-6')
             ?.classList.toggle('bounce-1', entry.isIntersecting);
         } else if (entry.target.classList.contains('section4')) {
+          setIsTop(false);
+
           document
             .getElementById('slider')
             ?.classList.toggle('slide', entry.isIntersecting);
           // document.getElementById('bounce-7')?.classList.toggle('bounce-1', entry.isIntersecting);
           // document.getElementById('bounce-8')?.classList.toggle('bounce-1', entry.isIntersecting);
         } else if (entry.target.classList.contains('section5')) {
+          setIsTop(false);
+
           document
             .querySelector('#rending-header')
             ?.classList.toggle('text-gray-100', entry.isIntersecting);
@@ -177,10 +99,14 @@ const RendingPage = () => {
             .getElementById('bounce-16')
             ?.classList.toggle('bounce-6', entry.isIntersecting);
         } else if (entry.target.classList.contains('section4-1')) {
+          setIsTop(false);
+
           document
             .getElementById('section4-1')
             ?.classList.toggle('slide', entry.isIntersecting);
         } else if (entry.target.classList.contains('section4-2')) {
+          setIsTop(false);
+
           document
             .getElementById('section4-2')
             ?.classList.toggle('slide', entry.isIntersecting);
@@ -198,18 +124,6 @@ const RendingPage = () => {
       observer.observe(el);
     });
   }, []);
-
-  // useEffect(() => {
-  //   window.addEventListener('scroll', handleScroll, { passive: true });
-  //   window.addEventListener('resize', handleScroll, { passive: true });
-  //   return () => {
-  //     window.addEventListener('scroll', handleScroll);
-  //     window.addEventListener('resize', handleScroll);
-  //   };
-  // }, []);
-
-  // const firstContentY: number = 604;
-  // const contentDy: number = 670;
 
   const pageList: IList[] = [
     { id: 'main', label: 'Main' },
@@ -253,7 +167,7 @@ const RendingPage = () => {
             ref={(el) => (scrollRef.current[0] = el)}
             onClick={(e) => scrollTo(0)}
           >
-            <Logo width={scrollPosition === 0 ? 85 : 70} />
+            <Logo width={isTop ? 85 : 70} />
             <LogoText className="ml-2 text-main">RightNow</LogoText>
           </div>
           <div className=" flex items-center space-x-1">
@@ -279,7 +193,7 @@ const RendingPage = () => {
                 style={{ width: 86, height: 43 }}
               >
                 <div
-                  className="h-full rounded-lg bg-gray-100 w-4 opacity-0 group-hover:w-full group-hover:opacity-100"
+                  className="h-full opacity-0 rounded-lg bg-gray-100 w-4  group-hover:w-full group-hover:opacity-100"
                   style={{ transition: '0.3s' }}
                 />
                 <span className=" absolute top-3 left-4.5 font-semibold text-gray-100 transition-all group-hover:text-main">
@@ -345,14 +259,11 @@ const RendingPage = () => {
       >
         {/* <div className=" absolute top-0 left-0 bg-sub h-6 w-full" /> */}
         <Section1Content className=" w-9/12 flex text-sub justify-center items-center">
-          <div
-            className="w-192 space-y-4 opacity-0 left-64"
-            id={'right-slide-1'}
-          >
+          <div className="w-192 space-y-4  left-64" id={'right-slide-1'}>
             <img src={thinking} alt="thinking-img" />
           </div>
           <div
-            className="text-3xl w-120 space-y-1 font-semibold opacity-0"
+            className="text-3xl w-120 space-y-1 font-semibold "
             id={'left-slide-2'}
             style={{ letterSpacing: -1.5 }}
           >
@@ -374,7 +285,7 @@ const RendingPage = () => {
         {/* <div className=" absolute top-0 left-0 bg-sub h-6 w-full" /> */}
         <div className="flex flex-col justify-center items-center h-full w-9/12 text-sub space-y-10">
           <div
-            className="text-center text-3xl font-semibold opacity-0"
+            className="text-center text-3xl font-semibold "
             style={{ letterSpacing: -1.5 }}
             id={'bounce-5'}
           >
@@ -402,15 +313,21 @@ const RendingPage = () => {
         ref={(el) => (scrollRef.current[3] = el)}
         onClick={(e) => scrollTo(3)}
       >
-        <div className="h-screen w-9/12 text-sub flex flex-col justify-center items-center">
-          {/* <div className="text-center text-3xl font-semibold opacity-0 w-full mb-8" id={'bounce-7'}></div> */}
+        <div className="h-screen w-11/12 text-sub flex flex-col justify-center items-center">
+          {/* <div className="text-center text-3xl font-semibold  w-full mb-8" id={'bounce-7'}></div> */}
           <div
-            className="relative flex w-full h-full items-center justify-between"
+            className="relative flex w-full h-full items-center justify-center"
             id={'slider'}
           >
             {/* <Slider images={images} /> */}
-            <div className="bg-red-300 w-2/3"></div>
-            <div className="flex-1 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+            <div className="w-1/2 bg-black">
+              <img
+                className="w-full"
+                src="https://user-images.githubusercontent.com/53068706/150629835-3ed25638-2b46-4aee-94ff-dc9a745c22f2.gif"
+                alt="혼자 매칭"
+              />
+            </div>
+            <div className="whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
               <span className="text-3xl font-semibold mb-2">
                 내 주변 사람들과 취미 모임
               </span>
@@ -425,56 +342,62 @@ const RendingPage = () => {
         </div>
       </div>
       <div className="section section4-1 h-screen flex justify-center items-center relative snap-center">
-        <div className="h-screen w-9/12 text-sub space-y-10 flex flex-col justify-center items-center">
-          <div className="w-full">
-            <div className=" indent-5 px-16 text-center"></div>
-            <div
-              className="relative flex w-full justify-between"
-              id={'section4-1'}
-            >
-              {/* <Slider images={images} /> */}
-              <div className="w-5/12 bg-red-300 w-2/3">
-                친구와 함께 모임 참가하기 움짤
+        <div className="h-screen w-11/12 text-sub space-y-10 flex flex-col justify-center items-center">
+          {/* <div className="w-full"> */}
+          {/* <div className=" indent-5 px-16 text-center"></div> */}
+          <div
+            className="relative flex w-full h-full items-center justify-center"
+            id={'section4-1'}
+          >
+            {/* <Slider images={images} /> */}
+            <div className="w-1/2 bg-black">
+              <img
+                className="w-full"
+                src="https://user-images.githubusercontent.com/53068706/150629839-4782320e-6912-4d5b-8214-c34262c4f002.gif"
+                alt="친구와 매칭"
+              />
+            </div>
+            <div className="w-4/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+              <span className="text-3xl font-semibold mb-2">친구 관리</span>
+              <div className="text-lg">
+                사람들과 친구를 맺고 같이 모임에 참가할 수 있어요
               </div>
-              <div className="w-7/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
-                <span className="text-3xl font-semibold mb-2">친구 관리</span>
-                <div className="text-xl">
-                  새롭게 만난 사람들과 친구를 맺고 같이 모임에 참가할 수 있어요
-                </div>
-                <div className="text-lg text-gray-500 font-semibold">
-                  친구와 함께 모임 매칭
-                </div>
+              <div className="text-xl"></div>
+              <div className="text-lg text-gray-500 font-semibold">
+                친구와 함께 모임 매칭
               </div>
             </div>
+            {/* </div> */}
           </div>
         </div>
       </div>
       <div className="section section4-2 h-screen flex justify-center items-center relative snap-center">
-        <div className="h-screen w-9/12 text-sub space-y-10 flex flex-col justify-center items-center">
-          <div className="w-full">
-            <div className=" indent-5 px-16 text-center"></div>
-            <div
-              className="relative flex w-full justify-between"
-              id={'section4-2'}
-            >
-              {/* <Slider images={images} /> */}
-              <div className="w-5/12 bg-red-300 w-3/2">
-                <img
-                  src="https://user-images.githubusercontent.com/53068706/150506735-31bfaea1-2bcf-4191-8fe9-09a3cd719e78.gif"
-                  alt=""
-                />
+        <div className="h-screen w-11/12 text-sub space-y-10 flex flex-col justify-center items-center">
+          {/* <div className="w-full"> */}
+          {/* <div className=" indent-5 px-16 text-center"></div> */}
+          <div
+            className="relative flex w-full h-full items-center justify-center"
+            id={'section4-2'}
+          >
+            {/* <Slider images={images} /> */}
+            <div className=" w-1/2">
+              <img
+                className="w-full"
+                src="https://user-images.githubusercontent.com/53068706/150629841-11ec3915-a279-4862-a4ef-601d8fd4cb2a.gif"
+                alt="채팅"
+              />
+            </div>
+            <div className="w-4/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+              <span className="text-3xl font-semibold mb-2">간편한 소통</span>
+              <div className="text-xl">
+                매칭된 사람들끼리 실시간으로 소통할 수 있어요
               </div>
-              <div className="w-7/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
-                <span className="text-3xl font-semibold mb-2">간편한 소통</span>
-                <div className="text-xl">
-                  매칭된 사람들끼리 실시간으로 소통할 수 있어요
-                </div>
-                <div className="text-lg text-gray-500 font-semibold">
-                  실시간 채팅
-                </div>
+              <div className="text-lg text-gray-500 font-semibold">
+                실시간 채팅
               </div>
             </div>
           </div>
+          {/* </div> */}
         </div>
       </div>
       <div
@@ -483,7 +406,22 @@ const RendingPage = () => {
         ref={(el) => (scrollRef.current[4] = el)}
         onClick={(e) => scrollTo(4)}
       >
-        <div className=" w-10/12 space-y-10 text-gray-100">
+        <div className="flex flex-col justify-center items-center w-10/12 space-y-10 text-gray-100">
+          <div className="text-4xl font-semibold text-main">About Rightnow</div>
+          <div className="flex w-4/12 mb-14 justify-around text-xl">
+            <Link
+              to="https://github.com/codestates/rightnow/wiki"
+              className="mb-10 hover:scale-110 hover:font-semibold transition-all"
+            >
+              Rightnow Wiki
+            </Link>
+            <Link
+              to="https://github.com/codestates/rightnow"
+              className="hover:scale-110 hover:font-semibold transition-all"
+            >
+              Repository
+            </Link>
+          </div>
           <div
             className="text-center text-3xl font-semibold"
             style={{ letterSpacing: -1.5 }}
@@ -494,23 +432,23 @@ const RendingPage = () => {
               Code Baker
             </div>
           </div>
-          {/* <div className=" indent-5 px-16 text-center opacity-0" id={'bounce-10'}>
+          {/* <div className=" indent-5 px-16 text-center " id={'bounce-10'}>
             Display your mobile apps awesome features with icon lists and an image carousel of each page. Lorem ipsum dolor sit amet, consectetuer
             adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis
             nostrud exerci tation.
           </div> */}
           <div className="flex justify-center">
-            {/* <div id={'team'} className="opacity-0" /> */}
-            <div className="w-11/12 pl-4 space-y-5">
+            {/* <div id={'team'} className="" /> */}
+            <div className="flex flex-col w-9/12 pl-4 space-y-5">
               <div className="flex justify-between text-lg">
-                <Profile id={'bounce-13'} className="opacity-0">
+                <Profile id={'bounce-13'} className="">
                   <ProfileImg src={sb} alt="subi" />
                   <Name>정수비</Name>
                   <GitHubLink to="https://github.com/JeongSubi">
                     <i className="fab fa-github"></i> JeongSubi
                   </GitHubLink>
                 </Profile>
-                <Profile id={'bounce-14'} className="opacity-0">
+                <Profile id={'bounce-14'} className="">
                   <ProfileImg src={dy} alt="doyeon" />
                   <Name>김도연</Name>
                   <GitHubLink to="/">
@@ -518,14 +456,14 @@ const RendingPage = () => {
                   </GitHubLink>
                   <br />
                 </Profile>
-                <Profile id={'bounce-15'} className="opacity-0">
+                <Profile id={'bounce-15'} className="">
                   <ProfileImg src={ns} alt="namsu" />
                   <Name>박남수</Name>
                   <GitHubLink to="https://github.com/PARKNAMSU">
                     <i className="fab fa-github"></i> PARKNAMSU
                   </GitHubLink>
                 </Profile>
-                <Profile id={'bounce-16'} className="opacity-0">
+                <Profile id={'bounce-16'} className="">
                   <ProfileImg src={sj} alt="sejin" />
                   <Name>장세진</Name>
                   <GitHubLink to="https://github.com/JangSeBaRi">
@@ -535,9 +473,10 @@ const RendingPage = () => {
               </div>
             </div>
           </div>
-          <div className=" border-t-1 border-gray-100" />
+
+          <div className="w-full border-t-1 border-gray-100" />
           <div className=" text-gray-100 text-center mt-2 relative">
-            ©2022 RightNow
+            <div className="">©2022 RightNow</div>
           </div>
         </div>
       </div>
