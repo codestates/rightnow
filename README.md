@@ -6,7 +6,7 @@
 
 ![](https://cdn.discordapp.com/attachments/916188054576844830/934271476838834236/2022-01-22_10.06.15.png)
 
-👉🏻 [rightnow 사이트 바로가기](https://rightnow-codebaker.netlify.app/)  
+👉🏻 [rightnow 사이트 바로가기](https://right-now.link)  
 👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)  
 
 <br>
