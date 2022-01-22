@@ -13,11 +13,7 @@ import { setParticipant } from '../reducers/roomSlice';
 import LoginConfirm from '../components/LoginConfirm';
 import { showAlert } from '../reducers/componetSlice';
 
-function dateToString(
-  date: Date,
-  format: string = '',
-  needTime: boolean = false,
-): string {
+function dateToString(date: Date, format: string = '', needTime: boolean = false): string {
   let dd: any = date.getDate();
   let mm: any = date.getMonth() + 1; //January is 0!
 
@@ -238,9 +234,7 @@ const Room = () => {
       // 들어온 인원 알림
       setTalkContents((item: Array<MessageType>) => [...item, message]);
       setMemberList((users: Array<UserType>) => {
-        let find = users.find(
-          (item: UserType) => item.email === data.user.email,
-        );
+        let find = users.find((item: UserType) => item.email === data.user.email);
         users = find ? users : [...users, data.user];
         return users;
       });
@@ -421,7 +415,7 @@ const Room = () => {
               </ChatBox>
               <MemberContainer className="drop-shadow">
                 <SubTitle>대화 상대</SubTitle>
-                <MemberList roomMember={memberList} />
+                <MemberList roomMember={memberList} attendMembers={attendMembers} />
               </MemberContainer>
             </ContentContainer>
           </ChatContainer>

@@ -326,8 +326,7 @@ const Search = () => {
   const [friendList, setFriendList] = useState<FriendType[]>([]); // DB에서 가져온 친구 리스트
   const [selectedFriend, setSelectedFriend] = useState<string[]>([]); // 선택한 친구 리스트
   const [visibleFriend, setVisibleFriend] = useState<FriendType[]>([]); // 보여질 친구 리스트
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>(initCategory); // 선택한 카테고리 데이터
   const [message, setMessage] = useState<string>(''); // 상태메시지 (인원 제한, 카테고리 먼저 선택, 위치 필요(아직))
   const [search, setSearch] = useState(null); // search setTimeout 로직
   const [isMaster, setIsMaster] = useState(false); // group일 경우 그룹장인지 판단위해
@@ -379,9 +378,7 @@ const Search = () => {
    * 사용자의 현재 위치 가져오기
    */
   useEffect(() => {
-    const success = async (position: {
-      coords: { latitude: number; longitude: number };
-    }) => {
+    const success = async (position: { coords: { latitude: number; longitude: number } }) => {
       const { latitude, longitude } = position.coords;
       dispatch(setLon(longitude));
       dispatch(setLat(latitude));
@@ -561,9 +558,7 @@ const Search = () => {
    */
   const checkJoinNum = () => {
     if (selectedFriend.length >= selectedCategory.user_num - 1) {
-      setMessage(
-        `${selectedCategory.name}은 본인 포함 ${selectedCategory.user_num}명까지만 함께할 수 있어요!`,
-      );
+      setMessage(`${selectedCategory.name}은 본인 포함 ${selectedCategory.user_num}명까지만 함께할 수 있어요!`);
       return false;
     } else {
       setMessage('');
@@ -719,22 +714,14 @@ const Search = () => {
                     <FriendList>
                       {visibleFriend.map((friend: FriendType) => {
                         return (
-                          <Friend
-                            title={friend.email}
-                            onClick={handleJoin}
-                            key={friend.email}
-                            checked={selectedFriend.includes(friend.email)}
-                          >
+                          <Friend title={friend.email} onClick={handleJoin} key={friend.email} checked={selectedFriend.includes(friend.email)}>
                             <FriendImg>
                               <Image
                                 src={
                                   // image 정상 추가
                                   friend.profile_image
-                                    ? friend.profile_image.indexOf(
-                                        'kakaocdn',
-                                      ) === -1
-                                      ? process.env.REACT_APP_IMAGE_ENDPOINT +
-                                        friend.profile_image
+                                    ? friend.profile_image.indexOf('kakaocdn') === -1
+                                      ? process.env.REACT_APP_IMAGE_ENDPOINT + friend.profile_image
                                       : friend.profile_image
                                     : defaultImg
                                 }
@@ -747,22 +734,15 @@ const Search = () => {
                     </FriendList>
                   ) : (
                     <MessageContainer>
-                      <FriendMessage>
-                        같이 할 수 있는 친구가 없어요🥲
-                      </FriendMessage>
+                      <FriendMessage>같이 할 수 있는 친구가 없어요🥲</FriendMessage>
                     </MessageContainer>
                   )
                 ) : (
-                  <FriendMessage>
-                    회원가입을 해야 이용할 수 있어요!
-                  </FriendMessage>
+                  <FriendMessage>회원가입을 해야 이용할 수 있어요!</FriendMessage>
                 )}
               </FrindContainer>
               <ButtonContainer>
-                <Button
-                  className="rounded-md w-60 h-9 shadow hover:shadow-md transition-all"
-                  onClick={handleJoinRoom}
-                >
+                <Button className="rounded-md w-60 h-9 shadow hover:shadow-md transition-all" onClick={handleJoinRoom}>
                   모임 찾기
                 </Button>
               </ButtonContainer>
