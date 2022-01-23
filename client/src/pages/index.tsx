@@ -320,10 +320,10 @@ const RendingPage = () => {
             id={'slider'}
           >
             {/* <Slider images={images} /> */}
-            <div className="w-1/2 bg-black">
+            <div className="w-1/2">
               <img
-                className="w-full"
-                src="https://user-images.githubusercontent.com/53068706/150629835-3ed25638-2b46-4aee-94ff-dc9a745c22f2.gif"
+                className="w-full rounded-lg"
+                src="https://user-images.githubusercontent.com/53068706/150662755-6830fffe-f0cb-4f2f-9f07-8eef85bd55e3.gif"
                 alt="혼자 매칭"
               />
             </div>
@@ -350,10 +350,10 @@ const RendingPage = () => {
             id={'section4-1'}
           >
             {/* <Slider images={images} /> */}
-            <div className="w-1/2 bg-black">
+            <div className="w-1/2">
               <img
-                className="w-full"
-                src="https://user-images.githubusercontent.com/53068706/150629839-4782320e-6912-4d5b-8214-c34262c4f002.gif"
+                className="w-full rounded-lg"
+                src="https://user-images.githubusercontent.com/53068706/150662753-cc67aa58-7295-4cdd-97c1-fc24bf2824a6.gif"
                 alt="친구와 매칭"
               />
             </div>
@@ -382,8 +382,8 @@ const RendingPage = () => {
             {/* <Slider images={images} /> */}
             <div className=" w-1/2">
               <img
-                className="w-full"
-                src="https://user-images.githubusercontent.com/53068706/150629841-11ec3915-a279-4862-a4ef-601d8fd4cb2a.gif"
+                className="w-full rounded-lg"
+                src="https://user-images.githubusercontent.com/53068706/150662750-c08c063f-bc0e-465f-a072-9ca197ddb78b.gif"
                 alt="채팅"
               />
             </div>
@@ -408,19 +408,23 @@ const RendingPage = () => {
       >
         <div className="flex flex-col justify-center items-center w-10/12 space-y-10 text-gray-100">
           <div className="text-4xl font-semibold text-main">About Rightnow</div>
-          <div className="flex w-4/12 mb-14 justify-around text-xl">
-            <Link
-              to="https://github.com/codestates/rightnow/wiki"
-              className="mb-10 hover:scale-110 hover:font-semibold transition-all"
+          <div className="flex w-4/12 mb-14 justify-around items-center text-xl">
+            <button
+              onClick={() =>
+                window.open('https://github.com/codestates/rightnow/wiki')
+              }
+              className="hover:scale-110 hover:font-semibold transition-all"
             >
               Rightnow Wiki
-            </Link>
-            <Link
-              to="https://github.com/codestates/rightnow"
+            </button>
+            <button
+              onClick={() =>
+                window.open('https://github.com/codestates/rightnow', '_blank')
+              }
               className="hover:scale-110 hover:font-semibold transition-all"
             >
               Repository
-            </Link>
+            </button>
           </div>
           <div
             className="text-center text-3xl font-semibold"
@@ -444,14 +448,22 @@ const RendingPage = () => {
                 <Profile id={'bounce-13'} className="">
                   <ProfileImg src={sb} alt="subi" />
                   <Name>정수비</Name>
-                  <GitHubLink to="https://github.com/JeongSubi">
+                  <GitHubLink
+                    onClick={() =>
+                      window.open('https://github.com/JeongSubi', '_blank')
+                    }
+                  >
                     <i className="fab fa-github"></i> JeongSubi
                   </GitHubLink>
                 </Profile>
                 <Profile id={'bounce-14'} className="">
                   <ProfileImg src={dy} alt="doyeon" />
                   <Name>김도연</Name>
-                  <GitHubLink to="/">
+                  <GitHubLink
+                    onClick={() =>
+                      window.open('https://github.com/kimdoyeonn', '_blank')
+                    }
+                  >
                     <i className="fab fa-github"></i> kimdoyeonn
                   </GitHubLink>
                   <br />
@@ -459,14 +471,22 @@ const RendingPage = () => {
                 <Profile id={'bounce-15'} className="">
                   <ProfileImg src={ns} alt="namsu" />
                   <Name>박남수</Name>
-                  <GitHubLink to="https://github.com/PARKNAMSU">
+                  <GitHubLink
+                    onClick={() =>
+                      window.open('https://github.com/PARKNAMSU', '_blank')
+                    }
+                  >
                     <i className="fab fa-github"></i> PARKNAMSU
                   </GitHubLink>
                 </Profile>
                 <Profile id={'bounce-16'} className="">
                   <ProfileImg src={sj} alt="sejin" />
                   <Name>장세진</Name>
-                  <GitHubLink to="https://github.com/JangSeBaRi">
+                  <GitHubLink
+                    onClick={() =>
+                      window.open('https://github.com/JangSeBaRi', '_blank')
+                    }
+                  >
                     <i className="fab fa-github"></i> JangSeBaRi
                   </GitHubLink>
                 </Profile>
@@ -574,7 +594,7 @@ const ProfileImg = styled.img`
 
 const Name = styled.div``;
 
-const GitHubLink = styled(Link)``;
+const GitHubLink = styled.button``;
 
 const Profile = styled.div`
   display: flex;
