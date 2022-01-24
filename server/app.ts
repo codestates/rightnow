@@ -19,10 +19,7 @@ const port: number = 80;
 app.use(
   cors({
     credentials: true,
-    origin: [
-      'https://codebaker-rightnow.netlify.app/',
-      'http://localhost:3000',
-    ],
+    origin: 'https://right-now.link',
     methods: ['PATCH', 'POST', 'DELETE', 'GET', 'PUT', 'OPTIONS'],
   }),
 );

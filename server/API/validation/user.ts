@@ -103,7 +103,7 @@ const userValidation: UserValidation = {
                   userInfo,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15s',
+                    expiresIn: '30m',
                   },
                 );
                 const refreshToken: any = jwt.sign(
@@ -160,7 +160,7 @@ const userValidation: UserValidation = {
                   userInfo.dataValues,
                   process.env.ACCESS_SECRET,
                   {
-                    expiresIn: '15s',
+                    expiresIn: '30m',
                   },
                 );
                 const refreshToken: any = jwt.sign(
@@ -255,7 +255,7 @@ const userValidation: UserValidation = {
             newUser,
             process.env.ACCESS_SECRET,
             {
-              expiresIn: '15s',
+              expiresIn: '30m',
             },
           );
 
@@ -312,7 +312,7 @@ const userValidation: UserValidation = {
               newUser,
               process.env.ACCESS_SECRET,
               {
-                expiresIn: '15s',
+                expiresIn: '30m',
               },
             );
 

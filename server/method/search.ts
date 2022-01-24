@@ -402,7 +402,7 @@ const searchMethod = (socket: any) => {
             await participantValidation.enterRoom(
               data.email,
               room.id,
-              'TEMP',
+              'ALONE',
               data.lon,
               data.lat,
               participants,
@@ -452,7 +452,25 @@ const searchMethod = (socket: any) => {
           let category: any = await db.Category.findOne({
             where: { id: data.category_id },
           });
-
+          if (category.dataValues.name === '테스트') {
+            let room = await roomValidation.createRoom({
+              location: data.location,
+              category_id: data.category_id,
+            });
+            //temproom 에 있는 모든 인원 룸에 입장
+            await participantValidation.enterRoom(
+              data.email,
+              room.id,
+              'ALONE',
+              data.lon,
+              data.lat,
+            );
+            findUsers.delete(data.email);
+            data.room_id = room.id;
+            searchNamespace.to(data.email).emit('enter', data);
+            socket.leave(data.email);
+            return;
+          }
           let participants: Array<string> | any =
             data.type === 'ALONE'
               ? [{ email: data.email, lon: data.lon, lat: data.lat }]
