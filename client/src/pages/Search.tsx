@@ -289,7 +289,7 @@ const Modal = styled(ModalTemp)``;
 
 const Searching = styled(Loading)`
   display: flex;
-  flex-direaction: column;
+  flex-direction: column;
 `;
 
 const CancelBtn = styled.button`
@@ -603,7 +603,7 @@ const Search = () => {
    */
   const handleCategory = (e: ChangeEvent) => {
     const { value } = e.target as HTMLSelectElement;
-    const selected = category[Number(value) - 2];
+    const selected = category[Number(value)];
     console.log(selected);
     if (!selected) {
       setSelectedCategory(initCategory);
@@ -701,7 +701,7 @@ const Search = () => {
                   <Option>카테고리를 선택해주세요</Option>
                   {category.length > 0 &&
                     category.map((item, idx) => (
-                      <Option key={idx} value={item.id}>
+                      <Option key={idx} value={idx}>
                         {item.name}: {item.user_num}명
                       </Option>
                     ))}

@@ -4,9 +4,9 @@
 
 <br/>
 
-![](https://cdn.discordapp.com/attachments/919801014239002675/928634523980271626/rightnow_logo.png)
+![](https://cdn.discordapp.com/attachments/916188054576844830/934271476838834236/2022-01-22_10.06.15.png)
 
-👉🏻 [rightnow 사이트 바로가기](https://codebaker-rightnow.netlify.app)  
+👉🏻 [rightnow 사이트 바로가기](https://right-now.link)  
 👉🏻 [rightnow 프로젝트 위키 바로가기](https://github.com/codestates/moyeora/wiki)  
 
 <br>
@@ -33,7 +33,7 @@
 
 # TEAM CodeBaker
 
-<img src="https://cdn.discordapp.com/attachments/870468027773251616/923224816339783690/KakaoTalk_Photo_2021-12-22-23-44-50.jpeg" width="320" height="90"></img>
+<img src="https://cdn.discordapp.com/attachments/916188054576844830/934248330878386216/KakaoTalk_Photo_2022-01-22-09-48-43.jpeg" width="320" height="90"></img>
 
 TEAM CodeBaker는 코드스테이츠 34기 2주, 4주 프로젝트를 통해 결성된 팀입니다!  
 빵을 굽는 제빵사처럼 코드를 맛있게 만들어보겠다는 의미에서 _"CodeBaker"_ 라고 팀명을 정했습니다!

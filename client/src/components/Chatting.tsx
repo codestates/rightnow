@@ -1,10 +1,4 @@
-import React, {
-  ChangeEventHandler,
-  MouseEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ChangeEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { roomAPI } from '../api/roomApi';
 import { useAppDispatch, useAppSelector } from '../config/hooks';
@@ -345,17 +339,8 @@ const ChattingRoom = ({
     talkContents.map((messageData: MessageType, idx) => {
       const target = messageTarget.current;
       return (
-        <div
-          key={idx}
-          ref={(el) => (target[idx] = el)}
-          onClick={(e) => scrollTo(e, idx)}
-        >
-          <Message
-            key={idx}
-            messageData={messageData}
-            handleModal={handleModal}
-            updateMessage={updateMessage}
-          ></Message>
+        <div key={idx} ref={(el) => (target[idx] = el)} onClick={(e) => scrollTo(e, idx)}>
+          <Message key={idx} messageData={messageData} handleModal={handleModal} updateMessage={updateMessage}></Message>
         </div>
       );
     });
@@ -369,16 +354,10 @@ const ChattingRoom = ({
               <span className="font-bold">{reportNick}</span>을(를) 신고할까요?
             </ReportMessage>
             <ButtonContainer>
-              <ReportBtn
-                className="mr-4 rounded w-16 h-8 hover:bg-red-700 transition-colors"
-                onClick={() => handleReport(reportMessage)}
-              >
+              <ReportBtn className="mr-4 rounded w-16 h-8 hover:bg-red-700 transition-colors" onClick={() => handleReport(reportMessage)}>
                 신고
               </ReportBtn>
-              <CancelBtn
-                className="rounded w-16 h-8 bg-gray-200 hover:bg-gray-300 transition-colors"
-                onClick={() => handleModal('', -1)}
-              >
+              <CancelBtn className="rounded w-16 h-8 bg-gray-200 hover:bg-gray-300 transition-colors" onClick={() => handleModal('', -1)}>
                 취소
               </CancelBtn>
             </ButtonContainer>
@@ -387,47 +366,19 @@ const ChattingRoom = ({
       )}
       <Content className="drop-shadow">
         <RoomNav>
-          <Radio
-            type="radio"
-            onClick={handleMenu}
-            value="talk"
-            id="talk"
-            name="menu"
-            defaultChecked={menu === 'talk'}
-          />
+          <Radio type="radio" onClick={handleMenu} value="talk" id="talk" name="menu" defaultChecked={menu === 'talk'} />
           <NavItem htmlFor="talk" back="brown">
             대화
           </NavItem>
-          <Radio
-            type="radio"
-            onClick={handleMenu}
-            value="map"
-            id="map"
-            name="menu"
-            defaultChecked={menu === 'map'}
-          />
+          <Radio type="radio" onClick={handleMenu} value="map" id="map" name="menu" defaultChecked={menu === 'map'} />
           <NavItem htmlFor="map" back="yellow">
             모임위치
           </NavItem>
-          <Radio
-            type="radio"
-            onClick={handleMenu}
-            value="member"
-            id="member"
-            name="menu"
-            defaultChecked={menu === 'member'}
-          />
+          <Radio type="radio" onClick={handleMenu} value="member" id="member" name="menu" defaultChecked={menu === 'member'} />
           <NavItem htmlFor="member" back="yellow">
             대화 상대
           </NavItem>
-          <Radio
-            type="radio"
-            onClick={handleMenu}
-            value="quit"
-            id="quit"
-            name="menu"
-            defaultChecked={menu === 'quit'}
-          />
+          <Radio type="radio" onClick={handleMenu} value="quit" id="quit" name="menu" defaultChecked={menu === 'quit'} />
           <NavItem htmlFor="quit" back="orange">
             나가기
           </NavItem>
@@ -437,30 +388,14 @@ const ChattingRoom = ({
         <>
           <ChattingContainer className="drop-shadow">
             <Chatting>
-              {talkContents && talkContents.length > 0 ? (
-                chattingList()
-              ) : (
-                <EmptyMessage>
-                  아직 메시지가 없습니다. 대회를 시작해보세요!
-                </EmptyMessage>
-              )}
+              {talkContents && talkContents.length > 0 ? chattingList() : <EmptyMessage>아직 메시지가 없습니다. 대회를 시작해보세요!</EmptyMessage>}
               <AlwaysScrollToBottom ref={scrollRef} />
             </Chatting>
           </ChattingContainer>
-          <ImageInput
-            ref={imgInput}
-            type="file"
-            accept=".jpg, .jpeg, .png"
-            onChange={handleUploadImg}
-          />
+          <ImageInput ref={imgInput} type="file" accept=".jpg, .jpeg, .png" onChange={handleUploadImg} />
           <ChattingForm onSubmit={handleMessage}>
             <InputContainer className="drop-shadow ">
-              <ChattingInput
-                onChange={handleText}
-                value={text}
-                placeholder="메세지 보내기"
-                autoFocus
-              />
+              <ChattingInput onChange={handleText} value={text} placeholder="메세지 보내기" autoFocus />
               <ImageBtn
                 type="button"
                 className="text-neutral-500 hover:bg-zinc-200 active:bg-neutral-400 active:text-neutral-100 transition-all"
@@ -483,18 +418,11 @@ const ChattingRoom = ({
           <QuitMessage>
             <WarningIcon></WarningIcon>
             <WarningMessage>
-              <div className="pb-2">
-                나가면 같은 모임으로 다시 입장할 수 없어요.
-              </div>
-              <div>
-                (일회용 계정을 사용한 경우, 모임을 나가면 계정이 삭제돼요.)
-              </div>
+              <div className="pb-2">나가면 같은 모임으로 다시 입장할 수 없어요.</div>
+              <div>(일회용 계정을 사용한 경우, 모임을 나가면 계정이 삭제돼요.)</div>
             </WarningMessage>
           </QuitMessage>
-          <QuitBtn
-            className="text-stone-50 shadow-md hover:bg-red-500 transition-colors"
-            onClick={handleQuit}
-          >
+          <QuitBtn className="text-stone-50 shadow-md hover:bg-red-500 transition-colors" onClick={handleQuit}>
             나가기
           </QuitBtn>
         </MenuContainer>
