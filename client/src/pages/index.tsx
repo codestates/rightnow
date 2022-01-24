@@ -321,7 +321,7 @@ const RendingPage = () => {
           >
             {/* <Slider images={images} /> */}
             <div className="w-1/2">
-              <img
+              <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662755-6830fffe-f0cb-4f2f-9f07-8eef85bd55e3.gif"
                 alt="혼자 매칭"
@@ -351,7 +351,7 @@ const RendingPage = () => {
           >
             {/* <Slider images={images} /> */}
             <div className="w-1/2">
-              <img
+              <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662753-cc67aa58-7295-4cdd-97c1-fc24bf2824a6.gif"
                 alt="친구와 매칭"
@@ -381,7 +381,7 @@ const RendingPage = () => {
           >
             {/* <Slider images={images} /> */}
             <div className=" w-1/2">
-              <img
+              <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662750-c08c063f-bc0e-465f-a072-9ca197ddb78b.gif"
                 alt="채팅"
@@ -600,4 +600,9 @@ const Profile = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+
+const TestImg = styled.img`
+  -webkit-box-shadow: 0px 0px 15px -1px #acacac;
+  box-shadow: 0px 0px 15px -1px #acacac;
 `;
