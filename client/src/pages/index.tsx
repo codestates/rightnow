@@ -8,6 +8,7 @@ import thinking from '../images/thinking-pana.png';
 import chat from '../images/Chat-pana.png';
 import select from '../images/Select-pana.png';
 import waiting from '../images/Work time-pana.png';
+import team from '../images/Team-pana.png';
 import Slider from '../components/Slider';
 // import Slider from '../components/SliderTemp';
 import { userIsLogin } from '../reducers/userSlice';
@@ -160,57 +161,50 @@ const RendingPage = () => {
       >
         <Header
           id="rending-header"
-          className=" flex items-center justify-between w-10/12"
+          className="flex items-center justify-between w-10/12"
         >
           <div
-            className={`font-bold cursor-pointer flex items-center text-logo`}
+            className={`font-bold cursor-pointer flex items-center text-logo min-w-fit`}
             ref={(el) => (scrollRef.current[0] = el)}
             onClick={(e) => scrollTo(0)}
           >
-            <Logo width={isTop ? 85 : 70} />
+            <Logo />
             <LogoText className="ml-2 text-main">RightNow</LogoText>
           </div>
-          <div className=" flex items-center space-x-1">
+          <NavBar className="flex items-center">
             {location.pathname === '/' &&
               pageList.map((obj, idx) => {
                 const { id, label } = obj;
                 return (
                   <div
                     key={id}
-                    className={`py-3 px-4 mx-3 hover:text-white hover:font-semibold rounded-lg hover:bg-main cursor-pointer`}
+                    className={`py-3 px-4 hover:text-white hover:font-semibold rounded-lg hover:bg-main cursor-pointer`}
                     onClick={(e) => scrollTo(idx)}
                   >
                     {label}
                   </div>
                 );
               })}
-            <Link
-              to={isLogin ? '/search' : '/auth/login'}
-              className="flex items-center"
+          </NavBar>
+          <UserBtn
+            to={isLogin ? '/search' : '/auth/login'}
+            className="flex items-center"
+          >
+            <button
+              className="rounded-lg text-gray-100 whitespace-nowrap bg-main group relative"
+              style={{ width: 86, height: 43 }}
             >
-              <button
-                className="rounded-lg text-gray-100 whitespace-nowrap bg-main group relative"
-                style={{ width: 86, height: 43 }}
-              >
-                <div
-                  className="h-full opacity-0 rounded-lg bg-gray-100 w-4  group-hover:w-full group-hover:opacity-100"
-                  style={{ transition: '0.3s' }}
-                />
-                <span className=" absolute top-3 left-4.5 font-semibold text-gray-100 transition-all group-hover:text-main">
-                  {isLogin ? 'Chat in' : 'Sign in'}
-                </span>
-              </button>
-            </Link>
-          </div>
+              <div
+                className="h-full opacity-0 rounded-lg bg-gray-100 w-4  group-hover:w-full group-hover:opacity-100"
+                style={{ transition: '0.3s' }}
+              />
+              <span className=" absolute top-3 left-4.5 font-semibold text-gray-100 transition-all group-hover:text-main">
+                {isLogin ? 'Chat in' : 'Sign in'}
+              </span>
+            </button>
+          </UserBtn>
         </Header>
       </div>
-      {/* <div
-        id="preloader"
-        className={`${loadingOpacity} ${loadingZIndex}`}
-        style={{ transition: '0.3s' }}
-      >
-        <div id="loading" />
-      </div> */}
       <div
         id="section1"
         className="section section1 h-screen w-full flex justify-center items-center snap-center"
@@ -248,7 +242,7 @@ const RendingPage = () => {
               </div>
             </TempBtn>
           </Section1Content>
-          <img src={highFive} alt="phone" className="w-192" />
+          <img src={highFive} alt="phone" className="min-w-[50%]" />
         </Section1Container>
       </div>
       <div
@@ -258,8 +252,11 @@ const RendingPage = () => {
         onClick={(e) => scrollTo(1)}
       >
         {/* <div className=" absolute top-0 left-0 bg-sub h-6 w-full" /> */}
-        <Section1Content className=" w-9/12 flex text-sub justify-center items-center">
-          <div className="w-192 space-y-4  left-64" id={'right-slide-1'}>
+        <Section2Content className=" w-9/12 flex text-sub justify-center items-center">
+          <div
+            className="min-w-[50%] max-w-[40rem] space-y-4  left-64"
+            id={'right-slide-1'}
+          >
             <img src={thinking} alt="thinking-img" />
           </div>
           <div
@@ -267,13 +264,12 @@ const RendingPage = () => {
             id={'left-slide-2'}
             style={{ letterSpacing: -1.5 }}
           >
-            <p className="text-main"></p>
-            <p className="whitespace-pre-line leading-10 tracking-tight">{`멀리 나가긴 좀 그런데...
-            동네에 놀 사람 없나?`}</p>
-            <TextWhiteSpace className="text-xl font-medium tracking-tight">{`지금 당장 취미를 같이 즐길 수 있는 
+            <Section1Text className="whitespace-pre-line leading-10 tracking-tight">{`멀리 나가긴 좀 그런데...
+            동네에 놀 사람 없나?`}</Section1Text>
+            <TextWhiteSpace className="text-xl font-medium tracking-tight">{`당장 취미를 같이 즐길 수 있는 
             동네 친구가 필요하세요?`}</TextWhiteSpace>
           </div>
-        </Section1Content>
+        </Section2Content>
         {/* <div className=" absolute bottom-0 left-0 bg-sub h-6 w-full" /> */}
       </div>
       <div
@@ -289,22 +285,31 @@ const RendingPage = () => {
             style={{ letterSpacing: -1.5 }}
             id={'bounce-5'}
           >
-            <span className="">RightNow로 쉽게 동네 친구를 만들어보세요</span>
+            <Section3Title>
+              {`RightNow로
+              쉽게 동네 친구를 만들어보세요`}
+            </Section3Title>
           </div>
-          <div className="flex w-full justify-between" id={'bounce-6'}>
-            <div className="flex-1 flex flex-col justify-center items-center">
-              <img src={select} alt="selecting category" />
-              <Ex1 className="text-xl">{`취미를 선택하고`}</Ex1>
+          <Section3Responsive>
+            <img src={team} alt="team" />
+          </Section3Responsive>
+          <Section3Container
+            className="flex w-full justify-between"
+            id={'bounce-6'}
+          >
+            <div className=" flex flex-col justify-center items-center">
+              <Section3Img className="" src={select} alt="selecting category" />
+              <Ex1 className="text-xl">{`1. 취미를 선택하고`}</Ex1>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center">
-              <img src={waiting} alt="waiting" />
-              <div className="text-xl">매칭을 기다리면</div>
+            <div className="flex flex-col justify-center items-center">
+              <Section3Img className="" src={waiting} alt="waiting" />
+              <div className="text-xl">2. 매칭을 기다리면</div>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center">
-              <img src={chat} alt="" />
-              <div className="text-xl">끝!</div>
+            <div className="flex flex-col justify-center items-center">
+              <Section3Img className="" src={chat} alt="" />
+              <div className="text-xl">3. 끝!</div>
             </div>
-          </div>
+          </Section3Container>
         </div>
       </div>
       <div
@@ -314,90 +319,83 @@ const RendingPage = () => {
         onClick={(e) => scrollTo(3)}
       >
         <div className="h-screen w-11/12 text-sub flex flex-col justify-center items-center">
-          {/* <div className="text-center text-3xl font-semibold  w-full mb-8" id={'bounce-7'}></div> */}
-          <div
+          <Features
             className="relative flex w-full h-full items-center justify-center"
             id={'slider'}
           >
-            {/* <Slider images={images} /> */}
-            <div className="w-1/2">
+            <div className="min-w-[50%]">
               <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662755-6830fffe-f0cb-4f2f-9f07-8eef85bd55e3.gif"
                 alt="혼자 매칭"
               />
             </div>
-            <div className="whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
-              <span className="text-3xl font-semibold mb-2">
+            <FeaturesText className="whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+              <FeaturesTitle className="text-3xl font-semibold mb-2">
                 내 주변 사람들과 취미 모임
-              </span>
-              <div className="text-xl">
+              </FeaturesTitle>
+              <FeaturesDesc className="text-xl">
                 같은 취미를 가진 사람과 매칭시켜줘요
-              </div>
-              <div className="text-lg text-gray-500 font-semibold">
+              </FeaturesDesc>
+              <Functions className="text-lg text-gray-500 font-semibold">
                 위치 기반 모임 매칭
-              </div>
-            </div>
-          </div>
+              </Functions>
+            </FeaturesText>
+          </Features>
         </div>
       </div>
       <div className="section section4-1 h-screen flex justify-center items-center relative snap-center">
-        <div className="h-screen w-11/12 text-sub space-y-10 flex flex-col justify-center items-center">
-          {/* <div className="w-full"> */}
-          {/* <div className=" indent-5 px-16 text-center"></div> */}
-          <div
+        <div className="h-screen w-11/12 text-sub flex flex-col justify-center items-center">
+          <Features
             className="relative flex w-full h-full items-center justify-center"
             id={'section4-1'}
           >
-            {/* <Slider images={images} /> */}
-            <div className="w-1/2">
+            <div className="min-w-[50%]">
               <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662753-cc67aa58-7295-4cdd-97c1-fc24bf2824a6.gif"
                 alt="친구와 매칭"
               />
             </div>
-            <div className="w-4/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
-              <span className="text-3xl font-semibold mb-2">친구 관리</span>
-              <div className="text-lg">
+            <FeaturesText className="whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+              <FeaturesTitle className="text-3xl font-semibold mb-2">
+                친구 관리
+              </FeaturesTitle>
+              <FeaturesDesc className="text-lg">
                 사람들과 친구를 맺고 같이 모임에 참가할 수 있어요
-              </div>
-              <div className="text-xl"></div>
-              <div className="text-lg text-gray-500 font-semibold">
+              </FeaturesDesc>
+              <Functions className="text-lg text-gray-500 font-semibold">
                 친구와 함께 모임 매칭
-              </div>
-            </div>
-            {/* </div> */}
-          </div>
+              </Functions>
+            </FeaturesText>
+          </Features>
         </div>
       </div>
       <div className="section section4-2 h-screen flex justify-center items-center relative snap-center">
         <div className="h-screen w-11/12 text-sub space-y-10 flex flex-col justify-center items-center">
-          {/* <div className="w-full"> */}
-          {/* <div className=" indent-5 px-16 text-center"></div> */}
-          <div
+          <Features
             className="relative flex w-full h-full items-center justify-center"
             id={'section4-2'}
           >
-            {/* <Slider images={images} /> */}
-            <div className=" w-1/2">
+            <div className="min-w-[50%]">
               <TestImg
                 className="w-full rounded-lg"
                 src="https://user-images.githubusercontent.com/53068706/150662750-c08c063f-bc0e-465f-a072-9ca197ddb78b.gif"
                 alt="채팅"
               />
             </div>
-            <div className="w-4/12 whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
-              <span className="text-3xl font-semibold mb-2">간편한 소통</span>
-              <div className="text-xl">
+            <FeaturesText className="whitespace-pre-line leading-6 indent-5 flex flex-col justify-center tracking-normal">
+              <FeaturesTitle className="text-3xl font-semibold mb-2">
+                간편한 소통
+              </FeaturesTitle>
+              <FeaturesDesc className="text-xl">
                 매칭된 사람들끼리 실시간으로 소통할 수 있어요
-              </div>
-              <div className="text-lg text-gray-500 font-semibold">
+              </FeaturesDesc>
+              <Functions className="text-lg text-gray-500 font-semibold">
                 실시간 채팅
-              </div>
-            </div>
-          </div>
-          {/* </div> */}
+              </Functions>
+            </FeaturesText>
+          </Features>
         </div>
       </div>
       <div
@@ -407,64 +405,65 @@ const RendingPage = () => {
         onClick={(e) => scrollTo(4)}
       >
         <div className="flex flex-col justify-center items-center w-10/12 space-y-10 text-gray-100">
-          <div className="text-4xl font-semibold text-main">About Rightnow</div>
-          <div className="flex w-4/12 mb-14 justify-around items-center text-xl">
-            <button
+          <ContactTitle className="text-4xl font-semibold text-main">
+            About Rightnow
+          </ContactTitle>
+          <ContactContent className="flex w-4/12 mb-14 justify-around items-center text-xl">
+            <ContactBtn
               onClick={() =>
                 window.open('https://github.com/codestates/rightnow/wiki')
               }
               className="hover:scale-110 hover:font-semibold transition-all"
             >
               Rightnow Wiki
-            </button>
-            <button
+            </ContactBtn>
+            <ContactBtn
               onClick={() =>
                 window.open('https://github.com/codestates/rightnow', '_blank')
               }
               className="hover:scale-110 hover:font-semibold transition-all"
             >
               Repository
-            </button>
-          </div>
+            </ContactBtn>
+          </ContactContent>
           <div
             className="text-center text-3xl font-semibold"
             style={{ letterSpacing: -1.5 }}
             id={'bounce-9'}
           >
             {/* <span className=" text-main">Contact</span> Us */}
-            <div className="text-4xl font-semibold text-main" id={'bounce-12'}>
+            <ContactTitle
+              className="text-4xl font-semibold text-main"
+              id={'bounce-12'}
+            >
               Code Baker
-            </div>
+            </ContactTitle>
           </div>
-          {/* <div className=" indent-5 px-16 text-center " id={'bounce-10'}>
-            Display your mobile apps awesome features with icon lists and an image carousel of each page. Lorem ipsum dolor sit amet, consectetuer
-            adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis
-            nostrud exerci tation.
-          </div> */}
-          <div className="flex justify-center">
-            {/* <div id={'team'} className="" /> */}
-            <div className="flex flex-col w-9/12 pl-4 space-y-5">
-              <div className="flex justify-between text-lg">
+          <div className="w-full flex justify-center">
+            <ContactContent className="flex flex-col w-9/12 pl-4 space-y-5">
+              <ProfileContainer className="flex w-full justify-between text-lg">
                 <Profile id={'bounce-13'} className="">
                   <ProfileImg src={sb} alt="subi" />
                   <Name>정수비</Name>
                   <GitHubLink
+                    className="flex flex-row"
                     onClick={() =>
                       window.open('https://github.com/JeongSubi', '_blank')
                     }
                   >
-                    <i className="fab fa-github"></i> JeongSubi
+                    <i className="fab fa-github mr-1"></i> JeongSubi
                   </GitHubLink>
                 </Profile>
                 <Profile id={'bounce-14'} className="">
                   <ProfileImg src={dy} alt="doyeon" />
                   <Name>김도연</Name>
                   <GitHubLink
+                    className="flex flex-row"
                     onClick={() =>
                       window.open('https://github.com/kimdoyeonn', '_blank')
                     }
                   >
-                    <i className="fab fa-github"></i> kimdoyeonn
+                    <i className="fab fa-github mr-1"></i> kimdoyeonn
                   </GitHubLink>
                   <br />
                 </Profile>
@@ -472,26 +471,28 @@ const RendingPage = () => {
                   <ProfileImg src={ns} alt="namsu" />
                   <Name>박남수</Name>
                   <GitHubLink
+                    className="flex flex-row"
                     onClick={() =>
                       window.open('https://github.com/PARKNAMSU', '_blank')
                     }
                   >
-                    <i className="fab fa-github"></i> PARKNAMSU
+                    <i className="fab fa-github mr-1"></i> PARKNAMSU
                   </GitHubLink>
                 </Profile>
                 <Profile id={'bounce-16'} className="">
                   <ProfileImg src={sj} alt="sejin" />
                   <Name>장세진</Name>
                   <GitHubLink
+                    className="flex flex-row"
                     onClick={() =>
                       window.open('https://github.com/JangSeBaRi', '_blank')
                     }
                   >
-                    <i className="fab fa-github"></i> JangSeBaRi
+                    <i className="fab fa-github mr-1"></i> JangSeBaRi
                   </GitHubLink>
                 </Profile>
-              </div>
-            </div>
+              </ProfileContainer>
+            </ContactContent>
           </div>
 
           <div className="w-full border-t-1 border-gray-100" />
@@ -505,12 +506,14 @@ const RendingPage = () => {
         id="to-top"
         onClick={() => scrollTo(0)}
       >
-        <div className=" flex bg-main w-full h-full rounded-2xl cursor-pointer justify-center items-center">
-          {/* <div className=" rounded-2xl bg-gray-100 w-5" style={{ transition: '0.3s' }} /> */}
+        <ScrollTop className=" flex bg-main w-full h-full rounded-2xl cursor-pointer justify-center items-center">
           <div className=" flex items-center text-lg transition-all tracking-normal font-semibold text-gray-100 group-hover:text-main">
-            <i className="fas fa-arrow-up" style={{ fontSize: '2em' }}></i>
+            <Arrow
+              className="fas fa-arrow-up"
+              style={{ fontSize: '2em' }}
+            ></Arrow>
           </div>
-        </div>
+        </ScrollTop>
       </div>
     </div>
   );
@@ -526,7 +529,6 @@ const Title = styled.p`
     font-size: 2rem;
   }
   @media screen and (max-width: 1000px) {
-    white-space: normal;
     margin-top: -1rem;
   }
 `;
@@ -542,7 +544,19 @@ const TextWhiteSpace = styled.p`
     white-space: pre-line;
   }
   @media screen and (max-width: 1000px) {
+    width: 100%;
+    text-align: center;
     white-space: normal;
+    font-size: 17px;
+  }
+`;
+
+const Section1Text = styled.p`
+  @media screen and (max-width: 1000px) {
+    font-size: 25px;
+    width: 100%;
+    text-align: center;
+    line-height: 30px;
   }
 `;
 
@@ -582,17 +596,79 @@ const Section1Content = styled.div`
   }
 `;
 
+const Section2Content = styled.div`
+  @media screen and (max-width: 1300px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    ${Section1Text} {
+      width: 100%;
+      text-align: center;
+    }
+
+    ${TextWhiteSpace} {
+      display: none;
+    }
+  }
+`;
+
+const UserBtn = styled(Link)``;
+
 const Header = styled.div`
   @media screen and (max-width: 1000px) {
     width: 90%;
+    flex-direction: column;
+    align-items: start;
+
+    ${UserBtn} {
+      position: absolute;
+      left: 75%;
+      top: 15%;
+    }
+  }
+`;
+
+const NavBar = styled.div`
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.7rem;
+  }
+`;
+
+const ContactContent = styled.div`
+  @media screen and (max-width: 1000px) {
+    margin-top: -1.4rem;
+    flex-direction: column;
+  }
+`;
+
+const ProfileContainer = styled.div`
+  @media screen and (max-width: 1000px) {
+    font-size: 16px;
+    flex-direction: column;
   }
 `;
 
 const ProfileImg = styled.img`
   width: 70%;
+  @media screen and (max-width: 1000px) {
+    display: none;
+  }
 `;
 
-const Name = styled.div``;
+const ContactBtn = styled.button`
+  @media screen and (max-width: 1000px) {
+    font-size: 16px;
+    margin-bottom: 0.5rem;
+  }
+`;
+
+const Name = styled.div`
+  margin-right: 1rem;
+`;
 
 const GitHubLink = styled.button``;
 
@@ -600,9 +676,97 @@ const Profile = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+    flex-direction: row;
+  }
+`;
+
+const ContactTitle = styled.div`
+  @media screen and (max-width: 1000px) {
+    font-size: 26px;
+  }
 `;
 
 const TestImg = styled.img`
   -webkit-box-shadow: 0px 0px 15px -1px #acacac;
   box-shadow: 0px 0px 15px -1px #acacac;
+  min-width: 25rem;
+`;
+
+const Section3Title = styled.span`
+  @media screen and (max-width: 1000px) {
+    font-size: 24px;
+    white-space: pre-line;
+  }
+`;
+
+const Section3Container = styled.div`
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+    justify-content: center;
+
+    width: 100%;
+  }
+`;
+
+const Section3Img = styled.img`
+  @media screen and (max-width: 1000px) {
+    display: none;
+  }
+`;
+
+const Section3Responsive = styled.div`
+  display: none;
+  width: 18rem;
+  @media screen and (max-width: 1000px) {
+    display: inline;
+  }
+`;
+
+const Features = styled.div`
+  @media screen and (max-width: 1000px) {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const FeaturesText = styled.div`
+  @media screen and (max-width: 1000px) {
+    margin-top: 2rem;
+  }
+`;
+
+const FeaturesTitle = styled.div`
+  @media screen and (max-width: 1000px) {
+    font-size: 26px;
+  }
+`;
+
+const FeaturesDesc = styled.div`
+  @media screen and (max-width: 1000px) {
+    font-size: 17px;
+  }
+`;
+
+const Functions = styled.div`
+  @media screen and (max-width: 1000px) {
+    font-size: 15px;
+  }
+`;
+
+const Arrow = styled.i`
+  @media screen and (max-width: 1000px) {
+    font-size: 1em;
+  }
+`;
+
+const ScrollTop = styled.div`
+  @media screen and (max-width: 1000px) {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 2px;
+  }
 `;
